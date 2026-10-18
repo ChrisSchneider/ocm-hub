@@ -66,6 +66,9 @@ VEX, CVE scans, FIPS, image sources and others. It records how each one is attac
 
 The sync reads SBOM, VEX and scan (SARIF) attestation documents, capped at 32 MiB, to
 summarise them (package, statement and finding counts); other documents are not read.
+One document may carry several of these: a CycloneDX document's analysed
+`vulnerabilities` count as VEX statements (states mapped to OpenVEX statuses), the
+others as scan findings, next to its packages.
 The hub fetches label-linked documents only from the URLs in the descriptor, never
 from a URL the client sends, and only when a `documents.allow` pattern matches. Patterns
 are [doublestar](https://github.com/bmatcuk/doublestar) globs over `host[:port]/path`
@@ -89,8 +92,9 @@ documents:
 ```
 
 Signatures are not verified. Results are stored
-per component, version and location; the Attestations view of the Contents tab lists
-them per resource, and the Overview checklist sums them up (SLSA and sources, SBOM, VEX,
+per component, version and location; the OCI Attestations view of the Contents tab lists
+the registry's attestations per resource (a label-linked VEX opens from its label in the
+Labels view), and the Overview checklist sums them all up (SLSA and sources, SBOM, VEX,
 scans) next to the descriptor's facts.
 
 ## Architecture
@@ -128,7 +132,7 @@ Candidates to move into separate Go modules:
   - **Image inspection** (`internal/image`): platforms and `docker inspect`-like details
     from the registry, nothing pulled.
   - **Document summaries** (`internal/document`): one normalised view over protobom,
-    go-vex and go-sarif, with the counts.
+    go-vex and go-sarif (plus CycloneDX vulnerabilities), with the counts.
 
 ## Development & Testing
 
@@ -166,10 +170,10 @@ All routes are GET (and HEAD) unless noted; full contract in `api/openapi.yaml`.
 | `/v1/components/{name}/descriptors/{version}` | OCM | The component descriptor (YAML, or JSON via `Accept`). `latest` redirects (307) to the newest stable version. `recursive=-1` returns `[{location, descriptor}]` for the whole reference tree; `compact=true` trims it. |
 | `/v1/components/{name}/overview/{version}` | OCM | Overview of one version (labels, signed, contents, v2 resources and signatures), `latest` redirects; `repository` pins the location. |
 | `/v1/components/{name}/attestations/{version}` | index | Attestations of the component and its OCI resources stored for exactly that version and `repository`. Without `repository` it redirects (307) to the version's location; `latest` redirects; nothing stored answers `404 NOT_COLLECTED` (listing what was collected). |
-| `/v1/components/{name}/attestations/{version}/{digest}` | index, then registry or link | The document of one stored attestation (in-toto statements unwrapped to their predicate), as a download; `as=document` answers it parsed (`{format, sbom \| vex \| sarif}`). Same `repository`/`latest` redirects as the set route. A digest not in the set answers `404 NOT_FOUND` without fetching; a label link that no longer matches the recorded digest answers `409 DOCUMENT_CHANGED`, one no longer on `documents.allow` `403 DOCUMENT_NOT_ALLOWED`; an unparseable document `422 UNSUPPORTED_DOCUMENT`; over 32 MiB `422 DOCUMENT_TOO_LARGE`. Nothing is verified. |
+| `/v1/components/{name}/attestations/{version}/{digest}` | index, then registry or link | The document of one stored attestation (in-toto statements unwrapped to their predicate), as a download; `as=document` answers it parsed (`{format, sbom, vex, scan}`, at least one part set). Same `repository`/`latest` redirects as the set route. A digest not in the set answers `404 NOT_FOUND` without fetching; a label link that no longer matches the recorded digest answers `409 DOCUMENT_CHANGED`, one no longer on `documents.allow` `403 DOCUMENT_NOT_ALLOWED`; an unparseable document `422 UNSUPPORTED_DOCUMENT`; over 32 MiB `422 DOCUMENT_TOO_LARGE`. Nothing is verified. |
 | `/v1/components/{name}/images/{version}/{resource}` | OCM, then registry | The platforms of an OCI image resource, read from its registry: `{repository, digest, mediaType, platforms: [{platform, digest}]}` (index children with os and architecture, or a single manifest as one platform, `platform` empty when its config lacks os or architecture). Extra identity via `extraIdentity.<key>=<value>`; `repository`/`latest` as on resources. A resource that is not an OCI image answers `422 NOT_OCI`; an unreadable registry `502 UPSTREAM_ERROR`. |
 | `/v1/components/{name}/images/{version}/{resource}/{digest}` | OCM, then registry | One platform of the image (manifest and config summarised: size, created, user, entrypoint, env, labels, layers). `raw=manifest\|config` sends that JSON. A digest that is not one of the image's platforms answers `404 NOT_FOUND`. |
-| `/v1/components/{name}/resources/{version}/{resource}` | OCM | Streams a resource; extra identity via `extraIdentity.<key>=<value>`. `as=document` answers the resource parsed as an SBOM, VEX or SARIF document (same errors as above). |
+| `/v1/components/{name}/resources/{version}/{resource}` | OCM | Streams a resource; extra identity via `extraIdentity.<key>=<value>`. `as=document` answers the resource parsed as an SBOM, VEX and/or scan document (same errors as above). |
 | `POST /v1/discovery` | – | Selector-based discovery aligned with OCM `Discovery`; not implemented yet (501). |
 | `/healthz` | – | Liveness. |
 
@@ -190,7 +194,7 @@ warning in the sync log. A component carrying all of them: `examples/components/
 | `compatibility` (v1) | component | `{kubernetes, storage}`, at least one of them. `kubernetes`: `{constraint, distributions}`; `constraint` is a semver range (required), e.g. `">=1.28 <1.34, !=1.30"`; `distributions` a list such as `[gardener, eks, gke]`. `storage`: the volumes it needs, a list of `{accessMode, volumeMode, purpose}`; `accessMode` is `RWO`, `RWX`, `ROX` or `RWOP` (or `ReadWriteOnce`, `ReadWriteMany`, `ReadOnlyMany`, `ReadWriteOncePod`), `volumeMode` `Filesystem` (default) or `Block`, `purpose` optional text. |
 | `kubernetes-compatibility` (v1) | component | Deprecated: the `kubernetes` part of `compatibility` as its own label. Still read; ignored when `compatibility` has a `kubernetes` part. |
 | `docs` (v1) | component | List of `{title, url, kind}`; `url` must be `https`; `kind`: `docs`, `api`, `tutorial`, `issues` or `website`. |
-| `vex` (v1) | component or resource | `{url}`: a VEX document published outside the component (e.g. a vendor's CSAF feed or `vex.json`). Listed as an attestation; fetched and shown only when the URL matches `documents.allow`. |
+| `vex` (v1) | component or resource | `{url}`: a VEX document published outside the component (e.g. a vendor's CSAF feed or `vex.json`). Not an OCI attestation: its 👁 in the Labels view opens the VEX part of the document, fetched and shown only when the URL matches `documents.allow`; it counts for the Overview's VEX row. |
 
 ### OCM ecosystem labels
 

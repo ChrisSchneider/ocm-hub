@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Award, Eye } from 'lucide-react'
 import { ApiError } from '../../api/client'
-import { attestationName, detailsText, entriesOf, entryViewer, isAttestation, levelAnchor, levelFor, type AttestationSet, type ResourceIdentity } from '../../lib/attestations'
+import { attestationName, detailsText, entriesOf, entryPart, entryViewer, isOciAttestation, levelAnchor, levelFor, type AttestationSet, type ResourceIdentity } from '../../lib/attestations'
 import { isImage } from '../../lib/contentsRows'
 import { NotCollected, subjectLabel } from '../NotCollected'
 import { ErrorPanel } from '../ErrorPanel'
@@ -13,7 +13,8 @@ import { NameCell } from './NameCell'
 import { platformName, PlatformRows } from './PlatformRows'
 import { ScrollToHash } from './ScrollToHash'
 
-// AttestationsView: name | attestation | predicate type | details | signed | 👁, one line per
+// AttestationsView: the OCI attestations (label-linked documents show in LabelsView).
+// name | attestation | predicate type | details | signed | 👁, one line per
 // attestation. Until the set is loaded only the names show; its state is reported under the table.
 export function AttestationsView({ lines, expanded, onToggle, showComponent, scope, set, pending, error, onViewer }: {
   lines: Line[]
@@ -44,7 +45,7 @@ export function AttestationsView({ lines, expanded, onToggle, showComponent, sco
     if (!set) return single(aria, anchor, nameCell, '', false, key)
     const level = levelFor(set, id)
     const entries = entriesOf(level, platform)
-    if (entries.length === 0) return single(aria, anchor, nameCell, platform === undefined && level?.entries.some((e) => isAttestation(e) && e.platform) ? 'on platforms' : '—', false, key)
+    if (entries.length === 0) return single(aria, anchor, nameCell, platform === undefined && level?.entries.some((e) => isOciAttestation(e) && e.platform) ? 'on platforms' : '—', false, key)
     return entries.map((e, i) => {
       const viewer = entryViewer(e)
       const title = attestationName(e)
@@ -64,7 +65,7 @@ export function AttestationsView({ lines, expanded, onToggle, showComponent, sco
           </div>
           <div role="cell">
             {viewer && e.digest && (
-              <button type="button" aria-label={`View ${title}`} onClick={() => onViewer(attestationTarget(viewer, title, e.digest!, e.url))} className="cursor-pointer text-slate-500 hover:text-blue-700">
+              <button type="button" aria-label={`View ${title}`} onClick={() => onViewer(attestationTarget(viewer, title, e.digest!, e.url, entryPart(e)))} className="cursor-pointer text-slate-500 hover:text-blue-700">
                 <Eye aria-hidden size={16} />
               </button>
             )}
@@ -100,7 +101,7 @@ export function AttestationsView({ lines, expanded, onToggle, showComponent, sco
   return (
     <>
       <ScrollToHash settled={!pending} />
-      <div role="table" aria-label="Attestations" className="text-sm">
+      <div role="table" aria-label="OCI Attestations" className="text-sm">
         <div role="row" className={`${rowClass('attestations')} border-b border-slate-300 py-1 text-xs font-semibold uppercase tracking-wide text-slate-500`}>
           <span role="columnheader">Name</span>
           <span role="columnheader">Attestation</span>

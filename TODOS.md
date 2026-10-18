@@ -32,6 +32,10 @@ Open items first, grouped by area; finished work at the end.
 - [ ] GitHub attestation API (attestations stored only at GitHub, not in the registry).
 - [ ] Switch to the `artifactref/v1alpha1` binding once released (today: local lookup,
       and labels without version are accepted because bindings v0.0.8 drop it).
+- [ ] CSAF VEX documents (e.g. Red Hat's `security.access.redhat.com/data/csaf/v2/vex/`
+      feed, linked from the example's `vex` label): parse into VEX statements in
+      `document.Parse`. Today a CSAF link is listed but answers `UNSUPPORTED_DOCUMENT`;
+      a folder URL also needs resolving to the product's document.
 - [ ] Docker Hardened Images predicate types for STIG, secrets and virus scans
       (today listed as "Other").
 - [ ] Deep browsing into components (e.g. open an SBOM).

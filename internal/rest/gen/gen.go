@@ -909,22 +909,13 @@ type DocLink struct {
 // DocLinkKind defines model for DocLink.Kind.
 type DocLinkKind string
 
-// Document A parsed SBOM, VEX or SARIF document; exactly one of `sbom`, `vex` and `sarif` is set. Nothing is verified.
+// Document A parsed document; at least one of `sbom`, `vex` and `scan` is set. A CycloneDX document may carry all three: its analysed vulnerabilities are `vex` statements (states mapped to OpenVEX statuses), the others `scan` findings. Nothing is verified.
 type Document struct {
 	// Format e.g. `CycloneDX 1.6`, `OpenVEX`, `SARIF 2.1.0`.
-	Format string         `json:"format"`
-	Sarif  *DocumentSARIF `json:"sarif,omitempty"`
-	Sbom   *DocumentSBOM  `json:"sbom,omitempty"`
-	Vex    *DocumentVEX   `json:"vex,omitempty"`
-}
-
-// DocumentSARIF defines model for DocumentSARIF.
-type DocumentSARIF struct {
-	Findings []SARIFFinding `json:"findings"`
-
-	// ImportantBasis `security-severity` when any finding has a score, else `level`.
-	ImportantBasis string `json:"importantBasis"`
-	Tool           string `json:"tool"`
+	Format string        `json:"format"`
+	Sbom   *DocumentSBOM `json:"sbom,omitempty"`
+	Scan   *DocumentScan `json:"scan,omitempty"`
+	Vex    *DocumentVEX  `json:"vex,omitempty"`
 }
 
 // DocumentSBOM defines model for DocumentSBOM.
@@ -932,12 +923,21 @@ type DocumentSBOM struct {
 	Packages []SBOMPackage `json:"packages"`
 }
 
+// DocumentScan defines model for DocumentScan.
+type DocumentScan struct {
+	Findings []ScanFinding `json:"findings"`
+
+	// ImportantBasis `security-severity` when any finding has a score, else `level`.
+	ImportantBasis string `json:"importantBasis"`
+	Tool           string `json:"tool"`
+}
+
 // DocumentVEX defines model for DocumentVEX.
 type DocumentVEX struct {
 	Statements []VEXStatement `json:"statements"`
 }
 
-// ErrorCode `UNSUPPORTED_DOCUMENT` (422): not a recognised SBOM, VEX or SARIF document.
+// ErrorCode `UNSUPPORTED_DOCUMENT` (422): not a recognised SBOM, VEX or scan (SARIF, CycloneDX) document.
 // `DOCUMENT_TOO_LARGE` (422): over 32 MiB. `DOCUMENT_CHANGED` (409): a label
 // link no longer serves the document the sync recorded (`detail.url`).
 // `DOCUMENT_NOT_ALLOWED` (403): a label link's URL is not on the hub's
@@ -948,7 +948,7 @@ type ErrorCode string
 
 // ErrorItem defines model for ErrorItem.
 type ErrorItem struct {
-	// Code `UNSUPPORTED_DOCUMENT` (422): not a recognised SBOM, VEX or SARIF document.
+	// Code `UNSUPPORTED_DOCUMENT` (422): not a recognised SBOM, VEX or scan (SARIF, CycloneDX) document.
 	// `DOCUMENT_TOO_LARGE` (422): over 32 MiB. `DOCUMENT_CHANGED` (409): a label
 	// link no longer serves the document the sync recorded (`detail.url`).
 	// `DOCUMENT_NOT_ALLOWED` (403): a label link's URL is not on the hub's
@@ -1126,15 +1126,6 @@ type RiskProfileNetworkExposure string
 // RiskProfileUserInteraction defines model for RiskProfile.UserInteraction.
 type RiskProfileUserInteraction string
 
-// SARIFFinding defines model for SARIFFinding.
-type SARIFFinding struct {
-	Level    *string `json:"level,omitempty"`
-	Location *string `json:"location,omitempty"`
-	Message  string  `json:"message"`
-	Rule     string  `json:"rule"`
-	Severity *string `json:"severity,omitempty"`
-}
-
 // SBOMPackage defines model for SBOMPackage.
 type SBOMPackage struct {
 	License *string `json:"license,omitempty"`
@@ -1143,6 +1134,15 @@ type SBOMPackage struct {
 	// Type Package URL type, e.g. `npm`.
 	Type    *string `json:"type,omitempty"`
 	Version *string `json:"version,omitempty"`
+}
+
+// ScanFinding defines model for ScanFinding.
+type ScanFinding struct {
+	Level    *string `json:"level,omitempty"`
+	Location *string `json:"location,omitempty"`
+	Message  string  `json:"message"`
+	Rule     string  `json:"rule"`
+	Severity *string `json:"severity,omitempty"`
 }
 
 // Selector defines model for Selector.
@@ -1385,7 +1385,7 @@ type GetAttestationContentParams struct {
 	// Repository Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver.
 	Repository *Repository `form:"repository,omitempty" json:"repository,omitempty"`
 
-	// As `document`: answer the parsed `Document` (SBOM, VEX or SARIF) instead of the bytes.
+	// As `document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes.
 	As          *GetAttestationContentParamsAs `form:"as,omitempty" json:"as,omitempty"`
 	IfNoneMatch *IfNoneMatch                   `json:"If-None-Match,omitempty"`
 }
@@ -1406,7 +1406,7 @@ type HeadAttestationContentParams struct {
 	// Repository Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver.
 	Repository *Repository `form:"repository,omitempty" json:"repository,omitempty"`
 
-	// As `document`: answer the parsed `Document` (SBOM, VEX or SARIF) instead of the bytes.
+	// As `document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes.
 	As          *HeadAttestationContentParamsAs `form:"as,omitempty" json:"as,omitempty"`
 	IfNoneMatch *IfNoneMatch                    `json:"If-None-Match,omitempty"`
 }
@@ -1499,7 +1499,7 @@ type GetResourceParams struct {
 	// Repository Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver.
 	Repository *Repository `form:"repository,omitempty" json:"repository,omitempty"`
 
-	// As `document`: answer the parsed `Document` (SBOM, VEX or SARIF) instead of the bytes.
+	// As `document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes.
 	As          *GetResourceParamsAs `form:"as,omitempty" json:"as,omitempty"`
 	IfNoneMatch *IfNoneMatch         `json:"If-None-Match,omitempty"`
 }
@@ -1512,7 +1512,7 @@ type HeadResourceParams struct {
 	// Repository Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver.
 	Repository *Repository `form:"repository,omitempty" json:"repository,omitempty"`
 
-	// As `document`: answer the parsed `Document` (SBOM, VEX or SARIF) instead of the bytes.
+	// As `document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes.
 	As          *HeadResourceParamsAs `form:"as,omitempty" json:"as,omitempty"`
 	IfNoneMatch *IfNoneMatch          `json:"If-None-Match,omitempty"`
 }

@@ -1,0 +1,21 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "metadata": {"tools": {"components": [{"name": "DevGuard"}]}},
+  "components": [
+    {"bom-ref": "expat", "name": "libexpat1", "version": "2.8.3", "purl": "pkg:deb/debian/libexpat1@2.8.3"},
+    {"bom-ref": "uuid", "name": "libuuid1", "version": "2.41.5",
+      "components": [{"bom-ref": "inner", "name": "inner", "version": "1.0"}]}
+  ],
+  "vulnerabilities": [
+    {"id": "CVE-2026-1", "affects": [{"ref": "expat"}],
+      "analysis": {"state": "exploitable", "response": ["will_not_fix"], "detail": "No fix in trixie yet."}},
+    {"id": "CVE-2026-2", "affects": [{"ref": "uuid"}, {"ref": "inner"}],
+      "analysis": {"state": "false_positive", "detail": "mount is absent."}},
+    {"id": "CVE-2026-3", "affects": [{"ref": "pkg:generic/unknown@1"}],
+      "analysis": {"state": "in_triage"}},
+    {"id": "CVE-2026-4", "description": "scored", "affects": [{"ref": "expat"}],
+      "ratings": [{"score": 9.8, "severity": "critical"}]},
+    {"id": "CVE-2026-5", "description": "word only", "ratings": [{"severity": "low"}]}
+  ]
+}

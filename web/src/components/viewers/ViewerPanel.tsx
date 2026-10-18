@@ -1,10 +1,12 @@
 import { ApiError, attestationContentUrl, resourceUrl, type DocumentSource } from '../../api/client'
-import { isHttpsUrl, type EntryViewer } from '../../lib/attestations'
+import { useState } from 'react'
+import type { components } from '../../api/schema'
+import { isHttpsUrl, type DocumentPart, type EntryViewer } from '../../lib/attestations'
 import { ErrorPanel } from '../ErrorPanel'
 import { ImageViewer } from './ImageViewer'
 import { JsonModal } from './JsonModal'
-import { SarifViewer } from './SarifViewer'
 import { SbomViewer } from './SbomViewer'
+import { ScanViewer } from './ScanViewer'
 import { PanelLinks, SidePanel, type PanelLink } from './SidePanel'
 import { useAttestationJson, useDocument } from './useDocument'
 import { VexViewer } from './VexViewer'
@@ -12,14 +14,15 @@ import { VexViewer } from './VexViewer'
 export interface ViewerScope { name: string; version: string; repository?: string }
 
 export type ViewerTarget =
-  | { kind: 'sbom' | 'vex' | 'sarif'; title: string; source: DocumentSource; originalUrl?: string }
+  // part: shown first when the document carries several parts.
+  | { kind: 'document'; title: string; source: DocumentSource; part?: DocumentPart; originalUrl?: string }
   | { kind: 'raw'; title: string; attestation: string; originalUrl?: string }
   | { kind: 'image'; title: string; resource: string; extraIdentity?: Record<string, string> | null; digest: string }
   | { kind: 'json'; title: string; value: unknown }
 
 // attestationTarget: the viewer target of an attestation document.
-export const attestationTarget = (kind: EntryViewer, title: string, digest: string, originalUrl?: string): ViewerTarget =>
-  kind === 'raw' ? { kind, title, attestation: digest, originalUrl } : { kind, title, source: { attestation: digest }, originalUrl }
+export const attestationTarget = (kind: EntryViewer, title: string, digest: string, originalUrl?: string, part?: DocumentPart): ViewerTarget =>
+  kind === 'raw' ? { kind, title, attestation: digest, originalUrl } : { kind, title, source: { attestation: digest }, part, originalUrl }
 
 // original links an https document URL; other URLs are shown as text by OriginalText.
 const original = (href: string | undefined): PanelLink[] => (href && isHttpsUrl(href) ? [{ label: 'Original document', href, external: true }] : [])
@@ -52,7 +55,33 @@ function DocumentError({ error, links, originalUrl }: { error: unknown; links: P
   return <><ErrorPanel error={error} /><PanelLinks links={links} /><OriginalText url={originalUrl} /></>
 }
 
-function DocumentViewer({ scope, source, originalUrl }: { scope: ViewerScope; source: DocumentSource; originalUrl?: string }) {
+const PART_LABELS: Record<DocumentPart, string> = { sbom: 'Packages', vex: 'VEX', scan: 'Scan results' }
+
+// DocumentParts: the parts a document carries; with several, a switch between them that
+// starts at part (else the first).
+function DocumentParts({ doc, part }: { doc: components['schemas']['Document']; part?: DocumentPart }) {
+  const parts = (['sbom', 'vex', 'scan'] as const).filter((k) => doc[k])
+  const [chosen, setChosen] = useState<DocumentPart | undefined>(part)
+  const shown = chosen && parts.includes(chosen) ? chosen : parts[0]
+  if (!shown) return <p className="text-sm text-slate-600">This document can't be shown here.</p>
+  return (
+    <>
+      {parts.length > 1 && (
+        <div role="tablist" aria-label="Document parts" className="flex gap-1 text-sm">
+          {parts.map((k) => (
+            <button key={k} type="button" role="tab" aria-selected={k === shown} onClick={() => setChosen(k)}
+              className={`cursor-pointer rounded px-2 py-0.5 ${k === shown ? 'bg-slate-800 text-white' : 'bg-slate-100 hover:bg-slate-200'}`}>
+              {PART_LABELS[k]}
+            </button>
+          ))}
+        </div>
+      )}
+      {shown === 'sbom' ? <SbomViewer sbom={doc.sbom!} /> : shown === 'vex' ? <VexViewer vex={doc.vex!} /> : <ScanViewer scan={doc.scan!} />}
+    </>
+  )
+}
+
+function DocumentViewer({ scope, source, part, originalUrl }: { scope: ViewerScope; source: DocumentSource; part?: DocumentPart; originalUrl?: string }) {
   const q = useDocument(scope, source)
   const { name, version, repository } = scope
   const links: PanelLink[] = [
@@ -67,10 +96,7 @@ function DocumentViewer({ scope, source, originalUrl }: { scope: ViewerScope; so
   return (
     <>
       <p className="text-xs text-slate-500">{doc.format}</p>
-      {doc.sbom ? <SbomViewer sbom={doc.sbom} />
-        : doc.vex ? <VexViewer vex={doc.vex} />
-          : doc.sarif ? <SarifViewer sarif={doc.sarif} />
-            : <p className="text-sm text-slate-600">This document can't be shown here.</p>}
+      <DocumentParts doc={doc} part={part} />
       <PanelLinks links={links} />
       <OriginalText url={originalUrl} />
     </>
@@ -92,7 +118,7 @@ function RawViewer({ scope, attestation, originalUrl }: { scope: ViewerScope; at
   )
 }
 
-// ViewerPanel: SBOM, VEX, SARIF, raw attestation and image targets open in the side panel, JSON values in a modal.
+// ViewerPanel: parsed documents (packages, VEX, scan results), raw attestation and image targets open in the side panel, JSON values in a modal.
 export function ViewerPanel({ scope, target, onClose }: { scope: ViewerScope; target: ViewerTarget; onClose: () => void }) {
   if (target.kind === 'json') return <JsonModal title={target.title} value={target.value} onClose={onClose} />
   return (
@@ -101,7 +127,7 @@ export function ViewerPanel({ scope, target, onClose }: { scope: ViewerScope; ta
         ? <ImageViewer scope={scope} resource={target.resource} extraIdentity={target.extraIdentity} digest={target.digest} />
         : target.kind === 'raw'
           ? <RawViewer scope={scope} attestation={target.attestation} originalUrl={target.originalUrl} />
-          : <DocumentViewer scope={scope} source={target.source} originalUrl={target.originalUrl} />}
+          : <DocumentViewer scope={scope} source={target.source} part={target.part} originalUrl={target.originalUrl} />}
     </SidePanel>
   )
 }

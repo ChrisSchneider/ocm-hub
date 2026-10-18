@@ -41,16 +41,20 @@ test('detailsText', () => {
   expect(detailsText({ ...e('vex'), summary: { format: 'OpenVEX 0.2', statements: 9, affected: 1 } })).toBe('OpenVEX 0.2 · 9 statements · 1 affected')
   expect(detailsText({ ...e('cve'), summary: { format: 'SARIF 2.1.0', tool: 'Trivy', findings: 37, importantFindings: 4, importantBasis: 'security-severity' } })).toBe('Trivy · SARIF 2.1.0 · 37 findings · 4 high or critical')
   expect(detailsText({ ...e('cve'), summary: { format: 'SARIF 2.1.0', findings: 2, importantFindings: 1, importantBasis: 'level' } })).toBe('SARIF 2.1.0 · 2 findings · 1 with level error')
+  expect(detailsText({ ...e('sbom'), summary: { format: 'CycloneDX 1.6', packages: 14, statements: 56, affected: 5 } })).toBe('CycloneDX 1.6 · 14 packages · 56 statements · 5 affected')
   expect(detailsText({ ...e('fips'), format: 'x' })).toBe('x')
   expect(detailsText(e('fips'))).toBe('')
 })
 
 test('entryViewer', () => {
-  expect(entryViewer({ ...e('cve'), digest: 'sha256:a', summary: { format: 'SARIF 2.1.0' } })).toBe('sarif')
+  expect(entryViewer({ ...e('cve'), digest: 'sha256:a', summary: { format: 'SARIF 2.1.0' } })).toBe('document')
   expect(entryViewer({ ...e('vex'), format: 'OpenVEX' })).toBeUndefined()
-  expect(entryViewer({ ...e('vex'), format: 'OpenVEX', digest: 'sha256:a' })).toBe('vex')
+  expect(entryViewer({ ...e('vex'), format: 'OpenVEX', digest: 'sha256:a' })).toBe('document')
+  // A VEX label linking a CycloneDX document: the summary says it was parsed.
+  expect(entryViewer({ ...e('vex', 'labelLink'), digest: 'sha256:a', summary: { format: 'CycloneDX 1.6', statements: 3 } })).toBe('document')
+  expect(entryViewer({ ...e('vex', 'labelLink'), digest: 'sha256:a', format: 'CSAF' })).toBeUndefined()
   expect(entryViewer({ ...e('sbom', 'embedded'), format: 'SPDX', digest: 'sha256:a' })).toBeUndefined()
-  expect(entryViewer({ ...e('sbom'), summary: { format: 'CycloneDX 1.6' }, digest: 'sha256:a' })).toBe('sbom')
+  expect(entryViewer({ ...e('sbom'), summary: { format: 'CycloneDX 1.6' }, digest: 'sha256:a' })).toBe('document')
   expect(entryViewer({ ...e('sbom'), format: 'syft', digest: 'sha256:a' })).toBeUndefined()
   expect(entryViewer({ ...e('slsa'), digest: 'sha256:a' })).toBe('raw')
   expect(entryViewer(e('slsa'))).toBeUndefined()

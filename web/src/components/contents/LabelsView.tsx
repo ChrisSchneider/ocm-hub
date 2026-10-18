@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Eye } from 'lucide-react'
+import { Eye, Maximize2 } from 'lucide-react'
 import { attestationContentUrl } from '../../api/client'
 import type { OcmLabel } from '../../api/ocm'
 import { attestationName, entryViewer, isHttpsUrl, labelEntry, type AttestationSet, type Entry, type ResourceIdentity } from '../../lib/attestations'
@@ -28,8 +28,8 @@ interface Props {
   onViewer: (t: ViewerTarget) => void
 }
 
-// VexActions: 👁 and ⬇ of a VEX link label, through the label-link attestation of the same
-// subject. The set is loaded on the first click; without a digest the label's URL is linked.
+// VexActions: 👁 (the VEX part of the document viewer) and ⬇ of a VEX link label, through the
+// label-link attestation of the same subject. The set is loaded on the first click; without a digest the label's URL is linked.
 // Sources are no attestation subject (subject false).
 function VexActions({ id, subject, label, p }: { id?: ResourceIdentity; subject: boolean; label: OcmLabel; p: Props }) {
   const e = subject ? labelEntry(p.set, id, VEX_LABEL) : undefined
@@ -47,7 +47,7 @@ function VexActions({ id, subject, label, p }: { id?: ResourceIdentity; subject:
     const found = labelEntry(p.set ?? (await p.loadSet()), id, VEX_LABEL)
     if (found?.digest) act(found.digest, found)
   }
-  const view = () => void withEntry((digest, found) => p.onViewer(attestationTarget(entryViewer(found) ?? 'vex', attestationName(found), digest, found.url)))
+  const view = () => void withEntry((digest, found) => p.onViewer(attestationTarget(entryViewer(found) ?? 'document', attestationName(found), digest, found.url, 'vex')))
   return (
     <>
       <button type="button" aria-label={`View ${label.name}`} onClick={view} className={iconButton}>
@@ -67,6 +67,7 @@ function VexActions({ id, subject, label, p }: { id?: ResourceIdentity; subject:
 }
 
 // LabelsView: name | label | value | actions, one line per label; the name only on an item's first line.
+// A JSON value shows as {…} and opens in full on click; only VEX labels have actions.
 export function LabelsView(p: Props) {
   const lines = (key: string, aria: string, nameCell: ReactNode, labels: OcmLabel[] | null | undefined, id: ResourceIdentity | undefined, source = false, group = false) => {
     const all = labels ?? []
@@ -83,20 +84,23 @@ export function LabelsView(p: Props) {
     }
     return all.map((label, i) => {
       const v = labelValue(label.value)
-      const text = v.kind === 'inline' ? v.text : '{…}'
       return (
         <div key={`${key}/${i}`} role="row" aria-label={i === 0 ? aria : undefined} className={cls(i === all.length - 1)}>
           {i === 0 ? nameCell : <div role="cell" />}
           <div role="cell" className="truncate font-mono text-xs text-slate-500" title={label.name}>{label.name}</div>
-          <div role="cell" className={`truncate font-mono text-xs ${v.kind === 'inline' ? 'text-slate-700' : 'text-slate-400'}`} title={v.kind === 'inline' ? text : undefined}>{text}</div>
-          <div role="cell" className="flex items-center justify-end gap-2">
-            {label.name === VEX_LABEL ? (
-              <VexActions id={id} subject={!source} label={label} p={p} />
-            ) : v.kind === 'json' ? (
-              <button type="button" aria-label={`View ${label.name}`} onClick={() => p.onViewer({ kind: 'json', title: label.name, value: v.value })} className={iconButton}>
-                <Eye aria-hidden size={16} />
+          {v.kind === 'inline' ? (
+            <div role="cell" className="truncate font-mono text-xs text-slate-700" title={v.text}>{v.text}</div>
+          ) : (
+            <div role="cell">
+              <button type="button" aria-label={`Show ${label.name}`} onClick={() => p.onViewer({ kind: 'json', title: label.name, value: v.value })}
+                className="inline-flex cursor-pointer items-center gap-1 font-mono text-xs text-slate-500 hover:text-blue-700">
+                {'{…}'}
+                <Maximize2 aria-hidden size={12} />
               </button>
-            ) : null}
+            </div>
+          )}
+          <div role="cell" className="flex items-center justify-end gap-2">
+            {label.name === VEX_LABEL && <VexActions id={id} subject={!source} label={label} p={p} />}
           </div>
         </div>
       )

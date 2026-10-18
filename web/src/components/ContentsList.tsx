@@ -16,7 +16,7 @@ const SOURCE = '\0source'
 const VIEWS: { id: View; label: string }[] = [
   { id: 'contents', label: 'Contents' },
   { id: 'labels', label: 'Labels' },
-  { id: 'attestations', label: 'Attestations' },
+  { id: 'attestations', label: 'OCI Attestations' },
 ]
 
 const pill = (on: boolean) => `rounded px-2 py-0.5 ${on ? 'bg-slate-800 text-white' : 'bg-slate-100'}`
@@ -24,7 +24,7 @@ const pill = (on: boolean) => `rounded px-2 py-0.5 ${on ? 'bg-slate-800 text-whi
 // ContentsList: the sources and resources of a descriptor in one of three views. Resources
 // differing only in extraIdentity fold into an expandable group; an SBOM with an artifact
 // reference sits right under the resource it describes. The attestation set is loaded only for
-// the Attestations view or the first VEX label action.
+// the OCI Attestations view or the first VEX label action.
 export function ContentsList({ descriptor, repository, query, view, onView }: { descriptor: OcmDescriptor; repository?: string; query?: string; view: View; onView: (v: View) => void }) {
   const items = contentItems(descriptor)
   const { name, version } = descriptor.component

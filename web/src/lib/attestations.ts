@@ -60,7 +60,15 @@ export function sameIdentity(a?: ResourceIdentity, b?: ResourceIdentity): boolea
 // not an attestation; views list it separately.
 export const isAttestation = (e: Entry): boolean => !(e.how === 'embedded' && e.kind === 'sbom')
 
-export type EntryViewer = 'sbom' | 'vex' | 'sarif' | 'raw'
+// isOciAttestation: an attestation stored in the registry; a document linked from a
+// label (e.g. VEX) is shown with the label instead.
+export const isOciAttestation = (e: Entry): boolean => isAttestation(e) && e.how !== 'labelLink'
+
+// EntryViewer: document is the parsed viewer (packages, VEX, scan results); raw the JSON.
+export type EntryViewer = 'document' | 'raw'
+
+// DocumentPart: a part of a parsed document; one document may carry several.
+export type DocumentPart = 'sbom' | 'vex' | 'scan'
 
 // attestationName: the row title of an attestation.
 export function attestationName(e: Entry): string {
@@ -68,53 +76,50 @@ export function attestationName(e: Entry): string {
   return KINDS[e.kind].explain.split(' — ')[0]
 }
 
-const isSarif = (e: Entry): boolean => !!e.summary?.format.startsWith('SARIF')
-
-// detailsText: the one-line facts of an attestation, missing parts skipped.
+// detailsText: the one-line facts of an attestation, missing parts skipped. A document
+// counts what it carries, whatever its kind: a CycloneDX SBOM may hold VEX and findings too.
 export function detailsText(e: Entry): string {
   const s = e.summary
   const parts: (string | undefined)[] = []
-  if (isSarif(e) && s) {
-    parts.push(s.tool, s.format)
-    if (s.findings !== undefined) parts.push(`${s.findings} findings`)
-    if (s.importantFindings !== undefined)
-      parts.push(s.importantBasis === 'security-severity' ? `${s.importantFindings} high or critical` : s.importantBasis === 'level' ? `${s.importantFindings} with level error` : undefined)
-  } else if (e.kind === 'slsa') {
+  if (e.kind === 'slsa') {
     if (e.buildLevel !== undefined) parts.push(`Build L${e.buildLevel}`)
     parts.push(e.builder)
     if (!parts.some(Boolean)) parts.push(e.format)
-  } else if (e.kind === 'sbom') {
-    parts.push(s?.format ?? e.format)
-    if (s?.packages !== undefined) parts.push(`${s.packages} packages`)
-  } else if (e.kind === 'vex') {
-    parts.push(s?.format ?? e.format)
-    if (s?.statements !== undefined) parts.push(`${s.statements} statements`)
-    if (s?.affected !== undefined) parts.push(`${s.affected} affected`)
+  } else if (s) {
+    parts.push(s.tool, s.format)
+    if (s.packages !== undefined) parts.push(`${s.packages} packages`)
+    if (s.statements !== undefined) parts.push(`${s.statements} statements`)
+    if (s.affected !== undefined) parts.push(`${s.affected} affected`)
+    if (s.findings !== undefined) parts.push(`${s.findings} findings`)
+    if (s.importantFindings !== undefined)
+      parts.push(s.importantBasis === 'security-severity' ? `${s.importantFindings} high or critical` : s.importantBasis === 'level' ? `${s.importantFindings} with level error` : undefined)
   } else parts.push(e.format)
   return parts.filter(Boolean).join(' · ')
 }
 
-// entryViewer: which in-page viewer can open the attestation document.
+const parsedFormats = ['SPDX', 'CycloneDX', 'OpenVEX', 'SARIF']
+
+// entryViewer: which in-page viewer can open the attestation document. A summary
+// means the sync parsed it; without one the format decides.
 export function entryViewer(e: Entry): EntryViewer | undefined {
   if (!e.digest || e.how === 'embedded') return undefined
-  if (isSarif(e)) return 'sarif'
-  if (e.kind === 'sbom') {
-    const f = e.summary?.format ?? e.format ?? ''
-    return f.startsWith('SPDX') || f.startsWith('CycloneDX') ? 'sbom' : undefined
-  }
-  if (e.kind === 'vex') return (e.summary?.format ?? e.format ?? '').startsWith('OpenVEX') ? 'vex' : undefined
   if (e.kind === 'slsa') return 'raw'
-  return undefined
+  if (e.summary) return 'document'
+  const f = e.format ?? ''
+  return parsedFormats.some((p) => f.startsWith(p)) ? 'document' : undefined
 }
+
+// entryPart: the document part an attestation is opened at.
+export const entryPart = (e: Entry): DocumentPart => (e.kind === 'vex' ? 'vex' : e.kind === 'sbom' ? 'sbom' : 'scan')
 
 // levelFor: the level of a resource, or of the component when id is undefined.
 export function levelFor(set: AttestationSet | undefined, id?: ResourceIdentity): Level | undefined {
   return set?.levels.find((l) => sameIdentity(l.resource, id))
 }
 
-// entriesOf: attestations of a level; without platform only the platform-less ones.
+// entriesOf: OCI attestations of a level; without platform only the platform-less ones.
 export function entriesOf(level: Level | undefined, platform?: string): Entry[] {
-  return (level?.entries ?? []).filter((e) => isAttestation(e) && (platform === undefined ? !e.platform : e.platform === platform))
+  return (level?.entries ?? []).filter((e) => isOciAttestation(e) && (platform === undefined ? !e.platform : e.platform === platform))
 }
 
 export function labelEntry(set: AttestationSet | undefined, id: ResourceIdentity | undefined, label: string): Entry | undefined {

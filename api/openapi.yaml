@@ -586,7 +586,7 @@ components:
     As:
       name: as
       in: query
-      description: "`document`: answer the parsed `Document` (SBOM, VEX or SARIF) instead of the bytes."
+      description: "`document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes."
       schema: {type: string, enum: [document]}
     Recursive:
       name: recursive
@@ -687,7 +687,7 @@ components:
              INDEX_UNAVAILABLE, NOT_COLLECTED, UNSUPPORTED_DOCUMENT, DOCUMENT_TOO_LARGE,
              DOCUMENT_CHANGED, DOCUMENT_NOT_ALLOWED, NOT_OCI]
       description: |
-        `UNSUPPORTED_DOCUMENT` (422): not a recognised SBOM, VEX or SARIF document.
+        `UNSUPPORTED_DOCUMENT` (422): not a recognised SBOM, VEX or scan (SARIF, CycloneDX) document.
         `DOCUMENT_TOO_LARGE` (422): over 32 MiB. `DOCUMENT_CHANGED` (409): a label
         link no longer serves the document the sync recorded (`detail.url`).
         `DOCUMENT_NOT_ALLOWED` (403): a label link's URL is not on the hub's
@@ -790,13 +790,16 @@ components:
         createdBy: {type: string}
     Document:
       type: object
-      description: A parsed SBOM, VEX or SARIF document; exactly one of `sbom`, `vex` and `sarif` is set. Nothing is verified.
+      description: >-
+        A parsed document; at least one of `sbom`, `vex` and `scan` is set. A CycloneDX
+        document may carry all three: its analysed vulnerabilities are `vex` statements
+        (states mapped to OpenVEX statuses), the others `scan` findings. Nothing is verified.
       required: [format]
       properties:
         format: {type: string, description: "e.g. `CycloneDX 1.6`, `OpenVEX`, `SARIF 2.1.0`."}
         sbom: {$ref: "#/components/schemas/DocumentSBOM"}
         vex: {$ref: "#/components/schemas/DocumentVEX"}
-        sarif: {$ref: "#/components/schemas/DocumentSARIF"}
+        scan: {$ref: "#/components/schemas/DocumentScan"}
     DocumentSBOM:
       type: object
       required: [packages]
@@ -824,14 +827,14 @@ components:
         status: {type: string}
         justification: {type: string}
         action: {type: string}
-    DocumentSARIF:
+    DocumentScan:
       type: object
       required: [tool, importantBasis, findings]
       properties:
         tool: {type: string}
         importantBasis: {type: string, description: "`security-severity` when any finding has a score, else `level`."}
-        findings: {type: array, items: {$ref: "#/components/schemas/SARIFFinding"}}
-    SARIFFinding:
+        findings: {type: array, items: {$ref: "#/components/schemas/ScanFinding"}}
+    ScanFinding:
       type: object
       required: [rule, message]
       properties:

@@ -39,7 +39,7 @@ test('sbom viewer shows stats, filters packages and links the download', async (
       },
     })
   }))
-  const { user } = show({ kind: 'sbom', title: 'sbom', source: { resource: 'sbom', extraIdentity: { arch: 'amd64' } } })
+  const { user } = show({ kind: 'document', title: 'sbom', source: { resource: 'sbom', extraIdentity: { arch: 'amd64' } } })
   expect(await screen.findByText('3 packages · 2 licenses · 1 ecosystem')).toBeInTheDocument()
   expect(asParam).toBe('document')
   expect(bodyRows('Packages')).toHaveLength(3)
@@ -63,7 +63,7 @@ test('vex viewer shows status counts without colour', async () => {
         ],
       },
     })))
-  show({ kind: 'vex', title: 'vex', source: { attestation: 'sha256:abc' }, originalUrl: 'https://example.com/vex.json' })
+  show({ kind: 'document', title: 'vex', source: { attestation: 'sha256:abc' }, originalUrl: 'https://example.com/vex.json' })
   expect(await screen.findByText('affected 1 · not_affected 2')).toBeInTheDocument()
   expect(bodyRows('Statements')).toHaveLength(3)
   expect(screen.getByRole('cell', { name: 'upgrade' })).toBeInTheDocument()
@@ -73,11 +73,11 @@ test('vex viewer shows status counts without colour', async () => {
   expect(screen.getByRole('link', { name: 'Original document' })).toHaveAttribute('href', 'https://example.com/vex.json')
 })
 
-test('sarif viewer shows severity counts and filters', async () => {
+test('scan viewer shows severity counts and filters', async () => {
   server.use(http.get('/v1/components/:name/attestations/:version/:digest', () =>
     HttpResponse.json({
       format: 'SARIF 2.1.0',
-      sarif: {
+      scan: {
         tool: 'Trivy',
         importantBasis: 'security-severity',
         findings: [
@@ -88,13 +88,39 @@ test('sarif viewer shows severity counts and filters', async () => {
         ],
       },
     })))
-  const { user } = show({ kind: 'sarif', title: 'scan', source: { attestation: 'sha256:abc' } })
+  const { user } = show({ kind: 'document', title: 'scan', source: { attestation: 'sha256:abc' } })
   expect(await screen.findByText('Trivy · 4 findings')).toBeInTheDocument()
   expect(screen.getByText('critical 1 · high 1 · low 2')).toBeInTheDocument()
   expect(bodyRows('Findings')).toHaveLength(4)
   await user.type(screen.getByRole('textbox', { name: 'Filter findings' }), 'CVE-2024-1')
   expect(bodyRows('Findings')).toHaveLength(1)
   expect(screen.getByRole('cell', { name: 'very bad' })).toBeInTheDocument()
+})
+
+test('a document with several parts switches between them, starting at the requested one', async () => {
+  server.use(http.get('/v1/components/:name/attestations/:version/:digest', () =>
+    HttpResponse.json({
+      format: 'CycloneDX 1.6',
+      sbom: { packages: [{ name: 'libexpat1', version: '2.8.3' }] },
+      vex: { statements: [{ vulnerability: 'CVE-2026-1', products: ['libexpat1'], status: 'affected', action: 'will_not_fix: no fix yet' }] },
+      scan: { tool: '', importantBasis: 'level', findings: [{ rule: 'CVE-2026-4', message: 'open' }] },
+    })))
+  const { user } = show({ kind: 'document', part: 'vex', title: 'VEX', source: { attestation: 'sha256:abc' } })
+  expect(await screen.findByRole('tab', { name: 'VEX', selected: true })).toBeInTheDocument()
+  expect(screen.getAllByRole('tab').map((t) => t.textContent)).toEqual(['Packages', 'VEX', 'Scan results'])
+  expect(screen.getByRole('cell', { name: 'will_not_fix: no fix yet' })).toBeInTheDocument()
+  await user.click(screen.getByRole('tab', { name: 'Scan results' }))
+  expect(screen.getByText('1 findings')).toBeInTheDocument()
+  await user.click(screen.getByRole('tab', { name: 'Packages' }))
+  expect(bodyRows('Packages')).toHaveLength(1)
+})
+
+test('a single-part document shows no part switch', async () => {
+  server.use(http.get('/v1/components/:name/attestations/:version/:digest', () =>
+    HttpResponse.json({ format: 'OpenVEX', vex: { statements: [] } })))
+  show({ kind: 'document', part: 'sbom', title: 'VEX', source: { attestation: 'sha256:abc' } })
+  expect(await screen.findByRole('table', { name: 'Statements' })).toBeInTheDocument()
+  expect(screen.queryByRole('tablist')).not.toBeInTheDocument()
 })
 
 test('raw viewer pretty-prints the stored document and links it', async () => {
@@ -165,7 +191,7 @@ test('image viewer shows docker-inspect fields and raw links', async () => {
 
 test('unsupported document shows download only', async () => {
   server.use(http.get('/v1/components/:name/resources/:version/:resource', () => documentError('UNSUPPORTED_DOCUMENT', 422)))
-  show({ kind: 'sbom', title: 'sbom', source: { resource: 'sbom' } })
+  show({ kind: 'document', title: 'sbom', source: { resource: 'sbom' } })
   expect(await screen.findByText("This document can't be shown here.")).toBeInTheDocument()
   expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument()
   expect(screen.queryByRole('link', { name: 'Original document' })).not.toBeInTheDocument()
@@ -176,7 +202,7 @@ test('unsupported document shows download only', async () => {
 test('changed document shows original link', async () => {
   server.use(http.get('/v1/components/:name/attestations/:version/:digest', () =>
     documentError('DOCUMENT_CHANGED', 409, { url: 'https://example.com/now.json' })))
-  show({ kind: 'vex', title: 'vex', source: { attestation: 'sha256:abc' } })
+  show({ kind: 'document', title: 'vex', source: { attestation: 'sha256:abc' } })
   expect(await screen.findByText('The linked document changed since the last sync.')).toBeInTheDocument()
   expect(screen.getByRole('link', { name: 'Original document' })).toHaveAttribute('href', 'https://example.com/now.json')
   expect(screen.queryByRole('table')).not.toBeInTheDocument()
@@ -185,7 +211,7 @@ test('changed document shows original link', async () => {
 test('a document off the allow list shows only the original link', async () => {
   server.use(http.get('/v1/components/:name/attestations/:version/:digest', () =>
     documentError('DOCUMENT_NOT_ALLOWED', 403, { url: 'https://example.com/vex.json' })))
-  show({ kind: 'vex', title: 'vex', source: { attestation: 'sha256:abc' }, originalUrl: 'https://example.com/vex.json' })
+  show({ kind: 'document', title: 'vex', source: { attestation: 'sha256:abc' }, originalUrl: 'https://example.com/vex.json' })
   expect(await screen.findByText("This document can't be shown here.")).toBeInTheDocument()
   expect(screen.getByRole('link', { name: 'Original document' })).toHaveAttribute('href', 'https://example.com/vex.json')
   expect(screen.queryByRole('link', { name: 'Raw document' })).not.toBeInTheDocument()
@@ -195,14 +221,14 @@ test('a document off the allow list shows only the original link', async () => {
 test('an original document URL that is not https is shown as text, not linked', async () => {
   server.use(http.get('/v1/components/:name/attestations/:version/:digest', () =>
     documentError('DOCUMENT_CHANGED', 409, { url: 'javascript:alert(1)' })))
-  show({ kind: 'vex', title: 'vex', source: { attestation: 'sha256:abc' } })
+  show({ kind: 'document', title: 'vex', source: { attestation: 'sha256:abc' } })
   expect(await screen.findByText('javascript:alert(1)')).toBeInTheDocument()
   expect(screen.queryByRole('link', { name: 'Original document' })).not.toBeInTheDocument()
 })
 
 test('other errors show the error panel and the links', async () => {
   server.use(http.get('/v1/components/:name/attestations/:version/:digest', () => documentError('UPSTREAM_ERROR', 502)))
-  show({ kind: 'vex', title: 'vex', source: { attestation: 'sha256:abc' } })
+  show({ kind: 'document', title: 'vex', source: { attestation: 'sha256:abc' } })
   expect(await screen.findByRole('alert')).toHaveTextContent('UPSTREAM_ERROR')
   expect(screen.getByRole('link', { name: 'Raw document' })).toBeInTheDocument()
 })
@@ -216,7 +242,7 @@ test('json target opens a modal with pretty JSON', () => {
 
 test('Escape closes the panel', async () => {
   server.use(http.get('/v1/components/:name/attestations/:version/:digest', () => delay('infinite')))
-  const { user, onClose } = show({ kind: 'vex', title: 'vex', source: { attestation: 'sha256:abc' } })
+  const { user, onClose } = show({ kind: 'document', title: 'vex', source: { attestation: 'sha256:abc' } })
   await user.keyboard('{Escape}')
   expect(onClose).toHaveBeenCalledTimes(1)
   await user.click(screen.getByRole('button', { name: 'Close' }))
@@ -225,14 +251,14 @@ test('Escape closes the panel', async () => {
 
 test('shows Fetching document… while pending', async () => {
   server.use(http.get('/v1/components/:name/attestations/:version/:digest', () => delay('infinite')))
-  show({ kind: 'sbom', title: 'sbom', source: { attestation: 'sha256:abc' } })
+  show({ kind: 'document', title: 'sbom', source: { attestation: 'sha256:abc' } })
   expect(await screen.findByText('Fetching document…')).toBeInTheDocument()
 })
 
 test('more than 100 rows render through the virtual list', async () => {
   const packages = Array.from({ length: 150 }, (_, i) => ({ name: `pkg-${i}`, version: '1.0.0', license: 'MIT', type: 'npm' }))
   server.use(http.get('/v1/components/:name/resources/:version/:resource', () => HttpResponse.json({ format: 'SPDX 2.3', sbom: { packages } })))
-  show({ kind: 'sbom', title: 'sbom', source: { resource: 'sbom' } })
+  show({ kind: 'document', title: 'sbom', source: { resource: 'sbom' } })
   expect(await screen.findByText('150 packages · 1 license · 1 ecosystem')).toBeInTheDocument()
   const table = screen.getByRole('table', { name: 'Packages' })
   expect(table.tagName).toBe('DIV')

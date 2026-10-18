@@ -196,9 +196,9 @@ function withResource() {
 test('?view=attestations opens Contents with the Attestations segment selected', async () => {
   withResource()
   renderApp('/components/ocm.software/how-to/product?view=attestations')
-  expect(await screen.findByRole('radio', { name: 'Attestations', checked: true })).toBeInTheDocument()
+  expect(await screen.findByRole('radio', { name: 'OCI Attestations', checked: true })).toBeInTheDocument()
   expect(screen.getByRole('tab', { name: 'Contents', selected: true })).toBeInTheDocument()
-  expect(screen.queryByRole('tab', { name: 'Attestations' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('tab', { name: 'OCI Attestations' })).not.toBeInTheDocument()
 })
 
 test('?view=labels selects Labels', async () => {

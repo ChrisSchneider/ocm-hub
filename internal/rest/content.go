@@ -156,14 +156,14 @@ func genDocument(d document.Document) gen.Document {
 		}
 		out.Vex = &v
 	}
-	if d.SARIF != nil {
-		s := gen.DocumentSARIF{Tool: d.SARIF.Tool, ImportantBasis: d.SARIF.ImportantBasis,
-			Findings: make([]gen.SARIFFinding, 0, len(d.SARIF.Findings))}
-		for _, f := range d.SARIF.Findings {
-			s.Findings = append(s.Findings, gen.SARIFFinding{Rule: f.Rule, Severity: optional(f.Severity),
+	if d.Scan != nil {
+		s := gen.DocumentScan{Tool: d.Scan.Tool, ImportantBasis: d.Scan.ImportantBasis,
+			Findings: make([]gen.ScanFinding, 0, len(d.Scan.Findings))}
+		for _, f := range d.Scan.Findings {
+			s.Findings = append(s.Findings, gen.ScanFinding{Rule: f.Rule, Severity: optional(f.Severity),
 				Level: optional(f.Level), Location: optional(f.Location), Message: f.Message})
 		}
-		out.Sarif = &s
+		out.Scan = &s
 	}
 	return out
 }

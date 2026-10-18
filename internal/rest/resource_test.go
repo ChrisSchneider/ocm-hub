@@ -216,7 +216,7 @@ func TestResourceAsDocument(t *testing.T) {
 		t.Fatalf("status %d: %s", r.StatusCode, body(t, r))
 	}
 	d := decode[gen.Document](t, r)
-	if d.Sarif == nil || len(d.Sarif.Findings) != 5 || d.Sarif.Tool != "Trivy" || d.Sarif.ImportantBasis != "security-severity" {
+	if d.Scan == nil || len(d.Scan.Findings) != 5 || d.Scan.Tool != "Trivy" || d.Scan.ImportantBasis != "security-severity" {
 		t.Fatalf("document = %+v", d)
 	}
 	if f.gotID["as"] != "" {

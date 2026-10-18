@@ -2,9 +2,11 @@ package document
 
 import (
 	"bytes"
+	"cmp"
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -16,7 +18,8 @@ import (
 
 // Parse detects the document family by content and parses it. Anything that
 // is not a recognised SPDX, CycloneDX, OpenVEX or SARIF 2.1 JSON document
-// (including invalid JSON and XML) fails with ErrUnsupported.
+// (including invalid JSON and XML) fails with ErrUnsupported. CycloneDX
+// vulnerabilities become VEX statements when analysed, else scan findings.
 func Parse(b []byte) (Document, error) {
 	if len(b) > MaxSize {
 		return Document{}, ErrTooLarge
@@ -36,7 +39,7 @@ func Parse(b []byte) (Document, error) {
 	case head.SPDXVersion != "":
 		return parseSBOM(b, "SPDX "+strings.TrimPrefix(head.SPDXVersion, "SPDX-"))
 	case head.BOMFormat == "CycloneDX":
-		return parseSBOM(b, "CycloneDX "+head.SpecVersion)
+		return parseCycloneDX(b, "CycloneDX "+head.SpecVersion)
 	case strings.HasPrefix(head.Context, "https://openvex.dev/ns"):
 		return parseVEX(b, head.Context)
 	case head.Runs != nil && strings.HasPrefix(strings.Trim(string(head.Version), `"`), "2.1"):
@@ -65,6 +68,150 @@ func parseSBOM(b []byte, format string) (Document, error) {
 		})
 	}
 	return Document{Format: format, SBOM: s}, nil
+}
+
+// cdxComponent is the part of a CycloneDX component read to name the
+// products of a vulnerability.
+type cdxComponent struct {
+	BOMRef     string         `json:"bom-ref"`
+	Name       string         `json:"name"`
+	Version    string         `json:"version"`
+	Purl       string         `json:"purl"`
+	Components []cdxComponent `json:"components"`
+}
+
+type cdxVulnerability struct {
+	ID          string `json:"id"`
+	Description string `json:"description"`
+	Ratings     []struct {
+		Score    *float64 `json:"score"`
+		Severity string   `json:"severity"`
+	} `json:"ratings"`
+	Analysis *struct {
+		State         string   `json:"state"`
+		Justification string   `json:"justification"`
+		Response      []string `json:"response"`
+		Detail        string   `json:"detail"`
+	} `json:"analysis"`
+	Affects []struct {
+		Ref string `json:"ref"`
+	} `json:"affects"`
+}
+
+// cdxStatus maps CycloneDX analysis states to OpenVEX statuses; unknown
+// states are kept as they are.
+var cdxStatus = map[string]string{
+	"exploitable":            "affected",
+	"in_triage":              "under_investigation",
+	"not_affected":           "not_affected",
+	"false_positive":         "not_affected",
+	"resolved":               "fixed",
+	"resolved_with_pedigree": "fixed",
+}
+
+// severityScore stands in for a missing score, so a severity word alone
+// still decides importance: the lower bound of its CVSS band.
+var severityScore = map[string]float64{"critical": 9, "high": 7, "medium": 4, "low": 0.1}
+
+// parseCycloneDX reads the packages through protobom and the vulnerabilities
+// itself: analysed ones become VEX statements, the others scan findings. A
+// document without components but with vulnerabilities has no SBOM part.
+func parseCycloneDX(b []byte, format string) (Document, error) {
+	d, err := parseSBOM(b, format)
+	if err != nil {
+		return d, err
+	}
+	var bom struct {
+		Metadata struct {
+			Tools json.RawMessage `json:"tools"`
+		} `json:"metadata"`
+		Components      []cdxComponent     `json:"components"`
+		Vulnerabilities []cdxVulnerability `json:"vulnerabilities"`
+	}
+	if err := json.Unmarshal(b, &bom); err != nil {
+		return Document{}, fmt.Errorf("%w: %v", ErrUnsupported, err)
+	}
+	if len(bom.Vulnerabilities) == 0 {
+		return d, nil
+	}
+	if len(bom.Components) == 0 {
+		d.SBOM = nil
+	}
+	refs := map[string]string{}
+	var walk func([]cdxComponent)
+	walk = func(cs []cdxComponent) {
+		for _, c := range cs {
+			if c.BOMRef != "" {
+				refs[c.BOMRef] = cmp.Or(c.Purl, strings.TrimSuffix(c.Name+"@"+c.Version, "@"))
+			}
+			walk(c.Components)
+		}
+	}
+	walk(bom.Components)
+	for _, v := range bom.Vulnerabilities {
+		var products []string
+		for _, a := range v.Affects {
+			products = append(products, cmp.Or(refs[a.Ref], a.Ref))
+		}
+		if a := v.Analysis; a != nil && a.State != "" {
+			if d.VEX == nil {
+				d.VEX = &VEX{}
+			}
+			justification := a.Justification
+			if justification == "" && a.State == "false_positive" {
+				justification = "false_positive"
+			}
+			action := strings.Join(slices.DeleteFunc([]string{strings.Join(a.Response, ", "), a.Detail}, func(s string) bool { return s == "" }), ": ")
+			d.VEX.Statements = append(d.VEX.Statements, Statement{Vulnerability: v.ID, Products: products,
+				Status: cmp.Or(cdxStatus[a.State], a.State), Justification: justification, Action: action})
+			continue
+		}
+		if d.Scan == nil {
+			d.Scan = &Scan{Tool: cdxTool(bom.Metadata.Tools), ImportantBasis: basisLevel}
+		}
+		f := Finding{Rule: v.ID, Message: v.Description}
+		if len(products) > 0 {
+			f.Location = products[0]
+		}
+		if len(v.Ratings) > 0 {
+			r := v.Ratings[0]
+			f.Severity = r.Severity
+			if r.Score != nil {
+				f.score = *r.Score
+			} else {
+				f.score = severityScore[strings.ToLower(r.Severity)]
+			}
+			if f.Severity == "" {
+				f.Severity = severityBucket(f.score)
+			}
+			if f.score > 0 {
+				d.Scan.ImportantBasis = basisSecuritySeverity
+			}
+		}
+		d.Scan.Findings = append(d.Scan.Findings, f)
+	}
+	return d, nil
+}
+
+// cdxTool is the first tool's name, from the CycloneDX 1.5+ object form
+// ({components, services}) or the older list.
+func cdxTool(raw json.RawMessage) string {
+	type named struct {
+		Name string `json:"name"`
+	}
+	var list []named
+	if json.Unmarshal(raw, &list) == nil && len(list) > 0 {
+		return list[0].Name
+	}
+	var obj struct{ Components, Services []named }
+	if json.Unmarshal(raw, &obj) == nil {
+		for _, t := range append(obj.Components, obj.Services...) {
+			if t.Name != "" {
+				return t.Name
+			}
+		}
+	}
+	return ""
 }
 
 // nodeLicense is the concluded license, else the first listed one; the
@@ -149,9 +296,9 @@ func parseSARIF(b []byte) (Document, error) {
 	if err != nil {
 		return Document{}, fmt.Errorf("%w: %v", ErrUnsupported, err)
 	}
-	out := &SARIF{ImportantBasis: basisLevel}
+	out := &Scan{ImportantBasis: basisLevel}
 	if len(r.Runs) == 0 || r.Runs[0] == nil {
-		return Document{Format: "SARIF 2.1.0", SARIF: out}, nil
+		return Document{Format: "SARIF 2.1.0", Scan: out}, nil
 	}
 	run := r.Runs[0]
 	if run.Tool != nil && run.Tool.Driver != nil {
@@ -192,7 +339,7 @@ func parseSARIF(b []byte) (Document, error) {
 		}
 		out.Findings = append(out.Findings, f)
 	}
-	return Document{Format: "SARIF 2.1.0", SARIF: out}, nil
+	return Document{Format: "SARIF 2.1.0", Scan: out}, nil
 }
 
 func deref(s *string) string {

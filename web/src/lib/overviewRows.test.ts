@@ -69,6 +69,14 @@ test('vex row shows format and statements of the best entry', () => {
   expect(r).toMatchObject({ state: 'present', value: 'OpenVEX v0.2.0 · 12 statements', target: { view: 'attestations', hash: 'attestations-component' } })
 })
 
+test('vex row: a label-only VEX links to Labels; VEX inside an SBOM counts', () => {
+  const linked = e({ kind: 'vex', how: 'labelLink', summary: { format: 'CycloneDX 1.6', statements: 56 } })
+  expect(row(overviewRows(comp(), ov(), set([linked]), false), 'vex')).toMatchObject({ state: 'present', value: 'CycloneDX 1.6 · 56 statements', target: { view: 'labels' } })
+  const sbom = e({ kind: 'sbom', summary: { format: 'CycloneDX 1.6', packages: 3, statements: 2, findings: 1 } })
+  expect(row(overviewRows(comp(), ov(), set([], [sbom]), false), 'vex')).toMatchObject({ state: 'present', value: 'CycloneDX 1.6 · 2 statements', target: { view: 'attestations' } })
+  expect(row(overviewRows(comp(), ov(), set([], [sbom]), false), 'scans')).toMatchObject({ state: 'present', value: 'CVE' })
+})
+
 test('scans row sums high or critical', () => {
   const sarif = (n: number, basis = 'security-severity') => e({ kind: 'cve', summary: { format: 'SARIF 2.1.0', importantBasis: basis, importantFindings: n } })
   const r = row(overviewRows(comp(), ov(), set([e({ kind: 'secrets' }), e({ kind: 'other' })], [sarif(3), sarif(1), sarif(5, 'level'), e({ kind: 'other' }), e({ kind: 'fips' })]), false), 'scans')

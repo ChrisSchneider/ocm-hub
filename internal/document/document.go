@@ -1,6 +1,7 @@
-// Package document normalises SBOM, VEX and SARIF documents into one small
-// model. Parsing is delegated to protobom, go-vex and go-sarif; this package
-// only detects the family, flattens the result and counts for summaries.
+// Package document normalises SBOM, VEX and scan documents into one small
+// model. Parsing is delegated to protobom, go-vex and go-sarif (CycloneDX
+// vulnerabilities are read here); this package only detects the family,
+// flattens the result and counts for summaries.
 package document
 
 import "errors"
@@ -9,14 +10,14 @@ import "errors"
 const MaxSize = 32 << 20
 
 var (
-	// ErrUnsupported means the bytes are not a recognised SBOM, VEX or SARIF
+	// ErrUnsupported means the bytes are not a recognised SBOM, VEX or scan
 	// document (or the library could not read them).
 	ErrUnsupported = errors.New("unsupported document format")
 	// ErrTooLarge means a document exceeds MaxSize.
 	ErrTooLarge = errors.New("document too large")
 )
 
-// SARIF importance bases.
+// Scan importance bases.
 const (
 	basisSecuritySeverity = "security-severity"
 	basisLevel            = "level"
@@ -41,10 +42,11 @@ type Statement struct {
 	Action        string
 }
 
-// VEX is the statement list of an OpenVEX document.
+// VEX is the statement list of an OpenVEX document, or the analysed
+// vulnerabilities of a CycloneDX one.
 type VEX struct{ Statements []Statement }
 
-// Finding is one SARIF result.
+// Finding is one SARIF result or one CycloneDX vulnerability without analysis.
 type Finding struct {
 	Rule, Severity, Level, Location, Message string
 
@@ -52,8 +54,9 @@ type Finding struct {
 	score float64
 }
 
-// SARIF is the findings of a SARIF document's first run.
-type SARIF struct {
+// Scan is the findings of a SARIF document's first run, or the unanalysed
+// vulnerabilities of a CycloneDX one.
+type Scan struct {
 	Tool     string
 	Findings []Finding
 	// ImportantBasis is "security-severity" when any result has a score, else
@@ -61,12 +64,13 @@ type SARIF struct {
 	ImportantBasis string
 }
 
-// Document is a parsed document; exactly one of SBOM, VEX and SARIF is set.
+// Document is a parsed document; at least one of SBOM, VEX and Scan is set.
+// A CycloneDX document may carry all three.
 type Document struct {
 	Format string
 	SBOM   *SBOM
 	VEX    *VEX
-	SARIF  *SARIF
+	Scan   *Scan
 }
 
 // Summary is the counts a sync stores for a document.
@@ -89,12 +93,12 @@ func (d Document) Summary() Summary {
 			}
 		}
 	}
-	if d.SARIF != nil {
-		s.Tool = d.SARIF.Tool
-		s.ImportantBasis = d.SARIF.ImportantBasis
-		s.Findings = len(d.SARIF.Findings)
-		for _, f := range d.SARIF.Findings {
-			if d.SARIF.ImportantBasis == basisSecuritySeverity {
+	if d.Scan != nil {
+		s.Tool = d.Scan.Tool
+		s.ImportantBasis = d.Scan.ImportantBasis
+		s.Findings = len(d.Scan.Findings)
+		for _, f := range d.Scan.Findings {
+			if d.Scan.ImportantBasis == basisSecuritySeverity {
 				if f.score >= importantScore {
 					s.ImportantFindings++
 				}

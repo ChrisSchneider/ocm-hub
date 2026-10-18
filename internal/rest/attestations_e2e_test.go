@@ -49,7 +49,7 @@ type attLevel struct {
 func TestExampleComponentAttestationsE2E(t *testing.T) {
 	reg := zot.Shared(t)
 	ctx := t.Context()
-	const name = "github.com/chrisschneider/opencode-base-images"
+	const name = "github.com/chrisschneider/example-with-opencode-images"
 	sub := fmt.Sprintf("att-%d", time.Now().UnixNano())
 	target := fixtures.Target{Host: reg.Host, SubPath: sub + "/main"}
 
@@ -118,7 +118,7 @@ func TestExampleComponentAttestationsE2E(t *testing.T) {
 		t.Fatal(verrs)
 	}
 	s := &stack{srv: srv, validator: v}
-	resp, body := s.do(t, "GET", "/v1/components/github.com%2Fchrisschneider%2Fopencode-base-images/attestations/1.1.0", nil, "", false)
+	resp, body := s.do(t, "GET", "/v1/components/github.com%2Fchrisschneider%2Fexample-with-opencode-images/attestations/1.1.0", nil, "", false)
 	if resp.StatusCode != 200 {
 		t.Fatalf("%d %s", resp.StatusCode, body)
 	}

@@ -79,7 +79,7 @@ test('segmented control calls onView', async () => {
   const { user } = show(descriptor([img]), { onView })
   await screen.findByRole('table', { name: 'Contents' })
   const group = screen.getByRole('radiogroup', { name: 'Contents view' })
-  expect(within(group).getAllByRole('radio').map((r) => r.textContent)).toEqual(['Contents', 'Labels', 'Attestations'])
+  expect(within(group).getAllByRole('radio').map((r) => r.textContent)).toEqual(['Contents', 'Labels', 'OCI Attestations'])
   expect(segment('Contents')).toHaveAttribute('aria-checked', 'true')
   await user.click(segment('Labels'))
   expect(onView).toHaveBeenCalledWith('labels')
@@ -100,7 +100,7 @@ test('resource group expands and its children appear in all views', async () => 
   await user.click(segment('Labels'))
   expect(await screen.findByRole('row', { name: 'resource linux/amd64' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Expand cli' })).toHaveAttribute('aria-expanded', 'true')
-  await user.click(segment('Attestations'))
+  await user.click(segment('OCI Attestations'))
   expect(await screen.findByRole('row', { name: 'resource linux/arm64' })).toBeInTheDocument()
 })
 
@@ -120,11 +120,12 @@ test('labels view: component row, one line per label, name only on first line, �
   expect(within(rows[2]).getByRole('cell', { name: '1, 2' })).toHaveAttribute('title', '1, 2')
 })
 
-test('labels view: object value shows {…} and opens a JSON modal', async () => {
+test('labels view: object value shows {…} and opens a JSON modal on click, without an eye', async () => {
   const { user } = show(descriptor([{ ...img, labels: [{ name: 'cfg', value: { verify: { level: 3 } } }] }]), { view: 'labels' })
   const row = (await bodyRows('Labels'))[1]
   expect(cells(row).slice(0, 3)).toEqual(['web', 'cfg', '{…}'])
-  await user.click(within(row).getByRole('button', { name: 'View cfg' }))
+  expect(within(row).queryByRole('button', { name: 'View cfg' })).not.toBeInTheDocument()
+  await user.click(within(row).getByRole('button', { name: 'Show cfg' }))
   const dialog = await screen.findByRole('dialog', { name: 'cfg' })
   expect(within(dialog).getByText(/"level": 3/)).toBeInTheDocument()
 })
@@ -174,7 +175,7 @@ test('attestations view requests the set only when opened', async () => {
   await user.click(segment('Labels'))
   await screen.findByRole('table', { name: 'Labels' })
   expect(calls.set).toBe(0)
-  await user.click(segment('Attestations'))
+  await user.click(segment('OCI Attestations'))
   expect(await screen.findByText('Loading attestations…')).toBeInTheDocument()
   await waitFor(() => expect(screen.queryByText('Loading attestations…')).not.toBeInTheDocument())
   expect(calls.set).toBe(1)
@@ -184,10 +185,10 @@ test('attestations view: name, predicate type, details, signed icon, eye only wi
   const slsa = entry('slsa', 'referrer', { type: 'https://slsa.dev/provenance/v1', buildLevel: 3, builder: 'gha', signed: 'signed', digest: 'sha256:1' })
   const sbom = entry('sbom', 'referrer', { type: 'https://cyclonedx.org/bom', format: 'CycloneDX 1.6', summary: { format: 'CycloneDX 1.6', packages: 5 }, digest: 'sha256:2' })
   show(descriptor([img]), { view: 'attestations', attestations: set([{ resource: webId, status: 'ok', entries: [slsa, sbom] }]) })
-  const table = await screen.findByRole('table', { name: 'Attestations' })
+  const table = await screen.findByRole('table', { name: 'OCI Attestations' })
   expect(within(table).getAllByRole('columnheader').map((h) => h.textContent)).toEqual(['Name', 'Attestation', 'Predicate type', 'Details', 'Signed', 'View'])
   await screen.findByText('SLSA provenance')
-  const rows = await bodyRows('Attestations')
+  const rows = await bodyRows('OCI Attestations')
   expect(rows.map(cells)).toEqual([
     ['component itself', '—', '', '', '', ''],
     ['web▸', 'SLSA provenance', 'https://slsa.dev/provenance/v1', 'Build L3 · gha', '', ''],
@@ -203,11 +204,19 @@ test('attestations view: name, predicate type, details, signed icon, eye only wi
   expect(within(rows[2]).getByRole('button', { name: 'View SBOM' })).toBeInTheDocument()
 })
 
+test('a label-linked VEX is not listed in OCI attestations', async () => {
+  const vex = entry('vex', 'labelLink', { label: VEX_LABEL, url: 'https://example.com/vex.json', digest: 'sha256:abc' })
+  show(descriptor([img]), { view: 'attestations', attestations: set([{ status: 'ok', entries: [vex] }, { resource: webId, status: 'ok', entries: [vex] }]) })
+  await waitFor(() => expect(screen.queryByText('Loading attestations…')).not.toBeInTheDocument())
+  const rows = await bodyRows('OCI Attestations')
+  expect(rows.map((r) => cells(r).slice(0, 2))).toEqual([['component itself', '—'], ['web▸', '—']])
+})
+
 test('embedded SBOM is not listed in attestations', async () => {
   const embedded = entry('sbom', 'embedded', { format: 'CycloneDX 1.6', resource: { name: 'bom', version: '1.0.0' } })
   show(descriptor([bom]), { view: 'attestations', attestations: set([{ status: 'ok', entries: [embedded] }]) })
   await waitFor(() => expect(screen.queryByText('Loading attestations…')).not.toBeInTheDocument())
-  const rows = await bodyRows('Attestations')
+  const rows = await bodyRows('OCI Attestations')
   expect(rows.map((r) => cells(r).slice(0, 2))).toEqual([['component itself', '—'], ['bom', '—']])
 })
 
@@ -216,8 +225,8 @@ test('group parent shows per resource; failed level message under the table, not
   show(descriptor([cli('linux', 'amd64'), cli('linux', 'arm64'), img, { ...img, name: 'web2' }]), { view: 'attestations', attestations: set(levels) })
   const message = await screen.findByText("Couldn't check Resource web 1.0.0: unauthorized")
   expect(message).toHaveClass('text-slate-600')
-  expect(screen.getByRole('table', { name: 'Attestations' })).not.toContainElement(message)
-  const rows = await bodyRows('Attestations')
+  expect(screen.getByRole('table', { name: 'OCI Attestations' })).not.toContainElement(message)
+  const rows = await bodyRows('OCI Attestations')
   expect(rows.map((r) => cells(r).slice(0, 2))).toEqual([['component itself', '—'], ['cli▸ 2', 'per resource'], ['web▸', '—'], ['web2▸', 'on platforms']])
   expect(document.body.innerHTML).not.toMatch(/(red|green|emerald)-\d/)
 })
@@ -226,7 +235,7 @@ test('not collected message under the table', async () => {
   const notCollected = () => HttpResponse.json({ errors: [{ code: 'NOT_COLLECTED', message: 'not collected', detail: { collected: [{ version: '0.9.0', repository: 'oci::ghcr.io/acme' }] } }] }, { status: 404 })
   show(descriptor([img]), { view: 'attestations', attestations: notCollected })
   const message = await screen.findByText(/Attestations are not collected for this version/)
-  expect(screen.getByRole('table', { name: 'Attestations' })).not.toContainElement(message)
+  expect(screen.getByRole('table', { name: 'OCI Attestations' })).not.toContainElement(message)
   expect(screen.getByRole('link', { name: '0.9.0 at ghcr.io/acme' })).toBeInTheDocument()
 })
 

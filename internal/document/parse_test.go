@@ -65,6 +65,47 @@ func TestParseCycloneDXNested(t *testing.T) {
 	t.Logf("packages: %+v", d.SBOM.Packages)
 }
 
+// Analysed CycloneDX vulnerabilities are VEX statements, the others scan
+// findings, next to the packages.
+func TestParseCycloneDXVulnerabilities(t *testing.T) {
+	d := load(t, "cyclonedx-vex.json")
+	if d.Format != "CycloneDX 1.6" || d.SBOM == nil || d.VEX == nil || d.Scan == nil {
+		t.Fatalf("got %q sbom=%v vex=%v scan=%v", d.Format, d.SBOM, d.VEX, d.Scan)
+	}
+	s := d.VEX.Statements
+	if len(s) != 3 {
+		t.Fatalf("statements = %+v", s)
+	}
+	if s[0].Vulnerability != "CVE-2026-1" || s[0].Status != "affected" || s[0].Action != "will_not_fix: No fix in trixie yet." ||
+		!slices.Equal(s[0].Products, []string{"pkg:deb/debian/libexpat1@2.8.3"}) {
+		t.Errorf("statement 0 = %+v", s[0])
+	}
+	if s[1].Status != "not_affected" || s[1].Justification != "false_positive" || !slices.Equal(s[1].Products, []string{"libuuid1@2.41.5", "inner@1.0"}) {
+		t.Errorf("statement 1 = %+v", s[1])
+	}
+	if s[2].Status != "under_investigation" || !slices.Equal(s[2].Products, []string{"pkg:generic/unknown@1"}) {
+		t.Errorf("statement 2 = %+v", s[2])
+	}
+	f := d.Scan.Findings
+	if d.Scan.Tool != "DevGuard" || len(f) != 2 || f[0].Rule != "CVE-2026-4" || f[0].Severity != "critical" ||
+		f[0].Location != "pkg:deb/debian/libexpat1@2.8.3" || f[0].Message != "scored" || f[1].Severity != "low" {
+		t.Errorf("scan = %+v", d.Scan)
+	}
+}
+
+// A CycloneDX VEX without components has no SBOM part.
+func TestParseCycloneDXVEXOnly(t *testing.T) {
+	in := `{"bomFormat":"CycloneDX","specVersion":"1.5","metadata":{"tools":[{"name":"old"}]},
+"vulnerabilities":[{"id":"CVE-1","analysis":{"state":"resolved"}},{"id":"CVE-2","ratings":[{"severity":"high"}]}]}`
+	d, err := Parse([]byte(in))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if d.SBOM != nil || d.VEX == nil || d.VEX.Statements[0].Status != "fixed" || d.Scan == nil || d.Scan.Tool != "old" {
+		t.Errorf("got %+v %+v %+v", d.SBOM, d.VEX, d.Scan)
+	}
+}
+
 func TestParseOpenVEX(t *testing.T) {
 	d := load(t, "openvex.json")
 	if d.Format != "OpenVEX 0.2" || d.VEX == nil || len(d.VEX.Statements) != 3 {
@@ -95,15 +136,15 @@ func TestParseOpenVEXLegacy(t *testing.T) {
 
 func TestParseSARIFSeverity(t *testing.T) {
 	d := load(t, "trivy.sarif.json")
-	if d.Format != "SARIF 2.1.0" || d.SARIF == nil || d.SARIF.Tool != "Trivy" {
-		t.Fatalf("got %q %+v", d.Format, d.SARIF)
+	if d.Format != "SARIF 2.1.0" || d.Scan == nil || d.Scan.Tool != "Trivy" {
+		t.Fatalf("got %q %+v", d.Format, d.Scan)
 	}
-	f := d.SARIF.Findings[0]
+	f := d.Scan.Findings[0]
 	if f.Rule != "CVE-1" || f.Severity != "critical" || f.Level != "error" || f.Location != "lib/a" || f.Message != "finding 1" {
 		t.Errorf("finding 0 = %+v", f)
 	}
 	// A result score wins over the rule's.
-	if got := d.SARIF.Findings[4].Severity; got != "low" {
+	if got := d.Scan.Findings[4].Severity; got != "low" {
 		t.Errorf("finding 4 severity = %q, want low", got)
 	}
 }
@@ -121,7 +162,7 @@ func TestParseSARIFSeverityText(t *testing.T) {
 		t.Fatal(err)
 	}
 	var got []string
-	for _, f := range d.SARIF.Findings {
+	for _, f := range d.Scan.Findings {
 		got = append(got, f.Severity)
 	}
 	if want := []string{"Moderate", "warning", "high"}; !slices.Equal(got, want) {
@@ -134,10 +175,10 @@ func TestParseSARIFSeverityText(t *testing.T) {
 
 func TestParseSARIFLevelOnly(t *testing.T) {
 	d := load(t, "level-only.sarif.json")
-	if d.SARIF.ImportantBasis != "level" {
-		t.Fatalf("basis = %q", d.SARIF.ImportantBasis)
+	if d.Scan.ImportantBasis != "level" {
+		t.Fatalf("basis = %q", d.Scan.ImportantBasis)
 	}
-	f := d.SARIF.Findings
+	f := d.Scan.Findings
 	if f[0].Location != "pkg.Func" || f[0].Severity != "" {
 		t.Errorf("logical location finding = %+v", f[0])
 	}
@@ -166,6 +207,8 @@ func TestSummary(t *testing.T) {
 		{"trivy.sarif.json", Summary{Format: "SARIF 2.1.0", Findings: 5, ImportantFindings: 2, ImportantBasis: "security-severity", Tool: "Trivy"}},
 		{"level-only.sarif.json", Summary{Format: "SARIF 2.1.0", Findings: 4, ImportantFindings: 1, ImportantBasis: "level", Tool: "lint"}},
 		{"spdx.json", Summary{Format: "SPDX 2.3", Packages: 3}},
+		{"cyclonedx-vex.json", Summary{Format: "CycloneDX 1.6", Tool: "DevGuard", ImportantBasis: "security-severity",
+			Packages: 3, Statements: 3, Affected: 1, Findings: 2, ImportantFindings: 1}},
 	}
 	for _, c := range cases {
 		if got := load(t, c.file).Summary(); got != c.want {

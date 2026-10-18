@@ -85,7 +85,7 @@ export function ContentsView({ lines, expanded, onToggle, scope, onPull, onViewe
           <div role="cell" className="truncate text-slate-500" title={identity || undefined}>{identity}</div>
           <div role="cell" className="flex items-center justify-end gap-2">
             {resourceViewer(el) && !source && (
-              <button type="button" aria-label={`View ${el.name}`} onClick={() => onViewer({ kind: 'sbom', title: el.name, source: { resource: el.name, extraIdentity: el.extraIdentity } })} className={iconButton}>
+              <button type="button" aria-label={`View ${el.name}`} onClick={() => onViewer({ kind: 'document', part: 'sbom', title: el.name, source: { resource: el.name, extraIdentity: el.extraIdentity } })} className={iconButton}>
                 <Eye aria-hidden size={16} />
               </button>
             )}

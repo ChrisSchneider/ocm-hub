@@ -267,7 +267,7 @@ export interface components {
             errors: components["schemas"]["ErrorItem"][];
         };
         /**
-         * @description `UNSUPPORTED_DOCUMENT` (422): not a recognised SBOM, VEX or SARIF document.
+         * @description `UNSUPPORTED_DOCUMENT` (422): not a recognised SBOM, VEX or scan (SARIF, CycloneDX) document.
          *     `DOCUMENT_TOO_LARGE` (422): over 32 MiB. `DOCUMENT_CHANGED` (409): a label
          *     link no longer serves the document the sync recorded (`detail.url`).
          *     `DOCUMENT_NOT_ALLOWED` (403): a label link's URL is not on the hub's
@@ -380,13 +380,13 @@ export interface components {
             size: number;
             createdBy?: string;
         };
-        /** @description A parsed SBOM, VEX or SARIF document; exactly one of `sbom`, `vex` and `sarif` is set. Nothing is verified. */
+        /** @description A parsed document; at least one of `sbom`, `vex` and `scan` is set. A CycloneDX document may carry all three: its analysed vulnerabilities are `vex` statements (states mapped to OpenVEX statuses), the others `scan` findings. Nothing is verified. */
         Document: {
             /** @description e.g. `CycloneDX 1.6`, `OpenVEX`, `SARIF 2.1.0`. */
             format: string;
             sbom?: components["schemas"]["DocumentSBOM"];
             vex?: components["schemas"]["DocumentVEX"];
-            sarif?: components["schemas"]["DocumentSARIF"];
+            scan?: components["schemas"]["DocumentScan"];
         };
         DocumentSBOM: {
             packages: components["schemas"]["SBOMPackage"][];
@@ -408,13 +408,13 @@ export interface components {
             justification?: string;
             action?: string;
         };
-        DocumentSARIF: {
+        DocumentScan: {
             tool: string;
             /** @description `security-severity` when any finding has a score, else `level`. */
             importantBasis: string;
-            findings: components["schemas"]["SARIFFinding"][];
+            findings: components["schemas"]["ScanFinding"][];
         };
-        SARIFFinding: {
+        ScanFinding: {
             rule: string;
             severity?: string;
             level?: string;
@@ -810,7 +810,7 @@ export interface components {
         ImageDigest: string;
         /** @description `manifest` or `config`: send the stored JSON instead of the summary. */
         Raw: "manifest" | "config";
-        /** @description `document`: answer the parsed `Document` (SBOM, VEX or SARIF) instead of the bytes. */
+        /** @description `document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes. */
         As: "document";
         /** @description Like the ocm CLI's `--recursive`. `0` (default): this descriptor, as an object. `-1`: an array with this descriptor and, recursively, every referenced component version, each with the location it was read from: depth-first in `componentReferences` order (the CLI's order), each `name:version` once. Values above 0 are not implemented (400). */
         Recursive: number;
@@ -1366,7 +1366,7 @@ export interface operations {
             query?: {
                 /** @description Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver. */
                 repository?: components["parameters"]["Repository"];
-                /** @description `document`: answer the parsed `Document` (SBOM, VEX or SARIF) instead of the bytes. */
+                /** @description `document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes. */
                 as?: components["parameters"]["As"];
             };
             header?: {
@@ -1408,7 +1408,7 @@ export interface operations {
             query?: {
                 /** @description Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver. */
                 repository?: components["parameters"]["Repository"];
-                /** @description `document`: answer the parsed `Document` (SBOM, VEX or SARIF) instead of the bytes. */
+                /** @description `document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes. */
                 as?: components["parameters"]["As"];
             };
             header?: {
@@ -1452,7 +1452,7 @@ export interface operations {
             query?: {
                 /** @description Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver. */
                 repository?: components["parameters"]["Repository"];
-                /** @description `document`: answer the parsed `Document` (SBOM, VEX or SARIF) instead of the bytes. */
+                /** @description `document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes. */
                 as?: components["parameters"]["As"];
             };
             header?: {
@@ -1502,7 +1502,7 @@ export interface operations {
             query?: {
                 /** @description Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver. */
                 repository?: components["parameters"]["Repository"];
-                /** @description `document`: answer the parsed `Document` (SBOM, VEX or SARIF) instead of the bytes. */
+                /** @description `document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes. */
                 as?: components["parameters"]["As"];
             };
             header?: {

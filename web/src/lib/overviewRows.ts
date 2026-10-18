@@ -1,5 +1,5 @@
 import type { Component, VersionOverview } from '../api/client'
-import { isAttestation, KINDS, levelAnchor, sameIdentity, type AttestationSet, type Entry, type Kind, type Level } from './attestations'
+import { isAttestation, isOciAttestation, KINDS, levelAnchor, sameIdentity, type AttestationSet, type Entry, type Kind, type Level } from './attestations'
 import { summaryItems } from './contentsSummary'
 import { signatureLabel, sourceLink } from './facts'
 import { collapseMinors } from './kubernetes'
@@ -8,7 +8,7 @@ import { sbomFormat, sbomResources } from './sbom'
 export type RowKey = 'contents' | 'kubernetes' | 'architectures' | 'signature' | 'slsa' | 'sbom' | 'vex' | 'scans' | 'responsibles' | 'referencedBy'
 
 // Target: where a row's details are shown (the view, and an anchor in it).
-export type Target = { view?: 'contents' | 'versions' | 'descriptor' | 'attestations'; hash?: string }
+export type Target = { view?: 'contents' | 'versions' | 'descriptor' | 'labels' | 'attestations'; hash?: string }
 
 export interface Row {
   key: RowKey
@@ -59,17 +59,21 @@ const counts = (e: Entry) => isAttestation(e) && !(e.kind === 'slsa' && e.type?.
 export function overviewRows(component: Component, ov: VersionOverview, set: AttestationSet | undefined, setFailed: boolean): Row[] {
   const levels = set?.levels ?? []
   const absent = set && !setFailed && !levels.some((l) => l.status === 'failed') ? 'missing' : 'unknown'
-  const of = (kinds: Kind[]) => {
-    const pick = (l: Level) => l.entries.filter((e) => counts(e) && kinds.includes(e.kind))
+  // of: the entries of kinds, or carrying what also asks for (a CycloneDX SBOM may hold VEX
+  // and findings). The row links to an OCI attestation, else to the labels linking documents.
+  const of = (kinds: Kind[], also: (e: Entry) => boolean = () => false) => {
+    const pick = (l: Level) => l.entries.filter((e) => counts(e) && (kinds.includes(e.kind) || also(e)))
     // The subject with the highest build level first: the row links to it.
     const best = (l: Level) => Math.max(0, ...pick(l).map((e) => e.buildLevel ?? 0))
     const found = levels.filter((l) => pick(l).length > 0).sort((a, b) => best(b) - best(a))
-    return { entries: found.flatMap(pick), target: found[0] && ({ view: 'attestations', hash: levelAnchor(found[0].resource) } as Target) }
+    const oci = found.find((l) => pick(l).some(isOciAttestation))
+    const target: Target | undefined = oci ? { view: 'attestations', hash: levelAnchor(oci.resource) } : found[0] && { view: 'labels' }
+    return { entries: found.flatMap(pick), target }
   }
   const list = (xs: string[], empty: string, sep = ', ', target?: Target): Partial<Row> =>
     xs.length > 0 ? { state: 'present', value: xs.join(sep), target } : { state: 'missing', value: empty }
-  const fromAttestations = (kinds: Kind[], value: (entries: Entry[]) => string | undefined): Partial<Row> => {
-    const { entries, target } = of(kinds)
+  const fromAttestations = (kinds: Kind[], value: (entries: Entry[]) => string | undefined, also?: (e: Entry) => boolean): Partial<Row> => {
+    const { entries, target } = of(kinds, also)
     if (entries.length > 0) return { state: 'present', value: value(entries), target }
     return absent === 'missing' ? { state: 'missing', value: 'Not attached' } : { state: 'unknown' }
   }
@@ -113,16 +117,17 @@ export function overviewRows(component: Component, ov: VersionOverview, set: Att
         const best = es.find((e) => e.summary?.statements !== undefined) ?? es.find((e) => e.summary) ?? es[0]
         const statements = best.summary?.statements
         return [best.summary?.format ?? best.format, statements !== undefined ? `${statements} statements` : undefined].filter(Boolean).join(' · ') || undefined
-      }),
+      }, (e) => !!e.summary?.statements),
     scans: () =>
       fromAttestations(SCANS, (es) => {
-        const n = (k: Kind) => es.filter((e) => e.kind === k).length
+        // Findings in another kind's document (a CycloneDX SBOM) count as a CVE scan.
+        const n = (k: Kind) => es.filter((e) => e.kind === k || (k === 'cve' && !SCANS.includes(e.kind))).length
         const kinds = SCANS.filter((k) => n(k) > 0).map((k) => (k === 'other' ? `${n(k)} other` : KINDS[k].label))
         const severe = es.filter((e) => e.summary?.importantBasis === 'security-severity')
         const high = severe.reduce((sum, e) => sum + (e.summary?.importantFindings ?? 0), 0)
         if (high > 0) kinds.push(`${high} high or critical`)
         return kinds.join(' · ')
-      }),
+      }, (e) => !!e.summary?.findings),
   }
   return ROWS.map((r) => ({ ...r, ...body[r.key]() }) as Row)
 }
