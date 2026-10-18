@@ -13,6 +13,8 @@ Open items first, grouped by area; finished work at the end.
 - [ ] Store labels and resources (and descriptors) of the default version, so search,
       filter and discovery can run against the index (references are stored already).
 - [ ] In-server sync scheduling (today: run `cmd/sync` by hand or cron).
+- [ ] Print a final report, that includes number of synced components and any issues
+      like not having a VEX URL in the documents.allow list
 
 ## Connectors
 - [ ] `artifactory/v1`.
@@ -48,17 +50,31 @@ Open items first, grouped by area; finished work at the end.
       for verification summaries (verifier, resource, result, verified levels).
       Large buildx `mode=max` provenance hits `document.MaxSize`.
 
-## Compliance checks
-- [ ] Policy engine for checks (Rego | CEL | Go | WASM?), based on
-      https://container.gov.de/docs/referenzen/container-hardening-checklist/
-- [ ] Checks: VEX attestation present; all critical & high CVEs rated; licence;
-      SBOM; FIPS; SLSA provenance; sources; secrets scan; virus scan.
-- [ ] Signature matches an allowed certificate or sigstore identity (own check).
-      Use `github.com/sigstore/sigstore-go` to verify Sigstore bundles (signature,
-      certificate chain to a TUF trusted root, Rekor / timestamp, identity policy,
-      subject digest); bundles come from OCI referrers and the GitHub attestation API.
-      Legacy cosign `.sig`/`.att` tags are not bundles and need separate handling.
-- [ ] Coverage matrix / checklist: a component-level SLSA + VEX may cover all contents.
+## Compliance pipeline (standalone commands)
+First prototype: FIPS step 1 (SBOM-only heuristics) as SARIF attached to the component,
+and a BSI-like OSCAL assessment result (e.g. every image has an SBOM). Later:
+- [ ] OCM verify (`ocm verify cv` / bindings) against allowed signers: Sigstore identity
+      `github.com/chrisschneider` for now; `sigstore.ocmconfig` has no verifier policy yet.
+- [ ] All OCI artifacts / container images signed (BSI SYS.1.6.A12), via cosign or
+      `sigstore-go`.
+- [ ] SBOM minimum fields with `sbomqs` incl. its compliance reports (BSI TR-03183-2,
+      NTIA, ...)
+- [ ] FIPS step 2: unpack the image filesystem and inspect it statically (`fips.so`,
+      `openssl.cnf` activating the FIPS provider and `default_properties = fips=yes`; Go
+      binaries via `debug/buildinfo`: boringcrypto / `GOFIPS140`, cgo + dynamic OpenSSL;
+      static ELF binaries or bundled crypto symbols; libcrypto FIPS symbols)
+- [ ] FIPS step 3: run the image (`openssl-fips-test`, HMAC-MD5 negative test), see
+      https://edu.chainguard.dev/platform/fips/verify-fips/.
+- [ ] Fuse SBOM + VEX, scan with grype, fail on untriaged critical / high CVEs.
+- [ ] Helm chart in the example component; scan with `kubescape scan` +
+      https://github.com/kubescape/regolibrary (or conftest / OPA).
+- [ ] CIS Docker image checks with dockle (`CIS-DI-*`, SARIF output).
+- [ ] Own rules as Rego over the collected evidence (embedded OPA)
+- [ ] OSCAL `implementation-status: partial` ("teilweise") next to
+      `status: satisfied | not-satisfied`; map to the BSI Grundschutz++ OSCAL catalog.
+- [ ] Reference compliance catalogues as OCM components (label contract)
+- [ ] Frameworks beyond BSI (CIS, NIST 800-53) in the control mapping.
+- [ ] Configurable checks and thresholds (today: `--config` is only the `.ocmconfig`).
 
 ## Upgrades & Compatibility
 - [ ] Upgrade path visualization ("upgradeable from" semver expression).

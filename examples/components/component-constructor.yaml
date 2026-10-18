@@ -60,10 +60,6 @@ components:
           integrity_requirement: high
           availability_requirement: low
           comment: Base images; the risk depends on the workload built on top.
-      - name: catalog.chrisschneider.dev/vex          # component labels
-        version: v1
-        value:
-          url: https://security.access.redhat.com/data/csaf/v2/vex/
     sources:                                          # the source link on the SLSA provenance & sources row
       - name: source
         type: git
@@ -89,7 +85,7 @@ components:
           - name: catalog.chrisschneider.dev/vex
             version: v1
             value:
-              url: "https://api.devguard.opencode.de/api/v1/public/edbe3483-e769-424c-bd25-b88b44164715/refs/oc-13/artifacts/pkg%3Aoci%2Fpython3%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3%26arch%3Damd64%26tag%3D3.10-oc.13-amd64/vex.json/"
+              url: "https://api.devguard.opencode.de/api/v1/public/edbe3483-e769-424c-bd25-b88b44164715/refs/oc-13/artifacts/pkg%3Aoci%2Fpython3%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3%26arch%3Damd64%26tag%3D3.14-oc.13-minimal-amd64/vex.json/"
       - name: changelog
         type: changelog
         input:

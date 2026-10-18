@@ -1,9 +1,9 @@
 import type { Component, VersionOverview } from '../api/client'
-import { isAttestation, isOciAttestation, KINDS, levelAnchor, sameIdentity, type AttestationSet, type Entry, type Kind, type Level } from './attestations'
+import { isAttestation, isOciAttestation, KINDS, levelAnchor, type AttestationSet, type Entry, type Kind, type Level } from './attestations'
 import { summaryItems } from './contentsSummary'
-import { signatureLabel, sourceLink } from './facts'
+import { plural, signatureLabel, sourceLink } from './facts'
 import { collapseMinors } from './kubernetes'
-import { sbomFormat, sbomResources } from './sbom'
+import { sbomResources } from './sbom'
 
 export type RowKey = 'contents' | 'kubernetes' | 'architectures' | 'signature' | 'slsa' | 'sbom' | 'vex' | 'scans' | 'responsibles' | 'referencedBy'
 
@@ -48,6 +48,8 @@ export const storageLabel = (n: NonNullable<VersionOverview['storage']>[number])
 const SCANS: Kind[] = ['cve', 'secrets', 'virus', 'stig', 'fips', 'other']
 
 const unique = (xs: string[]) => [...new Set(xs.filter(Boolean))]
+
+const documents = (n: number) => plural(n, 'document', 'documents')
 
 // counts: a verification summary is evidence only when it claims a level
 // (failed or unreadable summaries carry none).
@@ -102,22 +104,16 @@ export function overviewRows(component: Component, ov: VersionOverview, set: Att
       const value = [att.state === 'present' ? att.value : undefined, src.label].filter(Boolean).join(' · ')
       return { state: 'present', value, target: att.target }
     },
+    // sbom and vex: the number of documents carrying packages or statements; one document
+    // (a CycloneDX VEX listing its components) may count for both.
     sbom: () => {
       const shipped = sbomResources(ov.resources)
-      const embedded = (r: (typeof shipped)[number]) =>
-        levels.flatMap((l) => l.entries).find((e) => e.how === 'embedded' && e.kind === 'sbom' && sameIdentity(e.resource, r))?.format
-      const attested = of(['sbom'])
-      const formats = [...shipped.map((r) => sbomFormat(r, embedded(r))), ...attested.entries.map((e) => e.format ?? '')]
-      const families = unique(formats.map((f) => f.split(' ')[0])).sort()
-      if (shipped.length === 0) return fromAttestations(['sbom'], () => families.join(' + ') || undefined)
-      return { state: 'present', value: families.join(' + ') || undefined, target: attested.target ?? { view: 'contents' } }
+      const withPackages = (e: Entry) => !!e.summary?.packages
+      const attested = of(['sbom'], withPackages)
+      if (shipped.length === 0) return fromAttestations(['sbom'], (es) => documents(es.length), withPackages)
+      return { state: 'present', value: documents(shipped.length + attested.entries.length), target: attested.target ?? { view: 'contents' } }
     },
-    vex: () =>
-      fromAttestations(['vex'], (es) => {
-        const best = es.find((e) => e.summary?.statements !== undefined) ?? es.find((e) => e.summary) ?? es[0]
-        const statements = best.summary?.statements
-        return [best.summary?.format ?? best.format, statements !== undefined ? `${statements} statements` : undefined].filter(Boolean).join(' · ') || undefined
-      }, (e) => !!e.summary?.statements),
+    vex: () => fromAttestations(['vex'], (es) => documents(es.length), (e) => !!e.summary?.statements),
     scans: () =>
       fromAttestations(SCANS, (es) => {
         // Findings in another kind's document (a CycloneDX SBOM) count as a CVE scan.

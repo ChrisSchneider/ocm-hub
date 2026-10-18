@@ -56,24 +56,27 @@ test('slsa row merges build level and source', () => {
   expect(row(overviewRows(comp(), ov(), set([e({ kind: 'slsa', format: 'SLSA v1' }), e({ kind: 'slsa', format: 'SLSA v0.2' })]), false), 'slsa').value).toBe('SLSA v1 + SLSA v0.2')
 })
 
-test('sbom row joins shipped and attested formats, as before', () => {
+test('sbom row counts shipped and attested documents', () => {
   const sbom = { name: 'sbom', version: '1', type: 'sbom', relation: 'local' as const, access: { mediaType: 'application/vnd.cyclonedx+json' } }
   const both = row(overviewRows(comp(), ov({ resources: [sbom] }), set([], [e({ kind: 'sbom', format: 'SPDX' })]), false), 'sbom')
-  expect(both).toMatchObject({ state: 'present', value: 'CycloneDX + SPDX', target: { view: 'attestations', hash: 'attestations-image-1.0-arch=amd64' } })
+  expect(both).toMatchObject({ state: 'present', value: '2 documents', target: { view: 'attestations', hash: 'attestations-image-1.0-arch=amd64' } })
   // Only shipped: present without the set, and points to Contents.
-  expect(row(overviewRows(comp(), ov({ resources: [sbom] }), undefined, true), 'sbom')).toMatchObject({ state: 'present', value: 'CycloneDX', target: { view: 'contents' } })
+  expect(row(overviewRows(comp(), ov({ resources: [sbom] }), undefined, true), 'sbom')).toMatchObject({ state: 'present', value: '1 document', target: { view: 'contents' } })
+  // A VEX document listing packages counts as well.
+  const vex = e({ kind: 'vex', how: 'labelLink', summary: { format: 'CycloneDX 1.6', packages: 14, statements: 56 } })
+  expect(row(overviewRows(comp(), ov(), set([vex]), false), 'sbom')).toMatchObject({ state: 'present', value: '1 document', target: { view: 'labels' } })
 })
 
-test('vex row shows format and statements of the best entry', () => {
+test('vex row counts documents', () => {
   const r = row(overviewRows(comp(), ov(), set([e({ kind: 'vex', how: 'labelLink', format: 'OpenVEX' }), e({ kind: 'vex', format: 'OpenVEX', summary: { format: 'OpenVEX v0.2.0', statements: 12 } })]), false), 'vex')
-  expect(r).toMatchObject({ state: 'present', value: 'OpenVEX v0.2.0 · 12 statements', target: { view: 'attestations', hash: 'attestations-component' } })
+  expect(r).toMatchObject({ state: 'present', value: '2 documents', target: { view: 'attestations', hash: 'attestations-component' } })
 })
 
 test('vex row: a label-only VEX links to Labels; VEX inside an SBOM counts', () => {
   const linked = e({ kind: 'vex', how: 'labelLink', summary: { format: 'CycloneDX 1.6', statements: 56 } })
-  expect(row(overviewRows(comp(), ov(), set([linked]), false), 'vex')).toMatchObject({ state: 'present', value: 'CycloneDX 1.6 · 56 statements', target: { view: 'labels' } })
+  expect(row(overviewRows(comp(), ov(), set([linked]), false), 'vex')).toMatchObject({ state: 'present', value: '1 document', target: { view: 'labels' } })
   const sbom = e({ kind: 'sbom', summary: { format: 'CycloneDX 1.6', packages: 3, statements: 2, findings: 1 } })
-  expect(row(overviewRows(comp(), ov(), set([], [sbom]), false), 'vex')).toMatchObject({ state: 'present', value: 'CycloneDX 1.6 · 2 statements', target: { view: 'attestations' } })
+  expect(row(overviewRows(comp(), ov(), set([], [sbom]), false), 'vex')).toMatchObject({ state: 'present', value: '1 document', target: { view: 'attestations' } })
   expect(row(overviewRows(comp(), ov(), set([], [sbom]), false), 'scans')).toMatchObject({ state: 'present', value: 'CVE' })
 })
 
