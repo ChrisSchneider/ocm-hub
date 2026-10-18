@@ -3,6 +3,7 @@ import { Link, useParams, useSearch } from '@tanstack/react-router'
 import { ApiError, getComponent } from '../api/client'
 import { ComponentBody } from '../components/ComponentBody'
 import { DescriptorTab } from '../components/DescriptorTab'
+import { FindingsView } from '../components/contents/FindingsView'
 import { DocsTab, hasDocs } from '../components/DocsTab'
 import { LocationsBlock } from '../components/LocationsBlock'
 import { ErrorPanel } from '../components/ErrorPanel'
@@ -42,8 +43,9 @@ export function ComponentPage() {
       case 'contents':
       case 'labels':
       case 'supply-chain':
-      case 'findings':
         return <ComponentBody key={`${name}:${version}:${search.repository ?? ''}`} name={name} version={version} search={search} />
+      case 'findings':
+        return <FindingsView />
       case 'descriptor':
         return <DescriptorTab name={name} version={version} repository={search.repository} />
       case 'versions':

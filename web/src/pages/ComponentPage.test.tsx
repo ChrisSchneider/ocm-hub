@@ -208,6 +208,24 @@ test('?view=labels selects Labels', async () => {
   expect(screen.getByRole('tab', { name: 'Contents', selected: true })).toBeInTheDocument()
 })
 
+test('Findings is a page tab right of Contents: an outlook with greyed-out placeholders', async () => {
+  withResource()
+  const { user, router } = renderApp('/components/ocm.software/how-to/product?view=contents')
+  expect(await screen.findByRole('radio', { name: 'Contents', checked: true })).toBeInTheDocument()
+  const tabs = screen.getByRole('tablist', { name: 'Component views' })
+  expect(within(tabs).getAllByRole('tab').map((t) => t.textContent).slice(5, 7)).toEqual(['Contents', 'Findings'])
+  expect(screen.queryByRole('radio', { name: 'Findings' })).not.toBeInTheDocument()
+  await user.click(within(tabs).getByRole('tab', { name: 'Findings' }))
+  await waitFor(() => expect(router.state.matches.at(-1)?.search).toEqual({ view: 'findings' }))
+  expect(screen.getByRole('tab', { name: 'Findings', selected: true })).toBeInTheDocument()
+  expect(await screen.findByText(/Not implemented yet/)).toBeInTheDocument()
+  expect(screen.getByText(/Policies will be able to require certain check results/)).toBeInTheDocument()
+  const table = screen.getByRole('table', { name: 'Findings' })
+  expect(table).toHaveClass('text-slate-400')
+  expect(within(table).getAllByRole('columnheader').map((h) => h.textContent)).toEqual(['Finding', 'Rating', 'Affected', 'Source'])
+  expect(within(table).queryByText(/Not affected/)).not.toBeInTheDocument() // VEXed-away CVEs are left out
+})
+
 test('?view=compliance opens Overview and there is no Compliance tab', async () => {
   useOverview()
   renderApp('/components/ocm.software/how-to/product?view=compliance')

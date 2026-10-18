@@ -7,7 +7,6 @@ export const GRID: Record<View, string> = {
   contents: 'grid-cols-[minmax(0,1.4fr)_7rem_9rem_minmax(0,1fr)_5rem]',
   labels: 'grid-cols-[minmax(0,1fr)_14rem_20rem_4rem]',
   'supply-chain': 'grid-cols-[minmax(0,1fr)_10rem_8rem_minmax(0,11rem)_minmax(0,1fr)_3rem_2rem]',
-  findings: 'grid-cols-[minmax(0,1.4fr)_6rem_minmax(0,1fr)_minmax(0,1fr)_9rem]',
 }
 
 // Line: one top-level entry of the table (a group parent or an item) as the

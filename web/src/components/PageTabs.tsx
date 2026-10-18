@@ -9,6 +9,7 @@ const TABS: { id: View; label: string }[] = [
   { id: 'versions', label: 'Versions' },
   { id: 'replication', label: 'Replication' },
   { id: 'contents', label: 'Contents' },
+  { id: 'findings', label: 'Findings' },
   { id: 'descriptor', label: 'Descriptor' },
 ]
 
@@ -16,7 +17,7 @@ const TABS: { id: View; label: string }[] = [
 // segments mark Contents, compliance marks Overview. noDocs greys out Docs (it still opens).
 export function PageTabs({ view, noDocs }: { view: ComponentSearch['view']; noDocs?: boolean }) {
   const navigate = useNavigate({ from: '/components/$' })
-  const active: View = view === 'labels' || view === 'supply-chain' || view === 'findings' ? 'contents' : view === undefined || view === 'compliance' ? 'overview' : view
+  const active: View = view === 'labels' || view === 'supply-chain' ? 'contents' : view === undefined || view === 'compliance' ? 'overview' : view
   return (
     <div role="tablist" aria-label="Component views" className="flex gap-1 border-b border-slate-200">
       {TABS.map((t) => {

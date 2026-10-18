@@ -58,7 +58,7 @@ test('Usage tab sits right after Docs, which is always shown', async () => {
   serve(base)
   renderApp(`/components/${name}`)
   const tabs = await screen.findAllByRole('tab')
-  expect(tabs.map((t) => t.textContent)).toEqual(['Overview', 'Docs', 'Usage', 'Versions', 'Replication', 'Contents', 'Descriptor'])
+  expect(tabs.map((t) => t.textContent)).toEqual(['Overview', 'Docs', 'Usage', 'Versions', 'Replication', 'Contents', 'Findings', 'Descriptor'])
 })
 
 test('air-gapped transfer: download into a local CTF archive, then upload from it', async () => {

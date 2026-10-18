@@ -6,7 +6,6 @@ import { childName, groupItems, isImage, type View } from '../lib/contentsRows'
 import { describedResource } from '../lib/sbom'
 import { SupplyChainView } from './contents/SupplyChainView'
 import { ContentsView } from './contents/ContentsView'
-import { FindingsView } from './contents/FindingsView'
 import type { Line } from './contents/grid'
 import { LabelsView } from './contents/LabelsView'
 import { PullDialog } from './PullDialog'
@@ -18,13 +17,11 @@ const VIEWS: { id: View; label: string }[] = [
   { id: 'contents', label: 'Contents' },
   { id: 'labels', label: 'Labels' },
   { id: 'supply-chain', label: 'Supply chain' },
-  { id: 'findings', label: 'Findings' },
 ]
 
 const pill = (on: boolean) => `rounded px-2 py-0.5 ${on ? 'bg-slate-800 text-white' : 'bg-slate-100'}`
 
-// ContentsList: the sources and resources of a descriptor in one of its views (Findings is an
-// outlook only, not built from the descriptor yet). Resources
+// ContentsList: the sources and resources of a descriptor in one of its views. Resources
 // differing only in extraIdentity fold into an expandable group; an SBOM with an artifact
 // reference sits right under the resource it describes (in Supply chain it is one of that
 // resource's documents instead). The attestation set is loaded only for the Supply chain view
@@ -127,14 +124,12 @@ export function ContentsList({ descriptor, repository, query, view, onView }: { 
           settled={attestations.isSuccess || attestations.isError}
           loadSet={loadSet}
         />
-      ) : view === 'findings' ? (
-        <FindingsView />
       ) : view === 'supply-chain' ? (
         <SupplyChainView {...common} showComponent={unfiltered} scope={scope} set={attestations.data} pending={attestations.isPending} error={attestations.error} />
       ) : (
         <ContentsView {...common} scope={scope} onPull={setPull} />
       )}
-      {view !== 'findings' && lines.length === 0 && !unfiltered && <p className="text-sm text-slate-500">No match in this component.</p>}
+      {lines.length === 0 && !unfiltered && <p className="text-sm text-slate-500">No match in this component.</p>}
     </div>
   )
 }

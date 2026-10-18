@@ -57,7 +57,12 @@ and a BSI-like OSCAL assessment result (e.g. every image has an SBOM): `cmd/fips
 - [ ] Sign the SARIF attestation (today an unsigned in-toto statement as OCI referrer).
 - [ ] Read SBOMs behind label links too (the commands pass no document fetcher yet).
 - [ ] fuse all discovered SBOM,VEX,SARIF,CBOM etc documents, and cyclonedx can contain anything
-      — into the Findings view of the Contents tab (today an outlook with greyed-out placeholders).
+      — into the Findings tab (today an outlook with greyed-out placeholders): one row per
+      finding with the report's own rating, what it affects (resource → package, resource,
+      whole component) and the exact source documents; CVEs VEXed as not affecting are left out.
+- [ ] Required checks: policies that require certain check results (e.g. a control satisfied
+      in `assessment-results.oscal.json`, no FIPS SARIF errors) and flag a component missing
+      one; shown in the Findings tab (today announced in its outlook).
 - [ ] OCM verify (`ocm verify cv` / bindings) against allowed signers: Sigstore identity
       `github.com/chrisschneider` for now; `sigstore.ocmconfig` has no verifier policy yet.
 - [ ] All OCI artifacts / container images signed (BSI SYS.1.6.A12), via cosign or

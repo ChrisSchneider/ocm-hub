@@ -69,5 +69,5 @@ test('no docs: direct link shows empty state', async () => {
 test('with docs: tab order', async () => {
   serve({ ...base, resources: [doc('guide')] }, { guide: { body: 'x' } })
   renderApp(`/components/${name}`)
-  await waitFor(async () => expect((await screen.findAllByRole('tab')).map((t) => t.textContent)).toEqual(['Overview', 'Docs', 'Usage', 'Versions', 'Replication', 'Contents', 'Descriptor']))
+  await waitFor(async () => expect((await screen.findAllByRole('tab')).map((t) => t.textContent)).toEqual(['Overview', 'Docs', 'Usage', 'Versions', 'Replication', 'Contents', 'Findings', 'Descriptor']))
 })
