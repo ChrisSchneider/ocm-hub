@@ -125,18 +125,10 @@ Candidates to move into separate Go modules:
 - **Attestation gathering** (`internal/attestation`): "what is attached to this
   component version / OCI subject?" (referrers, cosign tags, buildx, labels), usable from
   CLIs, controllers and CI.
-- **Document summaries** (`internal/document`): one normalised view over protobom,
-  go-vex and go-sarif, with the counts.
-- **Image inspection** (`internal/image`): platforms and `docker inspect`-like details
-  from the registry, nothing pulled.
-- **Allow-listed fetcher**: the `documents.allow` matcher and https client, as a small
-  reusable library.
-- **Label contracts**: JSON Schemas for the hub labels, published so that producers can
-  validate them in CI instead of the sync skipping them with a warning.
-- **Verification** (later): signature and attestation checks via `sigstore-go`, as a
-  library the hub only calls, so "surfacing" and "verifying" stay separate.
-- **Sync as a job**: `cmd/sync` as its own image or CronJob writing the index, so the
-  server stays a read-only process.
+  - **Image inspection** (`internal/image`): platforms and `docker inspect`-like details
+    from the registry, nothing pulled.
+  - **Document summaries** (`internal/document`): one normalised view over protobom,
+    go-vex and go-sarif, with the counts.
 
 ## Development & Testing
 
