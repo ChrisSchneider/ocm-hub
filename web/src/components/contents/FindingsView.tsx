@@ -24,9 +24,10 @@ export function FindingsView() {
         placeholders.
       </p>
       <p className="text-sm text-slate-600">
-        <span className="font-semibold">Required checks:</span> Policies will be able to require certain check results, for
-        example that the control &ldquo;SBOM for every image&rdquo; is satisfied in assessment-results.oscal.json or that the
-        FIPS check reports no errors. A component that misses a required result is flagged.
+        <span className="font-semibold">Required checks:</span> Policies will be able to require certain check results: the
+        top-level OSCAL assessment results such as assessment-results.oscal.json. These in turn check that the downstream
+        checks (an SBOM for every image, a FIPS check, ...) are present and pass, so requiring them covers the whole chain.
+        A component whose required assessment is missing or not satisfied is flagged.
       </p>
       <div role="table" aria-label="Findings" aria-disabled className="select-none text-sm text-slate-400 opacity-60">
         <div role="row" className={`${ROW} border-b border-slate-300 py-1 text-xs font-semibold uppercase tracking-wide`}>

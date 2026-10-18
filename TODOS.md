@@ -60,9 +60,11 @@ and a BSI-like OSCAL assessment result (e.g. every image has an SBOM): `cmd/fips
       — into the Findings tab (today an outlook with greyed-out placeholders): one row per
       finding with the report's own rating, what it affects (resource → package, resource,
       whole component) and the exact source documents; CVEs VEXed as not affecting are left out.
-- [ ] Required checks: policies that require certain check results (e.g. a control satisfied
-      in `assessment-results.oscal.json`, no FIPS SARIF errors) and flag a component missing
-      one; shown in the Findings tab (today announced in its outlook).
+- [ ] Required checks: policies that require the top-level OSCAL assessment results (e.g.
+      `assessment-results.oscal.json`), which in turn check that the downstream checks (SBOM
+      per image, FIPS SARIF, ...) are present and pass; flag a component whose required
+      assessment is missing or not satisfied, shown in the Findings tab (today announced in
+      its outlook).
 - [ ] OCM verify (`ocm verify cv` / bindings) against allowed signers: Sigstore identity
       `github.com/chrisschneider` for now; `sigstore.ocmconfig` has no verifier policy yet.
 - [ ] All OCI artifacts / container images signed (BSI SYS.1.6.A12), via cosign or
