@@ -38,117 +38,6 @@ func (e ArchitectureFrom) Valid() bool {
 	}
 }
 
-// Defines values for AttestationEntryHow.
-const (
-	Buildx    AttestationEntryHow = "buildx"
-	CosignTag AttestationEntryHow = "cosignTag"
-	Embedded  AttestationEntryHow = "embedded"
-	LabelLink AttestationEntryHow = "labelLink"
-	Referrer  AttestationEntryHow = "referrer"
-)
-
-// Valid indicates whether the value is a known member of the AttestationEntryHow enum.
-func (e AttestationEntryHow) Valid() bool {
-	switch e {
-	case Buildx:
-		return true
-	case CosignTag:
-		return true
-	case Embedded:
-		return true
-	case LabelLink:
-		return true
-	case Referrer:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for AttestationEntryKind.
-const (
-	Cve     AttestationEntryKind = "cve"
-	Fips    AttestationEntryKind = "fips"
-	Other   AttestationEntryKind = "other"
-	Sbom    AttestationEntryKind = "sbom"
-	Secrets AttestationEntryKind = "secrets"
-	Slsa    AttestationEntryKind = "slsa"
-	Sources AttestationEntryKind = "sources"
-	Stig    AttestationEntryKind = "stig"
-	Vex     AttestationEntryKind = "vex"
-	Virus   AttestationEntryKind = "virus"
-)
-
-// Valid indicates whether the value is a known member of the AttestationEntryKind enum.
-func (e AttestationEntryKind) Valid() bool {
-	switch e {
-	case Cve:
-		return true
-	case Fips:
-		return true
-	case Other:
-		return true
-	case Sbom:
-		return true
-	case Secrets:
-		return true
-	case Slsa:
-		return true
-	case Sources:
-		return true
-	case Stig:
-		return true
-	case Vex:
-		return true
-	case Virus:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for AttestationEntrySigned.
-const (
-	AttestationEntrySignedComponent AttestationEntrySigned = "component"
-	AttestationEntrySignedNo        AttestationEntrySigned = "no"
-	AttestationEntrySignedSigned    AttestationEntrySigned = "signed"
-)
-
-// Valid indicates whether the value is a known member of the AttestationEntrySigned enum.
-func (e AttestationEntrySigned) Valid() bool {
-	switch e {
-	case AttestationEntrySignedComponent:
-		return true
-	case AttestationEntrySignedNo:
-		return true
-	case AttestationEntrySignedSigned:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for AttestationLevelStatus.
-const (
-	Failed AttestationLevelStatus = "failed"
-	NotOci AttestationLevelStatus = "notOci"
-	Ok     AttestationLevelStatus = "ok"
-)
-
-// Valid indicates whether the value is a known member of the AttestationLevelStatus enum.
-func (e AttestationLevelStatus) Valid() bool {
-	switch e {
-	case Failed:
-		return true
-	case NotOci:
-		return true
-	case Ok:
-		return true
-	default:
-		return false
-	}
-}
-
 // Defines values for DocLinkKind.
 const (
 	Api      DocLinkKind = "api"
@@ -422,6 +311,120 @@ func (e StorageNeedVolumeMode) Valid() bool {
 	}
 }
 
+// Defines values for SupplyChainEntryKind.
+const (
+	Compliance SupplyChainEntryKind = "compliance"
+	Cve        SupplyChainEntryKind = "cve"
+	Fips       SupplyChainEntryKind = "fips"
+	Other      SupplyChainEntryKind = "other"
+	Sbom       SupplyChainEntryKind = "sbom"
+	Secrets    SupplyChainEntryKind = "secrets"
+	Slsa       SupplyChainEntryKind = "slsa"
+	Sources    SupplyChainEntryKind = "sources"
+	Stig       SupplyChainEntryKind = "stig"
+	Vex        SupplyChainEntryKind = "vex"
+	Virus      SupplyChainEntryKind = "virus"
+)
+
+// Valid indicates whether the value is a known member of the SupplyChainEntryKind enum.
+func (e SupplyChainEntryKind) Valid() bool {
+	switch e {
+	case Compliance:
+		return true
+	case Cve:
+		return true
+	case Fips:
+		return true
+	case Other:
+		return true
+	case Sbom:
+		return true
+	case Secrets:
+		return true
+	case Slsa:
+		return true
+	case Sources:
+		return true
+	case Stig:
+		return true
+	case Vex:
+		return true
+	case Virus:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SupplyChainEntrySigned.
+const (
+	SupplyChainEntrySignedComponent SupplyChainEntrySigned = "component"
+	SupplyChainEntrySignedNo        SupplyChainEntrySigned = "no"
+	SupplyChainEntrySignedSigned    SupplyChainEntrySigned = "signed"
+)
+
+// Valid indicates whether the value is a known member of the SupplyChainEntrySigned enum.
+func (e SupplyChainEntrySigned) Valid() bool {
+	switch e {
+	case SupplyChainEntrySignedComponent:
+		return true
+	case SupplyChainEntrySignedNo:
+		return true
+	case SupplyChainEntrySignedSigned:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SupplyChainEntrySource.
+const (
+	Buildx    SupplyChainEntrySource = "buildx"
+	CosignTag SupplyChainEntrySource = "cosignTag"
+	Embedded  SupplyChainEntrySource = "embedded"
+	LabelLink SupplyChainEntrySource = "labelLink"
+	Referrer  SupplyChainEntrySource = "referrer"
+)
+
+// Valid indicates whether the value is a known member of the SupplyChainEntrySource enum.
+func (e SupplyChainEntrySource) Valid() bool {
+	switch e {
+	case Buildx:
+		return true
+	case CosignTag:
+		return true
+	case Embedded:
+		return true
+	case LabelLink:
+		return true
+	case Referrer:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SupplyChainLevelStatus.
+const (
+	Failed SupplyChainLevelStatus = "failed"
+	NotOci SupplyChainLevelStatus = "notOci"
+	Ok     SupplyChainLevelStatus = "ok"
+)
+
+// Valid indicates whether the value is a known member of the SupplyChainLevelStatus enum.
+func (e SupplyChainLevelStatus) Valid() bool {
+	switch e {
+	case Failed:
+		return true
+	case NotOci:
+		return true
+	case Ok:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for As.
 const (
 	AsDocument As = "document"
@@ -533,36 +536,6 @@ func (e HeadComponentsParamsSort) Valid() bool {
 	}
 }
 
-// Defines values for GetAttestationContentParamsAs.
-const (
-	GetAttestationContentParamsAsDocument GetAttestationContentParamsAs = "document"
-)
-
-// Valid indicates whether the value is a known member of the GetAttestationContentParamsAs enum.
-func (e GetAttestationContentParamsAs) Valid() bool {
-	switch e {
-	case GetAttestationContentParamsAsDocument:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for HeadAttestationContentParamsAs.
-const (
-	HeadAttestationContentParamsAsDocument HeadAttestationContentParamsAs = "document"
-)
-
-// Valid indicates whether the value is a known member of the HeadAttestationContentParamsAs enum.
-func (e HeadAttestationContentParamsAs) Valid() bool {
-	switch e {
-	case HeadAttestationContentParamsAsDocument:
-		return true
-	default:
-		return false
-	}
-}
-
 // Defines values for GetImageDetailsParamsRaw.
 const (
 	GetImageDetailsParamsRawConfig   GetImageDetailsParamsRaw = "config"
@@ -629,6 +602,36 @@ func (e HeadResourceParamsAs) Valid() bool {
 	}
 }
 
+// Defines values for GetSupplyChainDocumentParamsAs.
+const (
+	GetSupplyChainDocumentParamsAsDocument GetSupplyChainDocumentParamsAs = "document"
+)
+
+// Valid indicates whether the value is a known member of the GetSupplyChainDocumentParamsAs enum.
+func (e GetSupplyChainDocumentParamsAs) Valid() bool {
+	switch e {
+	case GetSupplyChainDocumentParamsAsDocument:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for HeadSupplyChainDocumentParamsAs.
+const (
+	HeadSupplyChainDocumentParamsAsDocument HeadSupplyChainDocumentParamsAs = "document"
+)
+
+// Valid indicates whether the value is a known member of the HeadSupplyChainDocumentParamsAs enum.
+func (e HeadSupplyChainDocumentParamsAs) Valid() bool {
+	switch e {
+	case HeadSupplyChainDocumentParamsAsDocument:
+		return true
+	default:
+		return false
+	}
+}
+
 // Architecture defines model for Architecture.
 type Architecture struct {
 	// From Where the platform was seen, sorted.
@@ -641,81 +644,39 @@ type Architecture struct {
 // ArchitectureFrom defines model for Architecture.From.
 type ArchitectureFrom string
 
-// AttestationEntry defines model for AttestationEntry.
-type AttestationEntry struct {
-	// BuildLevel SLSA build level a slsa entry claims (from a verification summary or a known builder); not verified.
-	BuildLevel *int `json:"buildLevel,omitempty"`
+// AssessmentFinding defines model for AssessmentFinding.
+type AssessmentFinding struct {
+	Description *string `json:"description,omitempty"`
 
-	// Builder SLSA provenance builder id.
-	Builder *string `json:"builder,omitempty"`
-	Digest  *string `json:"digest,omitempty"`
+	// Implementation Implementation status, e.g. `implemented`, `partial`.
+	Implementation *string                 `json:"implementation,omitempty"`
+	Observations   []AssessmentObservation `json:"observations"`
 
-	// Format e.g. `CycloneDX 1.6`.
-	Format *string              `json:"format,omitempty"`
-	How    AttestationEntryHow  `json:"how"`
-	Kind   AttestationEntryKind `json:"kind"`
+	// Reason `pass`, `fail` or `other`.
+	Reason  *string `json:"reason,omitempty"`
+	Remarks *string `json:"remarks,omitempty"`
 
-	// Label Label name a labelLink entry came from.
-	Label    *string           `json:"label,omitempty"`
-	Platform *string           `json:"platform,omitempty"`
-	Resource *ResourceIdentity `json:"resource,omitempty"`
+	// Source The finding's `source` prop, e.g. the cited regulation.
+	Source *string `json:"source,omitempty"`
 
-	// Signed What covers the attestation; nothing is verified.
-	Signed AttestationEntrySigned `json:"signed"`
+	// State `satisfied` or `not-satisfied`.
+	State string `json:"state"`
 
-	// Summary Counts read from the attestation document; zero counts are omitted.
-	Summary *AttestationSummary `json:"summary,omitempty"`
-
-	// Type Raw predicate
-	Type *string `json:"type,omitempty"`
-
-	// Url Link from a label.
-	Url *string `json:"url,omitempty"`
+	// Target Assessed objective or control id.
+	Target *string `json:"target,omitempty"`
+	Title  string  `json:"title"`
 }
 
-// AttestationEntryHow defines model for AttestationEntry.How.
-type AttestationEntryHow string
+// AssessmentObservation defines model for AssessmentObservation.
+type AssessmentObservation struct {
+	Description *string `json:"description,omitempty"`
 
-// AttestationEntryKind defines model for AttestationEntry.Kind.
-type AttestationEntryKind string
+	// Evidence Relevant evidence hrefs.
+	Evidence []string `json:"evidence"`
 
-// AttestationEntrySigned What covers the attestation; nothing is verified.
-type AttestationEntrySigned string
-
-// AttestationLevel The component (no `resource`) or one OCI resource.
-type AttestationLevel struct {
-	Entries  []AttestationEntry     `json:"entries"`
-	Error    *string                `json:"error,omitempty"`
-	Resource *ResourceIdentity      `json:"resource,omitempty"`
-	Status   AttestationLevelStatus `json:"status"`
-}
-
-// AttestationLevelStatus defines model for AttestationLevel.Status.
-type AttestationLevelStatus string
-
-// AttestationSet defines model for AttestationSet.
-type AttestationSet struct {
-	CheckedAt time.Time          `json:"checkedAt"`
-	Levels    []AttestationLevel `json:"levels"`
-	Name      string             `json:"name"`
-
-	// Repository Location gathered from, `oci::host/path`.
-	Repository string `json:"repository"`
-	Version    string `json:"version"`
-}
-
-// AttestationSummary Counts read from the attestation document; zero counts are omitted.
-type AttestationSummary struct {
-	Affected *int   `json:"affected,omitempty"`
-	Findings *int   `json:"findings,omitempty"`
-	Format   string `json:"format"`
-
-	// ImportantBasis What `importantFindings` counts
-	ImportantBasis    *string `json:"importantBasis,omitempty"`
-	ImportantFindings *int    `json:"importantFindings,omitempty"`
-	Packages          *int    `json:"packages,omitempty"`
-	Statements        *int    `json:"statements,omitempty"`
-	Tool              *string `json:"tool,omitempty"`
+	// Result The observation's `result` prop, e.g. `pass`, `fail`.
+	Result *string `json:"result,omitempty"`
+	Title  string  `json:"title"`
 }
 
 // Component defines model for Component.
@@ -909,13 +870,22 @@ type DocLink struct {
 // DocLinkKind defines model for DocLink.Kind.
 type DocLinkKind string
 
-// Document A parsed document; at least one of `sbom`, `vex` and `scan` is set. A CycloneDX document may carry all three: its analysed vulnerabilities are `vex` statements (states mapped to OpenVEX statuses), the others `scan` findings. Nothing is verified.
+// Document A parsed document; at least one of `sbom`, `vex`, `scan` and `assessment` is set. A CycloneDX document may carry the first three: its vulnerabilities are `scan` findings, the analysed ones also `vex` statements (states mapped to OpenVEX statuses). Nothing is verified.
 type Document struct {
-	// Format e.g. `CycloneDX 1.6`, `OpenVEX`, `SARIF 2.1.0`.
+	// Assessment The findings of an OSCAL assessment-results document, across all its results.
+	Assessment *DocumentAssessment `json:"assessment,omitempty"`
+
+	// Format e.g. `CycloneDX 1.6`, `OpenVEX`, `SARIF 2.1.0`, `OSCAL 1.1.3 assessment results`.
 	Format string        `json:"format"`
 	Sbom   *DocumentSBOM `json:"sbom,omitempty"`
 	Scan   *DocumentScan `json:"scan,omitempty"`
 	Vex    *DocumentVEX  `json:"vex,omitempty"`
+}
+
+// DocumentAssessment The findings of an OSCAL assessment-results document, across all its results.
+type DocumentAssessment struct {
+	Findings []AssessmentFinding `json:"findings"`
+	Title    *string             `json:"title,omitempty"`
 }
 
 // DocumentSBOM defines model for DocumentSBOM.
@@ -930,6 +900,26 @@ type DocumentScan struct {
 	// ImportantBasis `security-severity` when any finding has a score, else `level`.
 	ImportantBasis string `json:"importantBasis"`
 	Tool           string `json:"tool"`
+}
+
+// DocumentSummary Counts read from the document; zero counts are omitted.
+type DocumentSummary struct {
+	Affected *int   `json:"affected,omitempty"`
+	Findings *int   `json:"findings,omitempty"`
+	Format   string `json:"format"`
+
+	// ImportantBasis What `importantFindings` counts
+	ImportantBasis    *string `json:"importantBasis,omitempty"`
+	ImportantFindings *int    `json:"importantFindings,omitempty"`
+
+	// NotSatisfied Requirements whose status is not satisfied.
+	NotSatisfied *int `json:"notSatisfied,omitempty"`
+	Packages     *int `json:"packages,omitempty"`
+
+	// Requirements Requirements an assessment covers (its OSCAL findings).
+	Requirements *int    `json:"requirements,omitempty"`
+	Statements   *int    `json:"statements,omitempty"`
+	Tool         *string `json:"tool,omitempty"`
 }
 
 // DocumentVEX defines model for DocumentVEX.
@@ -1190,6 +1180,71 @@ type StorageNeedAccessMode string
 // StorageNeedVolumeMode defines model for StorageNeed.VolumeMode.
 type StorageNeedVolumeMode string
 
+// SupplyChain defines model for SupplyChain.
+type SupplyChain struct {
+	CheckedAt time.Time          `json:"checkedAt"`
+	Levels    []SupplyChainLevel `json:"levels"`
+	Name      string             `json:"name"`
+
+	// Repository Location gathered from, `oci::host/path`.
+	Repository string `json:"repository"`
+	Version    string `json:"version"`
+}
+
+// SupplyChainEntry defines model for SupplyChainEntry.
+type SupplyChainEntry struct {
+	// BuildLevel SLSA build level a slsa entry claims (from a verification summary or a known builder); not verified.
+	BuildLevel *int `json:"buildLevel,omitempty"`
+
+	// Builder SLSA provenance builder id.
+	Builder *string `json:"builder,omitempty"`
+	Digest  *string `json:"digest,omitempty"`
+
+	// Format e.g. `CycloneDX 1.6`.
+	Format *string              `json:"format,omitempty"`
+	Kind   SupplyChainEntryKind `json:"kind"`
+
+	// Label Label name a labelLink entry came from.
+	Label    *string           `json:"label,omitempty"`
+	Platform *string           `json:"platform,omitempty"`
+	Resource *ResourceIdentity `json:"resource,omitempty"`
+
+	// Signed What covers the document; nothing is verified.
+	Signed SupplyChainEntrySigned `json:"signed"`
+
+	// Source Where the entry was found.
+	Source SupplyChainEntrySource `json:"source"`
+
+	// Summary Counts read from the document; zero counts are omitted.
+	Summary *DocumentSummary `json:"summary,omitempty"`
+
+	// Type Raw predicate
+	Type *string `json:"type,omitempty"`
+
+	// Url Link from a label.
+	Url *string `json:"url,omitempty"`
+}
+
+// SupplyChainEntryKind defines model for SupplyChainEntry.Kind.
+type SupplyChainEntryKind string
+
+// SupplyChainEntrySigned What covers the document; nothing is verified.
+type SupplyChainEntrySigned string
+
+// SupplyChainEntrySource Where the entry was found.
+type SupplyChainEntrySource string
+
+// SupplyChainLevel The component (no `resource`) or one OCI resource.
+type SupplyChainLevel struct {
+	Entries  []SupplyChainEntry     `json:"entries"`
+	Error    *string                `json:"error,omitempty"`
+	Resource *ResourceIdentity      `json:"resource,omitempty"`
+	Status   SupplyChainLevelStatus `json:"status"`
+}
+
+// SupplyChainLevelStatus defines model for SupplyChainLevel.Status.
+type SupplyChainLevelStatus string
+
 // TypeCount defines model for TypeCount.
 type TypeCount struct {
 	Count int    `json:"count"`
@@ -1225,9 +1280,6 @@ type VersionList struct {
 // As defines model for As.
 type As string
 
-// AttestationDigest defines model for AttestationDigest.
-type AttestationDigest = string
-
 // Compact defines model for Compact.
 type Compact = bool
 
@@ -1236,6 +1288,9 @@ type ConnectorFilter = []string
 
 // Cursor defines model for Cursor.
 type Cursor = string
+
+// DocumentDigest defines model for DocumentDigest.
+type DocumentDigest = string
 
 // IfNoneMatch defines model for IfNoneMatch.
 type IfNoneMatch = string
@@ -1366,54 +1421,6 @@ type HeadComponentParams struct {
 	IfNoneMatch *IfNoneMatch `json:"If-None-Match,omitempty"`
 }
 
-// GetAttestationsParams defines parameters for GetAttestations.
-type GetAttestationsParams struct {
-	// Repository Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver.
-	Repository  *Repository  `form:"repository,omitempty" json:"repository,omitempty"`
-	IfNoneMatch *IfNoneMatch `json:"If-None-Match,omitempty"`
-}
-
-// HeadAttestationsParams defines parameters for HeadAttestations.
-type HeadAttestationsParams struct {
-	// Repository Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver.
-	Repository  *Repository  `form:"repository,omitempty" json:"repository,omitempty"`
-	IfNoneMatch *IfNoneMatch `json:"If-None-Match,omitempty"`
-}
-
-// GetAttestationContentParams defines parameters for GetAttestationContent.
-type GetAttestationContentParams struct {
-	// Repository Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver.
-	Repository *Repository `form:"repository,omitempty" json:"repository,omitempty"`
-
-	// As `document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes.
-	As          *GetAttestationContentParamsAs `form:"as,omitempty" json:"as,omitempty"`
-	IfNoneMatch *IfNoneMatch                   `json:"If-None-Match,omitempty"`
-}
-
-// GetAttestationContentParamsAs defines parameters for GetAttestationContent.
-type GetAttestationContentParamsAs string
-
-// GetAttestationContent200JSONResponseBody1 defines parameters for GetAttestationContent.
-type GetAttestationContent200JSONResponseBody1 = interface{}
-
-// GetAttestationContent200JSONResponseBody defines parameters for GetAttestationContent.
-type GetAttestationContent200JSONResponseBody struct {
-	union json.RawMessage
-}
-
-// HeadAttestationContentParams defines parameters for HeadAttestationContent.
-type HeadAttestationContentParams struct {
-	// Repository Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver.
-	Repository *Repository `form:"repository,omitempty" json:"repository,omitempty"`
-
-	// As `document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes.
-	As          *HeadAttestationContentParamsAs `form:"as,omitempty" json:"as,omitempty"`
-	IfNoneMatch *IfNoneMatch                    `json:"If-None-Match,omitempty"`
-}
-
-// HeadAttestationContentParamsAs defines parameters for HeadAttestationContent.
-type HeadAttestationContentParamsAs string
-
 // GetDescriptorParams defines parameters for GetDescriptor.
 type GetDescriptorParams struct {
 	// Repository Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver.
@@ -1520,6 +1527,54 @@ type HeadResourceParams struct {
 // HeadResourceParamsAs defines parameters for HeadResource.
 type HeadResourceParamsAs string
 
+// GetSupplyChainParams defines parameters for GetSupplyChain.
+type GetSupplyChainParams struct {
+	// Repository Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver.
+	Repository  *Repository  `form:"repository,omitempty" json:"repository,omitempty"`
+	IfNoneMatch *IfNoneMatch `json:"If-None-Match,omitempty"`
+}
+
+// HeadSupplyChainParams defines parameters for HeadSupplyChain.
+type HeadSupplyChainParams struct {
+	// Repository Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver.
+	Repository  *Repository  `form:"repository,omitempty" json:"repository,omitempty"`
+	IfNoneMatch *IfNoneMatch `json:"If-None-Match,omitempty"`
+}
+
+// GetSupplyChainDocumentParams defines parameters for GetSupplyChainDocument.
+type GetSupplyChainDocumentParams struct {
+	// Repository Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver.
+	Repository *Repository `form:"repository,omitempty" json:"repository,omitempty"`
+
+	// As `document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes.
+	As          *GetSupplyChainDocumentParamsAs `form:"as,omitempty" json:"as,omitempty"`
+	IfNoneMatch *IfNoneMatch                    `json:"If-None-Match,omitempty"`
+}
+
+// GetSupplyChainDocumentParamsAs defines parameters for GetSupplyChainDocument.
+type GetSupplyChainDocumentParamsAs string
+
+// GetSupplyChainDocument200JSONResponseBody1 defines parameters for GetSupplyChainDocument.
+type GetSupplyChainDocument200JSONResponseBody1 = interface{}
+
+// GetSupplyChainDocument200JSONResponseBody defines parameters for GetSupplyChainDocument.
+type GetSupplyChainDocument200JSONResponseBody struct {
+	union json.RawMessage
+}
+
+// HeadSupplyChainDocumentParams defines parameters for HeadSupplyChainDocument.
+type HeadSupplyChainDocumentParams struct {
+	// Repository Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver.
+	Repository *Repository `form:"repository,omitempty" json:"repository,omitempty"`
+
+	// As `document`: answer the parsed `Document` (SBOM, VEX and/or scan results) instead of the bytes.
+	As          *HeadSupplyChainDocumentParamsAs `form:"as,omitempty" json:"as,omitempty"`
+	IfNoneMatch *IfNoneMatch                     `json:"If-None-Match,omitempty"`
+}
+
+// HeadSupplyChainDocumentParamsAs defines parameters for HeadSupplyChainDocument.
+type HeadSupplyChainDocumentParamsAs string
+
 // ListVersionsParams defines parameters for ListVersions.
 type ListVersionsParams struct {
 	// IncludePrerelease Include pre-releases (alpha, beta, rc, … — see versions.prereleaseMarkers).
@@ -1617,22 +1672,22 @@ func (t *DescriptorOrLocatedList) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-// AsDocument returns the union data inside the GetAttestationContent200JSONResponseBody as a Document
-func (t GetAttestationContent200JSONResponseBody) AsDocument() (Document, error) {
+// AsDocument returns the union data inside the GetSupplyChainDocument200JSONResponseBody as a Document
+func (t GetSupplyChainDocument200JSONResponseBody) AsDocument() (Document, error) {
 	var body Document
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromDocument overwrites any union data inside the GetAttestationContent200JSONResponseBody as the provided Document
-func (t *GetAttestationContent200JSONResponseBody) FromDocument(v Document) error {
+// FromDocument overwrites any union data inside the GetSupplyChainDocument200JSONResponseBody as the provided Document
+func (t *GetSupplyChainDocument200JSONResponseBody) FromDocument(v Document) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeDocument performs a merge with any union data inside the GetAttestationContent200JSONResponseBody, using the provided Document
-func (t *GetAttestationContent200JSONResponseBody) MergeDocument(v Document) error {
+// MergeDocument performs a merge with any union data inside the GetSupplyChainDocument200JSONResponseBody, using the provided Document
+func (t *GetSupplyChainDocument200JSONResponseBody) MergeDocument(v Document) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1643,22 +1698,22 @@ func (t *GetAttestationContent200JSONResponseBody) MergeDocument(v Document) err
 	return err
 }
 
-// AsGetAttestationContent200JSONResponseBody1 returns the union data inside the GetAttestationContent200JSONResponseBody as a GetAttestationContent200JSONResponseBody1
-func (t GetAttestationContent200JSONResponseBody) AsGetAttestationContent200JSONResponseBody1() (GetAttestationContent200JSONResponseBody1, error) {
-	var body GetAttestationContent200JSONResponseBody1
+// AsGetSupplyChainDocument200JSONResponseBody1 returns the union data inside the GetSupplyChainDocument200JSONResponseBody as a GetSupplyChainDocument200JSONResponseBody1
+func (t GetSupplyChainDocument200JSONResponseBody) AsGetSupplyChainDocument200JSONResponseBody1() (GetSupplyChainDocument200JSONResponseBody1, error) {
+	var body GetSupplyChainDocument200JSONResponseBody1
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromGetAttestationContent200JSONResponseBody1 overwrites any union data inside the GetAttestationContent200JSONResponseBody as the provided GetAttestationContent200JSONResponseBody1
-func (t *GetAttestationContent200JSONResponseBody) FromGetAttestationContent200JSONResponseBody1(v GetAttestationContent200JSONResponseBody1) error {
+// FromGetSupplyChainDocument200JSONResponseBody1 overwrites any union data inside the GetSupplyChainDocument200JSONResponseBody as the provided GetSupplyChainDocument200JSONResponseBody1
+func (t *GetSupplyChainDocument200JSONResponseBody) FromGetSupplyChainDocument200JSONResponseBody1(v GetSupplyChainDocument200JSONResponseBody1) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeGetAttestationContent200JSONResponseBody1 performs a merge with any union data inside the GetAttestationContent200JSONResponseBody, using the provided GetAttestationContent200JSONResponseBody1
-func (t *GetAttestationContent200JSONResponseBody) MergeGetAttestationContent200JSONResponseBody1(v GetAttestationContent200JSONResponseBody1) error {
+// MergeGetSupplyChainDocument200JSONResponseBody1 performs a merge with any union data inside the GetSupplyChainDocument200JSONResponseBody, using the provided GetSupplyChainDocument200JSONResponseBody1
+func (t *GetSupplyChainDocument200JSONResponseBody) MergeGetSupplyChainDocument200JSONResponseBody1(v GetSupplyChainDocument200JSONResponseBody1) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1669,12 +1724,12 @@ func (t *GetAttestationContent200JSONResponseBody) MergeGetAttestationContent200
 	return err
 }
 
-func (t GetAttestationContent200JSONResponseBody) MarshalJSON() ([]byte, error) {
+func (t GetSupplyChainDocument200JSONResponseBody) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
-func (t *GetAttestationContent200JSONResponseBody) UnmarshalJSON(b []byte) error {
+func (t *GetSupplyChainDocument200JSONResponseBody) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -1771,40 +1826,6 @@ type ClientInterface interface {
 	// HeadComponent performs a HEAD /v1/components/{name} (the `HeadComponent` operationId) request.
 	HeadComponent(ctx context.Context, name Name, params *HeadComponentParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetAttestations performs a GET /v1/components/{name}/attestations/{version} (the `GetAttestations` operationId) request.
-	//
-	// Attestations (SBOM, SLSA, VEX, ...) found on one component version and its
-	// OCI resources, as gathered by a sync (index only, no OCM call). Each sync
-	// gathers each component's default version at its overview location; sets are
-	// kept per version and location and looked up exactly at `?repository=`, which
-	// a 200 therefore requires. Without it the route redirects (307) to the same
-	// version with `?repository=` set to the location the other version routes
-	// use; `latest` redirects (307) once to the concrete version, adding that
-	// location if absent. Nothing stored at the location answers `404
-	// NOT_COLLECTED` with `detail.collected` listing what exists. Nothing is
-	// verified.
-	GetAttestations(ctx context.Context, name Name, version Version, params *GetAttestationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// HeadAttestations performs a HEAD /v1/components/{name}/attestations/{version} (the `HeadAttestations` operationId) request.
-	HeadAttestations(ctx context.Context, name Name, version Version, params *HeadAttestationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetAttestationContent performs a GET /v1/components/{name}/attestations/{version}/{digest} (the `GetAttestationContent` operationId) request.
-	//
-	// The document of one attestation of a stored set, found by its `digest`
-	// (index lookup, then read from the registry or, for a label link, fetched
-	// from the link, which must still hash to the digest the sync recorded).
-	// In-toto statements are unwrapped to their predicate. `?repository=` and
-	// `latest` behave as on `/attestations/{version}` (307). By default the bytes
-	// are sent as an attachment; `as=document` answers the parsed `Document`.
-	// A digest not in the set, an embedded SBOM (a resource) or an entry
-	// without content answer `404 NOT_FOUND`, with nothing fetched. A label
-	// link no longer on the allow list answers `403 DOCUMENT_NOT_ALLOWED`,
-	// with nothing fetched. Nothing is verified.
-	GetAttestationContent(ctx context.Context, name Name, version Version, digest AttestationDigest, params *GetAttestationContentParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// HeadAttestationContent performs a HEAD /v1/components/{name}/attestations/{version}/{digest} (the `HeadAttestationContent` operationId) request.
-	HeadAttestationContent(ctx context.Context, name Name, version Version, digest AttestationDigest, params *HeadAttestationContentParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// GetDescriptor performs a GET /v1/components/{name}/descriptors/{version} (the `GetDescriptor` operationId) request.
 	GetDescriptor(ctx context.Context, name Name, version Version, params *GetDescriptorParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1855,6 +1876,41 @@ type ClientInterface interface {
 
 	// HeadResource performs a HEAD /v1/components/{name}/resources/{version}/{resource} (the `HeadResource` operationId) request.
 	HeadResource(ctx context.Context, name Name, version Version, resource string, params *HeadResourceParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetSupplyChain performs a GET /v1/components/{name}/supply-chain/{version} (the `GetSupplyChain` operationId) request.
+	//
+	// Supply chain documents (SBOM, SLSA, VEX, scans, ...) of one component version
+	// and its OCI resources, whatever their source (OCI attestations, embedded SBOM
+	// resources, label links), as gathered by a sync (index only, no OCM call). Each sync
+	// gathers each component's default version at its overview location; sets are
+	// kept per version and location and looked up exactly at `?repository=`, which
+	// a 200 therefore requires. Without it the route redirects (307) to the same
+	// version with `?repository=` set to the location the other version routes
+	// use; `latest` redirects (307) once to the concrete version, adding that
+	// location if absent. Nothing stored at the location answers `404
+	// NOT_COLLECTED` with `detail.collected` listing what exists. Nothing is
+	// verified.
+	GetSupplyChain(ctx context.Context, name Name, version Version, params *GetSupplyChainParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// HeadSupplyChain performs a HEAD /v1/components/{name}/supply-chain/{version} (the `HeadSupplyChain` operationId) request.
+	HeadSupplyChain(ctx context.Context, name Name, version Version, params *HeadSupplyChainParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetSupplyChainDocument performs a GET /v1/components/{name}/supply-chain/{version}/{digest} (the `GetSupplyChainDocument` operationId) request.
+	//
+	// One document of a stored supply chain set, found by its `digest`
+	// (index lookup, then read from the registry or, for a label link, fetched
+	// from the link, which must still hash to the digest the sync recorded).
+	// In-toto statements are unwrapped to their predicate. `?repository=` and
+	// `latest` behave as on `/supply-chain/{version}` (307). By default the bytes
+	// are sent as an attachment; `as=document` answers the parsed `Document`.
+	// A digest not in the set, an embedded SBOM (a resource) or an entry
+	// without content answer `404 NOT_FOUND`, with nothing fetched. A label
+	// link no longer on the allow list answers `403 DOCUMENT_NOT_ALLOWED`,
+	// with nothing fetched. Nothing is verified.
+	GetSupplyChainDocument(ctx context.Context, name Name, version Version, digest DocumentDigest, params *GetSupplyChainDocumentParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// HeadSupplyChainDocument performs a HEAD /v1/components/{name}/supply-chain/{version}/{digest} (the `HeadSupplyChainDocument` operationId) request.
+	HeadSupplyChainDocument(ctx context.Context, name Name, version Version, digest DocumentDigest, params *HeadSupplyChainDocumentParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListVersions performs a GET /v1/components/{name}/versions (the `ListVersions` operationId) request.
 	ListVersions(ctx context.Context, name Name, params *ListVersionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1943,80 +1999,6 @@ func (c *Client) GetComponent(ctx context.Context, name Name, params *GetCompone
 // HeadComponent performs a HEAD /v1/components/{name} (the `HeadComponent` operationId) request.
 func (c *Client) HeadComponent(ctx context.Context, name Name, params *HeadComponentParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewHeadComponentRequest(c.Server, name, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// GetAttestations performs a GET /v1/components/{name}/attestations/{version} (the `GetAttestations` operationId) request.
-//
-// Attestations (SBOM, SLSA, VEX, ...) found on one component version and its
-// OCI resources, as gathered by a sync (index only, no OCM call). Each sync
-// gathers each component's default version at its overview location; sets are
-// kept per version and location and looked up exactly at `?repository=`, which
-// a 200 therefore requires. Without it the route redirects (307) to the same
-// version with `?repository=` set to the location the other version routes
-// use; `latest` redirects (307) once to the concrete version, adding that
-// location if absent. Nothing stored at the location answers `404
-// NOT_COLLECTED` with `detail.collected` listing what exists. Nothing is
-// verified.
-func (c *Client) GetAttestations(ctx context.Context, name Name, version Version, params *GetAttestationsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetAttestationsRequest(c.Server, name, version, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// HeadAttestations performs a HEAD /v1/components/{name}/attestations/{version} (the `HeadAttestations` operationId) request.
-func (c *Client) HeadAttestations(ctx context.Context, name Name, version Version, params *HeadAttestationsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewHeadAttestationsRequest(c.Server, name, version, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// GetAttestationContent performs a GET /v1/components/{name}/attestations/{version}/{digest} (the `GetAttestationContent` operationId) request.
-//
-// The document of one attestation of a stored set, found by its `digest`
-// (index lookup, then read from the registry or, for a label link, fetched
-// from the link, which must still hash to the digest the sync recorded).
-// In-toto statements are unwrapped to their predicate. `?repository=` and
-// `latest` behave as on `/attestations/{version}` (307). By default the bytes
-// are sent as an attachment; `as=document` answers the parsed `Document`.
-// A digest not in the set, an embedded SBOM (a resource) or an entry
-// without content answer `404 NOT_FOUND`, with nothing fetched. A label
-// link no longer on the allow list answers `403 DOCUMENT_NOT_ALLOWED`,
-// with nothing fetched. Nothing is verified.
-func (c *Client) GetAttestationContent(ctx context.Context, name Name, version Version, digest AttestationDigest, params *GetAttestationContentParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetAttestationContentRequest(c.Server, name, version, digest, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// HeadAttestationContent performs a HEAD /v1/components/{name}/attestations/{version}/{digest} (the `HeadAttestationContent` operationId) request.
-func (c *Client) HeadAttestationContent(ctx context.Context, name Name, version Version, digest AttestationDigest, params *HeadAttestationContentParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewHeadAttestationContentRequest(c.Server, name, version, digest, params)
 	if err != nil {
 		return nil, err
 	}
@@ -2168,6 +2150,81 @@ func (c *Client) GetResource(ctx context.Context, name Name, version Version, re
 // HeadResource performs a HEAD /v1/components/{name}/resources/{version}/{resource} (the `HeadResource` operationId) request.
 func (c *Client) HeadResource(ctx context.Context, name Name, version Version, resource string, params *HeadResourceParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewHeadResourceRequest(c.Server, name, version, resource, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetSupplyChain performs a GET /v1/components/{name}/supply-chain/{version} (the `GetSupplyChain` operationId) request.
+//
+// Supply chain documents (SBOM, SLSA, VEX, scans, ...) of one component version
+// and its OCI resources, whatever their source (OCI attestations, embedded SBOM
+// resources, label links), as gathered by a sync (index only, no OCM call). Each sync
+// gathers each component's default version at its overview location; sets are
+// kept per version and location and looked up exactly at `?repository=`, which
+// a 200 therefore requires. Without it the route redirects (307) to the same
+// version with `?repository=` set to the location the other version routes
+// use; `latest` redirects (307) once to the concrete version, adding that
+// location if absent. Nothing stored at the location answers `404
+// NOT_COLLECTED` with `detail.collected` listing what exists. Nothing is
+// verified.
+func (c *Client) GetSupplyChain(ctx context.Context, name Name, version Version, params *GetSupplyChainParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSupplyChainRequest(c.Server, name, version, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// HeadSupplyChain performs a HEAD /v1/components/{name}/supply-chain/{version} (the `HeadSupplyChain` operationId) request.
+func (c *Client) HeadSupplyChain(ctx context.Context, name Name, version Version, params *HeadSupplyChainParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewHeadSupplyChainRequest(c.Server, name, version, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetSupplyChainDocument performs a GET /v1/components/{name}/supply-chain/{version}/{digest} (the `GetSupplyChainDocument` operationId) request.
+//
+// One document of a stored supply chain set, found by its `digest`
+// (index lookup, then read from the registry or, for a label link, fetched
+// from the link, which must still hash to the digest the sync recorded).
+// In-toto statements are unwrapped to their predicate. `?repository=` and
+// `latest` behave as on `/supply-chain/{version}` (307). By default the bytes
+// are sent as an attachment; `as=document` answers the parsed `Document`.
+// A digest not in the set, an embedded SBOM (a resource) or an entry
+// without content answer `404 NOT_FOUND`, with nothing fetched. A label
+// link no longer on the allow list answers `403 DOCUMENT_NOT_ALLOWED`,
+// with nothing fetched. Nothing is verified.
+func (c *Client) GetSupplyChainDocument(ctx context.Context, name Name, version Version, digest DocumentDigest, params *GetSupplyChainDocumentParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSupplyChainDocumentRequest(c.Server, name, version, digest, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// HeadSupplyChainDocument performs a HEAD /v1/components/{name}/supply-chain/{version}/{digest} (the `HeadSupplyChainDocument` operationId) request.
+func (c *Client) HeadSupplyChainDocument(ctx context.Context, name Name, version Version, digest DocumentDigest, params *HeadSupplyChainDocumentParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewHeadSupplyChainDocumentRequest(c.Server, name, version, digest, params)
 	if err != nil {
 		return nil, err
 	}
@@ -2777,376 +2834,6 @@ func NewHeadComponentRequest(server string, name Name, params *HeadComponentPara
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodHead, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-
-		if params.IfNoneMatch != nil {
-			var headerParam0 string
-
-			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "If-None-Match", *params.IfNoneMatch, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
-			if err != nil {
-				return nil, err
-			}
-
-			req.Header.Set("If-None-Match", headerParam0)
-		}
-
-	}
-
-	return req, nil
-}
-
-// NewGetAttestationsRequest constructs an http.Request for the GetAttestations method
-func NewGetAttestationsRequest(server string, name Name, version Version, params *GetAttestationsParams) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "version", version, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/components/%s/attestations/%s", pathParam0, pathParam1)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		// queryValues collects non-styled parameters (passthrough, JSON)
-		// that are safe to round-trip through url.Values.Encode().
-		queryValues := queryURL.Query()
-		// rawQueryFragments collects pre-encoded query fragments from
-		// styled parameters, preserving literal commas as delimiters
-		// per the OpenAPI spec (e.g. "color=blue,black,brown").
-		var rawQueryFragments []string
-
-		if params.Repository != nil {
-
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repository", *params.Repository, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			} else {
-				for _, qp := range strings.Split(queryFrag, "&") {
-					rawQueryFragments = append(rawQueryFragments, qp)
-				}
-			}
-
-		}
-
-		if encoded := queryValues.Encode(); encoded != "" {
-			rawQueryFragments = append(rawQueryFragments, encoded)
-		}
-		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-
-		if params.IfNoneMatch != nil {
-			var headerParam0 string
-
-			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "If-None-Match", *params.IfNoneMatch, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
-			if err != nil {
-				return nil, err
-			}
-
-			req.Header.Set("If-None-Match", headerParam0)
-		}
-
-	}
-
-	return req, nil
-}
-
-// NewHeadAttestationsRequest constructs an http.Request for the HeadAttestations method
-func NewHeadAttestationsRequest(server string, name Name, version Version, params *HeadAttestationsParams) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "version", version, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/components/%s/attestations/%s", pathParam0, pathParam1)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		// queryValues collects non-styled parameters (passthrough, JSON)
-		// that are safe to round-trip through url.Values.Encode().
-		queryValues := queryURL.Query()
-		// rawQueryFragments collects pre-encoded query fragments from
-		// styled parameters, preserving literal commas as delimiters
-		// per the OpenAPI spec (e.g. "color=blue,black,brown").
-		var rawQueryFragments []string
-
-		if params.Repository != nil {
-
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repository", *params.Repository, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			} else {
-				for _, qp := range strings.Split(queryFrag, "&") {
-					rawQueryFragments = append(rawQueryFragments, qp)
-				}
-			}
-
-		}
-
-		if encoded := queryValues.Encode(); encoded != "" {
-			rawQueryFragments = append(rawQueryFragments, encoded)
-		}
-		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
-	}
-
-	req, err := http.NewRequest(http.MethodHead, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-
-		if params.IfNoneMatch != nil {
-			var headerParam0 string
-
-			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "If-None-Match", *params.IfNoneMatch, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
-			if err != nil {
-				return nil, err
-			}
-
-			req.Header.Set("If-None-Match", headerParam0)
-		}
-
-	}
-
-	return req, nil
-}
-
-// NewGetAttestationContentRequest constructs an http.Request for the GetAttestationContent method
-func NewGetAttestationContentRequest(server string, name Name, version Version, digest AttestationDigest, params *GetAttestationContentParams) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "version", version, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam2 string
-
-	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "digest", digest, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/components/%s/attestations/%s/%s", pathParam0, pathParam1, pathParam2)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		// queryValues collects non-styled parameters (passthrough, JSON)
-		// that are safe to round-trip through url.Values.Encode().
-		queryValues := queryURL.Query()
-		// rawQueryFragments collects pre-encoded query fragments from
-		// styled parameters, preserving literal commas as delimiters
-		// per the OpenAPI spec (e.g. "color=blue,black,brown").
-		var rawQueryFragments []string
-
-		if params.Repository != nil {
-
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repository", *params.Repository, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			} else {
-				for _, qp := range strings.Split(queryFrag, "&") {
-					rawQueryFragments = append(rawQueryFragments, qp)
-				}
-			}
-
-		}
-
-		if params.As != nil {
-
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "as", *params.As, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			} else {
-				for _, qp := range strings.Split(queryFrag, "&") {
-					rawQueryFragments = append(rawQueryFragments, qp)
-				}
-			}
-
-		}
-
-		if encoded := queryValues.Encode(); encoded != "" {
-			rawQueryFragments = append(rawQueryFragments, encoded)
-		}
-		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-
-		if params.IfNoneMatch != nil {
-			var headerParam0 string
-
-			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "If-None-Match", *params.IfNoneMatch, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
-			if err != nil {
-				return nil, err
-			}
-
-			req.Header.Set("If-None-Match", headerParam0)
-		}
-
-	}
-
-	return req, nil
-}
-
-// NewHeadAttestationContentRequest constructs an http.Request for the HeadAttestationContent method
-func NewHeadAttestationContentRequest(server string, name Name, version Version, digest AttestationDigest, params *HeadAttestationContentParams) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "version", version, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam2 string
-
-	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "digest", digest, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/components/%s/attestations/%s/%s", pathParam0, pathParam1, pathParam2)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		// queryValues collects non-styled parameters (passthrough, JSON)
-		// that are safe to round-trip through url.Values.Encode().
-		queryValues := queryURL.Query()
-		// rawQueryFragments collects pre-encoded query fragments from
-		// styled parameters, preserving literal commas as delimiters
-		// per the OpenAPI spec (e.g. "color=blue,black,brown").
-		var rawQueryFragments []string
-
-		if params.Repository != nil {
-
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repository", *params.Repository, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			} else {
-				for _, qp := range strings.Split(queryFrag, "&") {
-					rawQueryFragments = append(rawQueryFragments, qp)
-				}
-			}
-
-		}
-
-		if params.As != nil {
-
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "as", *params.As, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			} else {
-				for _, qp := range strings.Split(queryFrag, "&") {
-					rawQueryFragments = append(rawQueryFragments, qp)
-				}
-			}
-
-		}
-
-		if encoded := queryValues.Encode(); encoded != "" {
-			rawQueryFragments = append(rawQueryFragments, encoded)
-		}
-		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodHead, queryURL.String(), nil)
@@ -4154,6 +3841,376 @@ func NewHeadResourceRequest(server string, name Name, version Version, resource 
 	return req, nil
 }
 
+// NewGetSupplyChainRequest constructs an http.Request for the GetSupplyChain method
+func NewGetSupplyChainRequest(server string, name Name, version Version, params *GetSupplyChainParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "version", version, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/components/%s/supply-chain/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Repository != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repository", *params.Repository, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		if params.IfNoneMatch != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "If-None-Match", *params.IfNoneMatch, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("If-None-Match", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewHeadSupplyChainRequest constructs an http.Request for the HeadSupplyChain method
+func NewHeadSupplyChainRequest(server string, name Name, version Version, params *HeadSupplyChainParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "version", version, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/components/%s/supply-chain/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Repository != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repository", *params.Repository, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodHead, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		if params.IfNoneMatch != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "If-None-Match", *params.IfNoneMatch, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("If-None-Match", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetSupplyChainDocumentRequest constructs an http.Request for the GetSupplyChainDocument method
+func NewGetSupplyChainDocumentRequest(server string, name Name, version Version, digest DocumentDigest, params *GetSupplyChainDocumentParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "version", version, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "digest", digest, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/components/%s/supply-chain/%s/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Repository != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repository", *params.Repository, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.As != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "as", *params.As, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		if params.IfNoneMatch != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "If-None-Match", *params.IfNoneMatch, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("If-None-Match", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewHeadSupplyChainDocumentRequest constructs an http.Request for the HeadSupplyChainDocument method
+func NewHeadSupplyChainDocumentRequest(server string, name Name, version Version, digest DocumentDigest, params *HeadSupplyChainDocumentParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "version", version, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "digest", digest, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/components/%s/supply-chain/%s/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Repository != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "repository", *params.Repository, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.As != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "as", *params.As, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodHead, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		if params.IfNoneMatch != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "If-None-Match", *params.IfNoneMatch, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("If-None-Match", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewListVersionsRequest constructs an http.Request for the ListVersions method
 func NewListVersionsRequest(server string, name Name, params *ListVersionsParams) (*http.Request, error) {
 	var err error
@@ -4516,48 +4573,6 @@ type ClientWithResponsesInterface interface {
 	// Returns a wrapper object for the known response body format(s).
 	HeadComponentWithResponse(ctx context.Context, name Name, params *HeadComponentParams, reqEditors ...RequestEditorFn) (*HeadComponentResponse, error)
 
-	// GetAttestationsWithResponse performs a GET /v1/components/{name}/attestations/{version} (the `GetAttestations` operationId) request.
-	//
-	// Attestations (SBOM, SLSA, VEX, ...) found on one component version and its
-	// OCI resources, as gathered by a sync (index only, no OCM call). Each sync
-	// gathers each component's default version at its overview location; sets are
-	// kept per version and location and looked up exactly at `?repository=`, which
-	// a 200 therefore requires. Without it the route redirects (307) to the same
-	// version with `?repository=` set to the location the other version routes
-	// use; `latest` redirects (307) once to the concrete version, adding that
-	// location if absent. Nothing stored at the location answers `404
-	// NOT_COLLECTED` with `detail.collected` listing what exists. Nothing is
-	// verified.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	GetAttestationsWithResponse(ctx context.Context, name Name, version Version, params *GetAttestationsParams, reqEditors ...RequestEditorFn) (*GetAttestationsResponse, error)
-
-	// HeadAttestationsWithResponse performs a HEAD /v1/components/{name}/attestations/{version} (the `HeadAttestations` operationId) request.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	HeadAttestationsWithResponse(ctx context.Context, name Name, version Version, params *HeadAttestationsParams, reqEditors ...RequestEditorFn) (*HeadAttestationsResponse, error)
-
-	// GetAttestationContentWithResponse performs a GET /v1/components/{name}/attestations/{version}/{digest} (the `GetAttestationContent` operationId) request.
-	//
-	// The document of one attestation of a stored set, found by its `digest`
-	// (index lookup, then read from the registry or, for a label link, fetched
-	// from the link, which must still hash to the digest the sync recorded).
-	// In-toto statements are unwrapped to their predicate. `?repository=` and
-	// `latest` behave as on `/attestations/{version}` (307). By default the bytes
-	// are sent as an attachment; `as=document` answers the parsed `Document`.
-	// A digest not in the set, an embedded SBOM (a resource) or an entry
-	// without content answer `404 NOT_FOUND`, with nothing fetched. A label
-	// link no longer on the allow list answers `403 DOCUMENT_NOT_ALLOWED`,
-	// with nothing fetched. Nothing is verified.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	GetAttestationContentWithResponse(ctx context.Context, name Name, version Version, digest AttestationDigest, params *GetAttestationContentParams, reqEditors ...RequestEditorFn) (*GetAttestationContentResponse, error)
-
-	// HeadAttestationContentWithResponse performs a HEAD /v1/components/{name}/attestations/{version}/{digest} (the `HeadAttestationContent` operationId) request.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	HeadAttestationContentWithResponse(ctx context.Context, name Name, version Version, digest AttestationDigest, params *HeadAttestationContentParams, reqEditors ...RequestEditorFn) (*HeadAttestationContentResponse, error)
-
 	// GetDescriptorWithResponse performs a GET /v1/components/{name}/descriptors/{version} (the `GetDescriptor` operationId) request.
 	//
 	// Returns a wrapper object for the known response body format(s).
@@ -4628,6 +4643,49 @@ type ClientWithResponsesInterface interface {
 	//
 	// Returns a wrapper object for the known response body format(s).
 	HeadResourceWithResponse(ctx context.Context, name Name, version Version, resource string, params *HeadResourceParams, reqEditors ...RequestEditorFn) (*HeadResourceResponse, error)
+
+	// GetSupplyChainWithResponse performs a GET /v1/components/{name}/supply-chain/{version} (the `GetSupplyChain` operationId) request.
+	//
+	// Supply chain documents (SBOM, SLSA, VEX, scans, ...) of one component version
+	// and its OCI resources, whatever their source (OCI attestations, embedded SBOM
+	// resources, label links), as gathered by a sync (index only, no OCM call). Each sync
+	// gathers each component's default version at its overview location; sets are
+	// kept per version and location and looked up exactly at `?repository=`, which
+	// a 200 therefore requires. Without it the route redirects (307) to the same
+	// version with `?repository=` set to the location the other version routes
+	// use; `latest` redirects (307) once to the concrete version, adding that
+	// location if absent. Nothing stored at the location answers `404
+	// NOT_COLLECTED` with `detail.collected` listing what exists. Nothing is
+	// verified.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	GetSupplyChainWithResponse(ctx context.Context, name Name, version Version, params *GetSupplyChainParams, reqEditors ...RequestEditorFn) (*GetSupplyChainResponse, error)
+
+	// HeadSupplyChainWithResponse performs a HEAD /v1/components/{name}/supply-chain/{version} (the `HeadSupplyChain` operationId) request.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	HeadSupplyChainWithResponse(ctx context.Context, name Name, version Version, params *HeadSupplyChainParams, reqEditors ...RequestEditorFn) (*HeadSupplyChainResponse, error)
+
+	// GetSupplyChainDocumentWithResponse performs a GET /v1/components/{name}/supply-chain/{version}/{digest} (the `GetSupplyChainDocument` operationId) request.
+	//
+	// One document of a stored supply chain set, found by its `digest`
+	// (index lookup, then read from the registry or, for a label link, fetched
+	// from the link, which must still hash to the digest the sync recorded).
+	// In-toto statements are unwrapped to their predicate. `?repository=` and
+	// `latest` behave as on `/supply-chain/{version}` (307). By default the bytes
+	// are sent as an attachment; `as=document` answers the parsed `Document`.
+	// A digest not in the set, an embedded SBOM (a resource) or an entry
+	// without content answer `404 NOT_FOUND`, with nothing fetched. A label
+	// link no longer on the allow list answers `403 DOCUMENT_NOT_ALLOWED`,
+	// with nothing fetched. Nothing is verified.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	GetSupplyChainDocumentWithResponse(ctx context.Context, name Name, version Version, digest DocumentDigest, params *GetSupplyChainDocumentParams, reqEditors ...RequestEditorFn) (*GetSupplyChainDocumentResponse, error)
+
+	// HeadSupplyChainDocumentWithResponse performs a HEAD /v1/components/{name}/supply-chain/{version}/{digest} (the `HeadSupplyChainDocument` operationId) request.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	HeadSupplyChainDocumentWithResponse(ctx context.Context, name Name, version Version, digest DocumentDigest, params *HeadSupplyChainDocumentParams, reqEditors ...RequestEditorFn) (*HeadSupplyChainDocumentResponse, error)
 
 	// ListVersionsWithResponse performs a GET /v1/components/{name}/versions (the `ListVersions` operationId) request.
 	//
@@ -4955,271 +5013,6 @@ func (r HeadComponentResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r HeadComponentResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-// GetAttestationsResponse200Headers the declared response headers of an HTTP 200 response for GetAttestations
-type GetAttestationsResponse200Headers struct {
-	CacheControl *string
-	ETag         *string
-}
-
-// GetAttestationsResponse304Headers the declared response headers of an HTTP 304 response for GetAttestations
-type GetAttestationsResponse304Headers struct {
-	CacheControl *string
-	ETag         *string
-	Vary         *string
-}
-
-// GetAttestationsResponse307Headers the declared response headers of an HTTP 307 response for GetAttestations
-type GetAttestationsResponse307Headers struct {
-	CacheControl *string
-	Location     *string
-}
-
-type GetAttestationsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *AttestationSet
-	// JSONDefault the response for an HTTP default `application/json` response
-	JSONDefault *Error
-	// Headers200 the parsed response headers for an HTTP 200 response
-	Headers200 *GetAttestationsResponse200Headers
-	// Headers304 the parsed response headers for an HTTP 304 response
-	Headers304 *GetAttestationsResponse304Headers
-	// Headers307 the parsed response headers for an HTTP 307 response
-	Headers307 *GetAttestationsResponse307Headers
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetAttestationsResponse) GetJSON200() *AttestationSet {
-	return r.JSON200
-}
-
-// GetJSONDefault returns the response for an HTTP default `application/json` response
-func (r GetAttestationsResponse) GetJSONDefault() *Error {
-	return r.JSONDefault
-}
-
-// GetBody returns the raw response body bytes
-func (r GetAttestationsResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r GetAttestationsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetAttestationsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r GetAttestationsResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-// HeadAttestationsResponse200Headers the declared response headers of an HTTP 200 response for HeadAttestations
-type HeadAttestationsResponse200Headers struct {
-	CacheControl *string
-	ETag         *string
-}
-
-// HeadAttestationsResponse304Headers the declared response headers of an HTTP 304 response for HeadAttestations
-type HeadAttestationsResponse304Headers struct {
-	CacheControl *string
-	ETag         *string
-	Vary         *string
-}
-
-// HeadAttestationsResponse307Headers the declared response headers of an HTTP 307 response for HeadAttestations
-type HeadAttestationsResponse307Headers struct {
-	CacheControl *string
-	Location     *string
-}
-
-type HeadAttestationsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// Headers200 the parsed response headers for an HTTP 200 response
-	Headers200 *HeadAttestationsResponse200Headers
-	// Headers304 the parsed response headers for an HTTP 304 response
-	Headers304 *HeadAttestationsResponse304Headers
-	// Headers307 the parsed response headers for an HTTP 307 response
-	Headers307 *HeadAttestationsResponse307Headers
-}
-
-// GetBody returns the raw response body bytes
-func (r HeadAttestationsResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r HeadAttestationsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r HeadAttestationsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r HeadAttestationsResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-// GetAttestationContentResponse200Headers the declared response headers of an HTTP 200 response for GetAttestationContent
-type GetAttestationContentResponse200Headers struct {
-	CacheControl       *string
-	ContentDisposition *string
-	ETag               *string
-}
-
-// GetAttestationContentResponse304Headers the declared response headers of an HTTP 304 response for GetAttestationContent
-type GetAttestationContentResponse304Headers struct {
-	CacheControl *string
-	ETag         *string
-	Vary         *string
-}
-
-// GetAttestationContentResponse307Headers the declared response headers of an HTTP 307 response for GetAttestationContent
-type GetAttestationContentResponse307Headers struct {
-	CacheControl *string
-	Location     *string
-}
-
-type GetAttestationContentResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *GetAttestationContent200JSONResponseBody
-	// JSONDefault the response for an HTTP default `application/json` response
-	JSONDefault *Error
-	// Headers200 the parsed response headers for an HTTP 200 response
-	Headers200 *GetAttestationContentResponse200Headers
-	// Headers304 the parsed response headers for an HTTP 304 response
-	Headers304 *GetAttestationContentResponse304Headers
-	// Headers307 the parsed response headers for an HTTP 307 response
-	Headers307 *GetAttestationContentResponse307Headers
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r GetAttestationContentResponse) GetJSON200() *GetAttestationContent200JSONResponseBody {
-	return r.JSON200
-}
-
-// GetJSONDefault returns the response for an HTTP default `application/json` response
-func (r GetAttestationContentResponse) GetJSONDefault() *Error {
-	return r.JSONDefault
-}
-
-// GetBody returns the raw response body bytes
-func (r GetAttestationContentResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r GetAttestationContentResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetAttestationContentResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r GetAttestationContentResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-// HeadAttestationContentResponse200Headers the declared response headers of an HTTP 200 response for HeadAttestationContent
-type HeadAttestationContentResponse200Headers struct {
-	CacheControl *string
-	ETag         *string
-}
-
-// HeadAttestationContentResponse304Headers the declared response headers of an HTTP 304 response for HeadAttestationContent
-type HeadAttestationContentResponse304Headers struct {
-	CacheControl *string
-	ETag         *string
-	Vary         *string
-}
-
-// HeadAttestationContentResponse307Headers the declared response headers of an HTTP 307 response for HeadAttestationContent
-type HeadAttestationContentResponse307Headers struct {
-	CacheControl *string
-	Location     *string
-}
-
-type HeadAttestationContentResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// Headers200 the parsed response headers for an HTTP 200 response
-	Headers200 *HeadAttestationContentResponse200Headers
-	// Headers304 the parsed response headers for an HTTP 304 response
-	Headers304 *HeadAttestationContentResponse304Headers
-	// Headers307 the parsed response headers for an HTTP 307 response
-	Headers307 *HeadAttestationContentResponse307Headers
-}
-
-// GetBody returns the raw response body bytes
-func (r HeadAttestationContentResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r HeadAttestationContentResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r HeadAttestationContentResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r HeadAttestationContentResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -5896,6 +5689,271 @@ func (r HeadResourceResponse) ContentType() string {
 	return ""
 }
 
+// GetSupplyChainResponse200Headers the declared response headers of an HTTP 200 response for GetSupplyChain
+type GetSupplyChainResponse200Headers struct {
+	CacheControl *string
+	ETag         *string
+}
+
+// GetSupplyChainResponse304Headers the declared response headers of an HTTP 304 response for GetSupplyChain
+type GetSupplyChainResponse304Headers struct {
+	CacheControl *string
+	ETag         *string
+	Vary         *string
+}
+
+// GetSupplyChainResponse307Headers the declared response headers of an HTTP 307 response for GetSupplyChain
+type GetSupplyChainResponse307Headers struct {
+	CacheControl *string
+	Location     *string
+}
+
+type GetSupplyChainResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *SupplyChain
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+	// Headers200 the parsed response headers for an HTTP 200 response
+	Headers200 *GetSupplyChainResponse200Headers
+	// Headers304 the parsed response headers for an HTTP 304 response
+	Headers304 *GetSupplyChainResponse304Headers
+	// Headers307 the parsed response headers for an HTTP 307 response
+	Headers307 *GetSupplyChainResponse307Headers
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetSupplyChainResponse) GetJSON200() *SupplyChain {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetSupplyChainResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetSupplyChainResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetSupplyChainResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetSupplyChainResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetSupplyChainResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+// HeadSupplyChainResponse200Headers the declared response headers of an HTTP 200 response for HeadSupplyChain
+type HeadSupplyChainResponse200Headers struct {
+	CacheControl *string
+	ETag         *string
+}
+
+// HeadSupplyChainResponse304Headers the declared response headers of an HTTP 304 response for HeadSupplyChain
+type HeadSupplyChainResponse304Headers struct {
+	CacheControl *string
+	ETag         *string
+	Vary         *string
+}
+
+// HeadSupplyChainResponse307Headers the declared response headers of an HTTP 307 response for HeadSupplyChain
+type HeadSupplyChainResponse307Headers struct {
+	CacheControl *string
+	Location     *string
+}
+
+type HeadSupplyChainResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// Headers200 the parsed response headers for an HTTP 200 response
+	Headers200 *HeadSupplyChainResponse200Headers
+	// Headers304 the parsed response headers for an HTTP 304 response
+	Headers304 *HeadSupplyChainResponse304Headers
+	// Headers307 the parsed response headers for an HTTP 307 response
+	Headers307 *HeadSupplyChainResponse307Headers
+}
+
+// GetBody returns the raw response body bytes
+func (r HeadSupplyChainResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r HeadSupplyChainResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r HeadSupplyChainResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r HeadSupplyChainResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+// GetSupplyChainDocumentResponse200Headers the declared response headers of an HTTP 200 response for GetSupplyChainDocument
+type GetSupplyChainDocumentResponse200Headers struct {
+	CacheControl       *string
+	ContentDisposition *string
+	ETag               *string
+}
+
+// GetSupplyChainDocumentResponse304Headers the declared response headers of an HTTP 304 response for GetSupplyChainDocument
+type GetSupplyChainDocumentResponse304Headers struct {
+	CacheControl *string
+	ETag         *string
+	Vary         *string
+}
+
+// GetSupplyChainDocumentResponse307Headers the declared response headers of an HTTP 307 response for GetSupplyChainDocument
+type GetSupplyChainDocumentResponse307Headers struct {
+	CacheControl *string
+	Location     *string
+}
+
+type GetSupplyChainDocumentResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *GetSupplyChainDocument200JSONResponseBody
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+	// Headers200 the parsed response headers for an HTTP 200 response
+	Headers200 *GetSupplyChainDocumentResponse200Headers
+	// Headers304 the parsed response headers for an HTTP 304 response
+	Headers304 *GetSupplyChainDocumentResponse304Headers
+	// Headers307 the parsed response headers for an HTTP 307 response
+	Headers307 *GetSupplyChainDocumentResponse307Headers
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetSupplyChainDocumentResponse) GetJSON200() *GetSupplyChainDocument200JSONResponseBody {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetSupplyChainDocumentResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetSupplyChainDocumentResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetSupplyChainDocumentResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetSupplyChainDocumentResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetSupplyChainDocumentResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+// HeadSupplyChainDocumentResponse200Headers the declared response headers of an HTTP 200 response for HeadSupplyChainDocument
+type HeadSupplyChainDocumentResponse200Headers struct {
+	CacheControl *string
+	ETag         *string
+}
+
+// HeadSupplyChainDocumentResponse304Headers the declared response headers of an HTTP 304 response for HeadSupplyChainDocument
+type HeadSupplyChainDocumentResponse304Headers struct {
+	CacheControl *string
+	ETag         *string
+	Vary         *string
+}
+
+// HeadSupplyChainDocumentResponse307Headers the declared response headers of an HTTP 307 response for HeadSupplyChainDocument
+type HeadSupplyChainDocumentResponse307Headers struct {
+	CacheControl *string
+	Location     *string
+}
+
+type HeadSupplyChainDocumentResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// Headers200 the parsed response headers for an HTTP 200 response
+	Headers200 *HeadSupplyChainDocumentResponse200Headers
+	// Headers304 the parsed response headers for an HTTP 304 response
+	Headers304 *HeadSupplyChainDocumentResponse304Headers
+	// Headers307 the parsed response headers for an HTTP 307 response
+	Headers307 *HeadSupplyChainDocumentResponse307Headers
+}
+
+// GetBody returns the raw response body bytes
+func (r HeadSupplyChainDocumentResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r HeadSupplyChainDocumentResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r HeadSupplyChainDocumentResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r HeadSupplyChainDocumentResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 // ListVersionsResponse200Headers the declared response headers of an HTTP 200 response for ListVersions
 type ListVersionsResponse200Headers struct {
 	CacheControl *string
@@ -6126,72 +6184,6 @@ func (c *ClientWithResponses) HeadComponentWithResponse(ctx context.Context, nam
 	return ParseHeadComponentResponse(rsp)
 }
 
-// GetAttestationsWithResponse performs a GET /v1/components/{name}/attestations/{version} (the `GetAttestations` operationId) request.
-//
-// Attestations (SBOM, SLSA, VEX, ...) found on one component version and its
-// OCI resources, as gathered by a sync (index only, no OCM call). Each sync
-// gathers each component's default version at its overview location; sets are
-// kept per version and location and looked up exactly at `?repository=`, which
-// a 200 therefore requires. Without it the route redirects (307) to the same
-// version with `?repository=` set to the location the other version routes
-// use; `latest` redirects (307) once to the concrete version, adding that
-// location if absent. Nothing stored at the location answers `404
-// NOT_COLLECTED` with `detail.collected` listing what exists. Nothing is
-// verified.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) GetAttestationsWithResponse(ctx context.Context, name Name, version Version, params *GetAttestationsParams, reqEditors ...RequestEditorFn) (*GetAttestationsResponse, error) {
-	rsp, err := c.GetAttestations(ctx, name, version, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetAttestationsResponse(rsp)
-}
-
-// HeadAttestationsWithResponse performs a HEAD /v1/components/{name}/attestations/{version} (the `HeadAttestations` operationId) request.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) HeadAttestationsWithResponse(ctx context.Context, name Name, version Version, params *HeadAttestationsParams, reqEditors ...RequestEditorFn) (*HeadAttestationsResponse, error) {
-	rsp, err := c.HeadAttestations(ctx, name, version, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseHeadAttestationsResponse(rsp)
-}
-
-// GetAttestationContentWithResponse performs a GET /v1/components/{name}/attestations/{version}/{digest} (the `GetAttestationContent` operationId) request.
-//
-// The document of one attestation of a stored set, found by its `digest`
-// (index lookup, then read from the registry or, for a label link, fetched
-// from the link, which must still hash to the digest the sync recorded).
-// In-toto statements are unwrapped to their predicate. `?repository=` and
-// `latest` behave as on `/attestations/{version}` (307). By default the bytes
-// are sent as an attachment; `as=document` answers the parsed `Document`.
-// A digest not in the set, an embedded SBOM (a resource) or an entry
-// without content answer `404 NOT_FOUND`, with nothing fetched. A label
-// link no longer on the allow list answers `403 DOCUMENT_NOT_ALLOWED`,
-// with nothing fetched. Nothing is verified.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) GetAttestationContentWithResponse(ctx context.Context, name Name, version Version, digest AttestationDigest, params *GetAttestationContentParams, reqEditors ...RequestEditorFn) (*GetAttestationContentResponse, error) {
-	rsp, err := c.GetAttestationContent(ctx, name, version, digest, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetAttestationContentResponse(rsp)
-}
-
-// HeadAttestationContentWithResponse performs a HEAD /v1/components/{name}/attestations/{version}/{digest} (the `HeadAttestationContent` operationId) request.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) HeadAttestationContentWithResponse(ctx context.Context, name Name, version Version, digest AttestationDigest, params *HeadAttestationContentParams, reqEditors ...RequestEditorFn) (*HeadAttestationContentResponse, error) {
-	rsp, err := c.HeadAttestationContent(ctx, name, version, digest, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseHeadAttestationContentResponse(rsp)
-}
-
 // GetDescriptorWithResponse performs a GET /v1/components/{name}/descriptors/{version} (the `GetDescriptor` operationId) request.
 //
 // Returns a wrapper object for the known response body format(s).
@@ -6321,6 +6313,73 @@ func (c *ClientWithResponses) HeadResourceWithResponse(ctx context.Context, name
 		return nil, err
 	}
 	return ParseHeadResourceResponse(rsp)
+}
+
+// GetSupplyChainWithResponse performs a GET /v1/components/{name}/supply-chain/{version} (the `GetSupplyChain` operationId) request.
+//
+// Supply chain documents (SBOM, SLSA, VEX, scans, ...) of one component version
+// and its OCI resources, whatever their source (OCI attestations, embedded SBOM
+// resources, label links), as gathered by a sync (index only, no OCM call). Each sync
+// gathers each component's default version at its overview location; sets are
+// kept per version and location and looked up exactly at `?repository=`, which
+// a 200 therefore requires. Without it the route redirects (307) to the same
+// version with `?repository=` set to the location the other version routes
+// use; `latest` redirects (307) once to the concrete version, adding that
+// location if absent. Nothing stored at the location answers `404
+// NOT_COLLECTED` with `detail.collected` listing what exists. Nothing is
+// verified.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) GetSupplyChainWithResponse(ctx context.Context, name Name, version Version, params *GetSupplyChainParams, reqEditors ...RequestEditorFn) (*GetSupplyChainResponse, error) {
+	rsp, err := c.GetSupplyChain(ctx, name, version, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetSupplyChainResponse(rsp)
+}
+
+// HeadSupplyChainWithResponse performs a HEAD /v1/components/{name}/supply-chain/{version} (the `HeadSupplyChain` operationId) request.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) HeadSupplyChainWithResponse(ctx context.Context, name Name, version Version, params *HeadSupplyChainParams, reqEditors ...RequestEditorFn) (*HeadSupplyChainResponse, error) {
+	rsp, err := c.HeadSupplyChain(ctx, name, version, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseHeadSupplyChainResponse(rsp)
+}
+
+// GetSupplyChainDocumentWithResponse performs a GET /v1/components/{name}/supply-chain/{version}/{digest} (the `GetSupplyChainDocument` operationId) request.
+//
+// One document of a stored supply chain set, found by its `digest`
+// (index lookup, then read from the registry or, for a label link, fetched
+// from the link, which must still hash to the digest the sync recorded).
+// In-toto statements are unwrapped to their predicate. `?repository=` and
+// `latest` behave as on `/supply-chain/{version}` (307). By default the bytes
+// are sent as an attachment; `as=document` answers the parsed `Document`.
+// A digest not in the set, an embedded SBOM (a resource) or an entry
+// without content answer `404 NOT_FOUND`, with nothing fetched. A label
+// link no longer on the allow list answers `403 DOCUMENT_NOT_ALLOWED`,
+// with nothing fetched. Nothing is verified.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) GetSupplyChainDocumentWithResponse(ctx context.Context, name Name, version Version, digest DocumentDigest, params *GetSupplyChainDocumentParams, reqEditors ...RequestEditorFn) (*GetSupplyChainDocumentResponse, error) {
+	rsp, err := c.GetSupplyChainDocument(ctx, name, version, digest, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetSupplyChainDocumentResponse(rsp)
+}
+
+// HeadSupplyChainDocumentWithResponse performs a HEAD /v1/components/{name}/supply-chain/{version}/{digest} (the `HeadSupplyChainDocument` operationId) request.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) HeadSupplyChainDocumentWithResponse(ctx context.Context, name Name, version Version, digest DocumentDigest, params *HeadSupplyChainDocumentParams, reqEditors ...RequestEditorFn) (*HeadSupplyChainDocumentResponse, error) {
+	rsp, err := c.HeadSupplyChainDocument(ctx, name, version, digest, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseHeadSupplyChainDocumentResponse(rsp)
 }
 
 // ListVersionsWithResponse performs a GET /v1/components/{name}/versions (the `ListVersions` operationId) request.
@@ -6688,367 +6747,6 @@ func ParseHeadComponentResponse(rsp *http.Response) (*HeadComponentResponse, err
 			headers.Vary = &value
 		}
 		response.Headers304 = &headers
-	}
-
-	return response, nil
-}
-
-// ParseGetAttestationsResponse parses an HTTP response from a GetAttestationsWithResponse call
-func ParseGetAttestationsResponse(rsp *http.Response) (*GetAttestationsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetAttestationsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest AttestationSet
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case rsp.StatusCode == 304:
-		break // No content-type
-
-	case rsp.StatusCode == 307:
-		break // No content-type
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	switch {
-	case rsp.StatusCode == 200:
-		var headers GetAttestationsResponse200Headers
-		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.CacheControl = &value
-		}
-		if values := rsp.Header.Values("ETag"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.ETag = &value
-		}
-		response.Headers200 = &headers
-	case rsp.StatusCode == 304:
-		var headers GetAttestationsResponse304Headers
-		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.CacheControl = &value
-		}
-		if values := rsp.Header.Values("ETag"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.ETag = &value
-		}
-		if values := rsp.Header.Values("Vary"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Vary", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.Vary = &value
-		}
-		response.Headers304 = &headers
-	case rsp.StatusCode == 307:
-		var headers GetAttestationsResponse307Headers
-		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.CacheControl = &value
-		}
-		if values := rsp.Header.Values("Location"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Location", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.Location = &value
-		}
-		response.Headers307 = &headers
-	}
-
-	return response, nil
-}
-
-// ParseHeadAttestationsResponse parses an HTTP response from a HeadAttestationsWithResponse call
-func ParseHeadAttestationsResponse(rsp *http.Response) (*HeadAttestationsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &HeadAttestationsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case rsp.StatusCode == 200:
-		var headers HeadAttestationsResponse200Headers
-		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.CacheControl = &value
-		}
-		if values := rsp.Header.Values("ETag"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.ETag = &value
-		}
-		response.Headers200 = &headers
-	case rsp.StatusCode == 304:
-		var headers HeadAttestationsResponse304Headers
-		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.CacheControl = &value
-		}
-		if values := rsp.Header.Values("ETag"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.ETag = &value
-		}
-		if values := rsp.Header.Values("Vary"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Vary", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.Vary = &value
-		}
-		response.Headers304 = &headers
-	case rsp.StatusCode == 307:
-		var headers HeadAttestationsResponse307Headers
-		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.CacheControl = &value
-		}
-		if values := rsp.Header.Values("Location"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Location", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.Location = &value
-		}
-		response.Headers307 = &headers
-	}
-
-	return response, nil
-}
-
-// ParseGetAttestationContentResponse parses an HTTP response from a GetAttestationContentWithResponse call
-func ParseGetAttestationContentResponse(rsp *http.Response) (*GetAttestationContentResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetAttestationContentResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest GetAttestationContent200JSONResponseBody
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case rsp.StatusCode == 304:
-		break // No content-type
-
-	case rsp.StatusCode == 307:
-		break // No content-type
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	switch {
-	case rsp.StatusCode == 200:
-		var headers GetAttestationContentResponse200Headers
-		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.CacheControl = &value
-		}
-		if values := rsp.Header.Values("Content-Disposition"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Content-Disposition", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.ContentDisposition = &value
-		}
-		if values := rsp.Header.Values("ETag"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.ETag = &value
-		}
-		response.Headers200 = &headers
-	case rsp.StatusCode == 304:
-		var headers GetAttestationContentResponse304Headers
-		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.CacheControl = &value
-		}
-		if values := rsp.Header.Values("ETag"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.ETag = &value
-		}
-		if values := rsp.Header.Values("Vary"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Vary", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.Vary = &value
-		}
-		response.Headers304 = &headers
-	case rsp.StatusCode == 307:
-		var headers GetAttestationContentResponse307Headers
-		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.CacheControl = &value
-		}
-		if values := rsp.Header.Values("Location"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Location", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.Location = &value
-		}
-		response.Headers307 = &headers
-	}
-
-	return response, nil
-}
-
-// ParseHeadAttestationContentResponse parses an HTTP response from a HeadAttestationContentWithResponse call
-func ParseHeadAttestationContentResponse(rsp *http.Response) (*HeadAttestationContentResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &HeadAttestationContentResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case rsp.StatusCode == 200:
-		var headers HeadAttestationContentResponse200Headers
-		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.CacheControl = &value
-		}
-		if values := rsp.Header.Values("ETag"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.ETag = &value
-		}
-		response.Headers200 = &headers
-	case rsp.StatusCode == 304:
-		var headers HeadAttestationContentResponse304Headers
-		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.CacheControl = &value
-		}
-		if values := rsp.Header.Values("ETag"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.ETag = &value
-		}
-		if values := rsp.Header.Values("Vary"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Vary", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.Vary = &value
-		}
-		response.Headers304 = &headers
-	case rsp.StatusCode == 307:
-		var headers HeadAttestationContentResponse307Headers
-		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.CacheControl = &value
-		}
-		if values := rsp.Header.Values("Location"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "Location", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.Location = &value
-		}
-		response.Headers307 = &headers
 	}
 
 	return response, nil
@@ -7944,6 +7642,367 @@ func ParseHeadResourceResponse(rsp *http.Response) (*HeadResourceResponse, error
 		response.Headers304 = &headers
 	case rsp.StatusCode == 307:
 		var headers HeadResourceResponse307Headers
+		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.CacheControl = &value
+		}
+		if values := rsp.Header.Values("Location"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Location", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.Location = &value
+		}
+		response.Headers307 = &headers
+	}
+
+	return response, nil
+}
+
+// ParseGetSupplyChainResponse parses an HTTP response from a GetSupplyChainWithResponse call
+func ParseGetSupplyChainResponse(rsp *http.Response) (*GetSupplyChainResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetSupplyChainResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SupplyChain
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case rsp.StatusCode == 304:
+		break // No content-type
+
+	case rsp.StatusCode == 307:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		var headers GetSupplyChainResponse200Headers
+		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.CacheControl = &value
+		}
+		if values := rsp.Header.Values("ETag"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.ETag = &value
+		}
+		response.Headers200 = &headers
+	case rsp.StatusCode == 304:
+		var headers GetSupplyChainResponse304Headers
+		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.CacheControl = &value
+		}
+		if values := rsp.Header.Values("ETag"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.ETag = &value
+		}
+		if values := rsp.Header.Values("Vary"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Vary", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.Vary = &value
+		}
+		response.Headers304 = &headers
+	case rsp.StatusCode == 307:
+		var headers GetSupplyChainResponse307Headers
+		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.CacheControl = &value
+		}
+		if values := rsp.Header.Values("Location"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Location", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.Location = &value
+		}
+		response.Headers307 = &headers
+	}
+
+	return response, nil
+}
+
+// ParseHeadSupplyChainResponse parses an HTTP response from a HeadSupplyChainWithResponse call
+func ParseHeadSupplyChainResponse(rsp *http.Response) (*HeadSupplyChainResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &HeadSupplyChainResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		var headers HeadSupplyChainResponse200Headers
+		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.CacheControl = &value
+		}
+		if values := rsp.Header.Values("ETag"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.ETag = &value
+		}
+		response.Headers200 = &headers
+	case rsp.StatusCode == 304:
+		var headers HeadSupplyChainResponse304Headers
+		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.CacheControl = &value
+		}
+		if values := rsp.Header.Values("ETag"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.ETag = &value
+		}
+		if values := rsp.Header.Values("Vary"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Vary", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.Vary = &value
+		}
+		response.Headers304 = &headers
+	case rsp.StatusCode == 307:
+		var headers HeadSupplyChainResponse307Headers
+		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.CacheControl = &value
+		}
+		if values := rsp.Header.Values("Location"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Location", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.Location = &value
+		}
+		response.Headers307 = &headers
+	}
+
+	return response, nil
+}
+
+// ParseGetSupplyChainDocumentResponse parses an HTTP response from a GetSupplyChainDocumentWithResponse call
+func ParseGetSupplyChainDocumentResponse(rsp *http.Response) (*GetSupplyChainDocumentResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetSupplyChainDocumentResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GetSupplyChainDocument200JSONResponseBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case rsp.StatusCode == 304:
+		break // No content-type
+
+	case rsp.StatusCode == 307:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		var headers GetSupplyChainDocumentResponse200Headers
+		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.CacheControl = &value
+		}
+		if values := rsp.Header.Values("Content-Disposition"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Content-Disposition", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.ContentDisposition = &value
+		}
+		if values := rsp.Header.Values("ETag"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.ETag = &value
+		}
+		response.Headers200 = &headers
+	case rsp.StatusCode == 304:
+		var headers GetSupplyChainDocumentResponse304Headers
+		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.CacheControl = &value
+		}
+		if values := rsp.Header.Values("ETag"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.ETag = &value
+		}
+		if values := rsp.Header.Values("Vary"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Vary", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.Vary = &value
+		}
+		response.Headers304 = &headers
+	case rsp.StatusCode == 307:
+		var headers GetSupplyChainDocumentResponse307Headers
+		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.CacheControl = &value
+		}
+		if values := rsp.Header.Values("Location"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Location", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.Location = &value
+		}
+		response.Headers307 = &headers
+	}
+
+	return response, nil
+}
+
+// ParseHeadSupplyChainDocumentResponse parses an HTTP response from a HeadSupplyChainDocumentWithResponse call
+func ParseHeadSupplyChainDocumentResponse(rsp *http.Response) (*HeadSupplyChainDocumentResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &HeadSupplyChainDocumentResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		var headers HeadSupplyChainDocumentResponse200Headers
+		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.CacheControl = &value
+		}
+		if values := rsp.Header.Values("ETag"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.ETag = &value
+		}
+		response.Headers200 = &headers
+	case rsp.StatusCode == 304:
+		var headers HeadSupplyChainDocumentResponse304Headers
+		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.CacheControl = &value
+		}
+		if values := rsp.Header.Values("ETag"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "ETag", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.ETag = &value
+		}
+		if values := rsp.Header.Values("Vary"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "Vary", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.Vary = &value
+		}
+		response.Headers304 = &headers
+	case rsp.StatusCode == 307:
+		var headers HeadSupplyChainDocumentResponse307Headers
 		if values := rsp.Header.Values("Cache-Control"); len(values) > 0 {
 			var value string
 			if err := runtime.BindStyledParameterWithOptions("simple", "Cache-Control", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {

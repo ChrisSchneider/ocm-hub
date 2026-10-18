@@ -16,8 +16,8 @@ func TestParseRoute(t *testing.T) {
 		"/v1/components/acme.org/x/descriptors/1.0.0":   {Kind: RouteDescriptor, Name: "acme.org/x", Version: "1.0.0"},
 		"/v1/components/acme.org/x/overview/1.0.0":      {Kind: RouteOverview, Name: "acme.org/x", Version: "1.0.0"},
 		"/v1/components/acme.org%2Fx/overview/latest":   {Kind: RouteOverview, Name: "acme.org/x", Version: "latest"},
-		"/v1/components/acme.org/x/attestations/1.0.0":  {Kind: RouteAttestations, Name: "acme.org/x", Version: "1.0.0"},
-		"/v1/components/acme.org/x/attestations":        {Kind: RouteComponent, Name: "acme.org/x/attestations"},
+		"/v1/components/acme.org/x/supply-chain/1.0.0":  {Kind: RouteSupplyChain, Name: "acme.org/x", Version: "1.0.0"},
+		"/v1/components/acme.org/x/supply-chain":        {Kind: RouteComponent, Name: "acme.org/x/supply-chain"},
 		"/v1/components/acme.org/x/resources/1.0.0/bin": {Kind: RouteResource, Name: "acme.org/x", Version: "1.0.0", Resource: "bin"},
 		"/v1/_catalog":   {Kind: RouteNotFound},
 		"/v1/acme.org/x": {Kind: RouteNotFound},
@@ -35,14 +35,14 @@ func TestParseRoute(t *testing.T) {
 	}
 }
 
-func TestParseRouteAttestationContent(t *testing.T) {
+func TestParseRouteSupplyChainDocument(t *testing.T) {
 	for path, want := range map[string]Route{
-		"/v1/components/acme.org/x/attestations/1.0.0/sha256:abc":               {Kind: RouteAttestationContent, Name: "acme.org/x", Version: "1.0.0", Digest: "sha256:abc"},
-		"/v1/components/acme.org%2Fx/attestations/1.0.0/sha256%3Aabc":           {Kind: RouteAttestationContent, Name: "acme.org/x", Version: "1.0.0", Digest: "sha256:abc"},
-		"/v1/components/acme.org/attestations/attestations/1.0.0/sha256:abc":    {Kind: RouteAttestationContent, Name: "acme.org/attestations", Version: "1.0.0", Digest: "sha256:abc"},
-		"/v1/components/acme.org/x/attestations/attestations/1.0.0":             {Kind: RouteAttestations, Name: "acme.org/x/attestations", Version: "1.0.0"},
-		"/v1/components/acme.org/attestations/x/attestations/1.0.0":             {Kind: RouteAttestations, Name: "acme.org/attestations/x", Version: "1.0.0"},
-		"/v1/components/acme.org/attestations/x/attestations/latest/sha256:abc": {Kind: RouteAttestationContent, Name: "acme.org/attestations/x", Version: "latest", Digest: "sha256:abc"},
+		"/v1/components/acme.org/x/supply-chain/1.0.0/sha256:abc":               {Kind: RouteSupplyChainDocument, Name: "acme.org/x", Version: "1.0.0", Digest: "sha256:abc"},
+		"/v1/components/acme.org%2Fx/supply-chain/1.0.0/sha256%3Aabc":           {Kind: RouteSupplyChainDocument, Name: "acme.org/x", Version: "1.0.0", Digest: "sha256:abc"},
+		"/v1/components/acme.org/supply-chain/supply-chain/1.0.0/sha256:abc":    {Kind: RouteSupplyChainDocument, Name: "acme.org/supply-chain", Version: "1.0.0", Digest: "sha256:abc"},
+		"/v1/components/acme.org/x/supply-chain/supply-chain/1.0.0":             {Kind: RouteSupplyChain, Name: "acme.org/x/supply-chain", Version: "1.0.0"},
+		"/v1/components/acme.org/supply-chain/x/supply-chain/1.0.0":             {Kind: RouteSupplyChain, Name: "acme.org/supply-chain/x", Version: "1.0.0"},
+		"/v1/components/acme.org/supply-chain/x/supply-chain/latest/sha256:abc": {Kind: RouteSupplyChainDocument, Name: "acme.org/supply-chain/x", Version: "latest", Digest: "sha256:abc"},
 	} {
 		got, err := ParseRoute(path)
 		if err != nil || got != want {
@@ -59,8 +59,8 @@ func TestParseRouteImages(t *testing.T) {
 		// Names with an "images" segment keep their other routes.
 		"/v1/components/acme.org/x/images/overview/1.0.0":                {Kind: RouteOverview, Name: "acme.org/x/images", Version: "1.0.0"},
 		"/v1/components/acme.org/x/images/descriptors/1.0.0":             {Kind: RouteDescriptor, Name: "acme.org/x/images", Version: "1.0.0"},
-		"/v1/components/acme.org/x/images/attestations/1.0.0":            {Kind: RouteAttestations, Name: "acme.org/x/images", Version: "1.0.0"},
-		"/v1/components/acme.org/x/images/attestations/1.0.0/sha256:abc": {Kind: RouteAttestationContent, Name: "acme.org/x/images", Version: "1.0.0", Digest: "sha256:abc"},
+		"/v1/components/acme.org/x/images/supply-chain/1.0.0":            {Kind: RouteSupplyChain, Name: "acme.org/x/images", Version: "1.0.0"},
+		"/v1/components/acme.org/x/images/supply-chain/1.0.0/sha256:abc": {Kind: RouteSupplyChainDocument, Name: "acme.org/x/images", Version: "1.0.0", Digest: "sha256:abc"},
 		"/v1/components/acme.org/x/images/versions":                      {Kind: RouteVersions, Name: "acme.org/x/images"},
 		"/v1/components/acme.org/images/resources/1.0.0/bin":             {Kind: RouteResource, Name: "acme.org/images", Version: "1.0.0", Resource: "bin"},
 		"/v1/components/acme.org/images/images/1.0.0/img":                {Kind: RouteImage, Name: "acme.org/images", Version: "1.0.0", Resource: "img"},

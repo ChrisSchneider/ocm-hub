@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import { server } from '../test/server'
-import { ApiError, attestationContentUrl, getComponent, getDescriptor, getDescriptorTree, getDocument, getVersions, imageRawUrl, listComponents, resourceUrl } from './client'
+import { ApiError, supplyChainDocumentUrl, getComponent, getDescriptor, getDescriptorTree, getDocument, getVersions, imageRawUrl, listComponents, resourceUrl } from './client'
 import { descId, ocmRef, parseId, providerName } from './ocm'
 
 test('getComponent encodes the component name', async () => {
@@ -84,10 +84,10 @@ test('helpers', () => {
   expect(ocmRef('http://localhost:5000/ocm', 'acme.org/p', '1.0.0')).toBe('oci::http://localhost:5000/ocm//acme.org/p:1.0.0')
 })
 
-test('attestationContentUrl encodes the digest and adds as=document and repository', () => {
-  expect(attestationContentUrl('acme.org/p', '1.0.0', 'sha256:abc')).toBe('/v1/components/acme.org%2Fp/attestations/1.0.0/sha256%3Aabc')
-  const u = new URL(attestationContentUrl('acme.org/p', '1.0.0', 'sha256:abc', 'oci::ghcr.io/acme', true), 'http://x')
-  expect(u.pathname).toBe('/v1/components/acme.org%2Fp/attestations/1.0.0/sha256%3Aabc')
+test('supplyChainDocumentUrl encodes the digest and adds as=document and repository', () => {
+  expect(supplyChainDocumentUrl('acme.org/p', '1.0.0', 'sha256:abc')).toBe('/v1/components/acme.org%2Fp/supply-chain/1.0.0/sha256%3Aabc')
+  const u = new URL(supplyChainDocumentUrl('acme.org/p', '1.0.0', 'sha256:abc', 'oci::ghcr.io/acme', true), 'http://x')
+  expect(u.pathname).toBe('/v1/components/acme.org%2Fp/supply-chain/1.0.0/sha256%3Aabc')
   expect(u.searchParams.get('as')).toBe('document')
   expect(u.searchParams.get('repository')).toBe('oci::ghcr.io/acme')
 })

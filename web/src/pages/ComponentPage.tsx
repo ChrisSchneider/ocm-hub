@@ -41,7 +41,8 @@ export function ComponentPage() {
     switch (search.view) {
       case 'contents':
       case 'labels':
-      case 'attestations':
+      case 'supply-chain':
+      case 'findings':
         return <ComponentBody key={`${name}:${version}:${search.repository ?? ''}`} name={name} version={version} search={search} />
       case 'descriptor':
         return <DescriptorTab name={name} version={version} repository={search.repository} />

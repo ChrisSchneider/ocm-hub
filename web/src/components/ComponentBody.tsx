@@ -18,7 +18,7 @@ export function ComponentBody({ name, version, search }: { name: string; version
   const isRoot = selected.name === name && selected.version === version
   // A reference resolved from another registry is read from there.
   const selectedRepository = isRoot ? repository : search.selectRepository
-  const view: View = search.view === 'labels' || search.view === 'attestations' ? search.view : 'contents'
+  const view: View = search.view === 'labels' || search.view === 'supply-chain' || search.view === 'findings' ? search.view : 'contents'
   return (
     <div className="flex gap-6">
       <SelectedPanel

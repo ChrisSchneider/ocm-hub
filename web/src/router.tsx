@@ -14,9 +14,9 @@ export interface CatalogSearch {
 export interface ComponentSearch {
   version?: string
   select?: string
-  // Page tab; absent: overview. labels and attestations are Contents segments;
+  // Page tab; absent: overview. labels, supply-chain and findings are Contents segments;
   // compliance (the old checklist tab) opens the overview.
-  view?: 'versions' | 'contents' | 'labels' | 'descriptor' | 'attestations' | 'compliance' | 'usage' | 'docs' | 'replication'
+  view?: 'versions' | 'contents' | 'labels' | 'descriptor' | 'supply-chain' | 'findings' | 'compliance' | 'usage' | 'docs' | 'replication'
   // Repository (location) the root component is read from; absent: the first location that has it.
   repository?: string
   // Registry a selected reference from another registry is read from.
@@ -25,7 +25,7 @@ export interface ComponentSearch {
   q?: string
 }
 
-const VIEWS = ['versions', 'contents', 'labels', 'descriptor', 'attestations', 'compliance', 'usage', 'docs', 'replication'] as const
+const VIEWS = ['versions', 'contents', 'labels', 'descriptor', 'supply-chain', 'findings', 'compliance', 'usage', 'docs', 'replication'] as const
 
 const str = (v: unknown): string | undefined => (v === undefined || v === null || v === '' ? undefined : String(v))
 

@@ -68,11 +68,11 @@ export async function getOverview(name: string, version: string, repository?: st
   return data
 }
 
-export type AttestationSet = components['schemas']['AttestationSet']
+export type SupplyChain = components['schemas']['SupplyChain']
 
-// getAttestations throws ApiError NOT_COLLECTED (404) for versions and locations the sync did not gather.
-export async function getAttestations(name: string, version: string, repository?: string): Promise<AttestationSet> {
-  const { data, error, response } = await api.GET('/v1/components/{name}/attestations/{version}', {
+// getSupplyChain throws ApiError NOT_COLLECTED (404) for versions and locations the sync did not gather.
+export async function getSupplyChain(name: string, version: string, repository?: string): Promise<SupplyChain> {
+  const { data, error, response } = await api.GET('/v1/components/{name}/supply-chain/{version}', {
     params: { path: { name, version }, query: repository ? { repository } : {} },
   })
   if (!data) fail(response.status, error)
@@ -128,8 +128,8 @@ export type HubDocument = components['schemas']['Document']
 export type ImageIndex = components['schemas']['ImageIndex']
 export type ImageDetails = components['schemas']['ImageDetails']
 
-export function attestationContentUrl(name: string, version: string, digest: string, repository?: string, asDocument?: boolean): string {
-  return componentUrl(name, ['attestations', version, digest], null, repository, asDocument ? { as: 'document' } : {})
+export function supplyChainDocumentUrl(name: string, version: string, digest: string, repository?: string, asDocument?: boolean): string {
+  return componentUrl(name, ['supply-chain', version, digest], null, repository, asDocument ? { as: 'document' } : {})
 }
 
 // getJson: these routes take extraIdentity.<key> parameters, which the typed client cannot express.
@@ -144,14 +144,14 @@ async function getJson<T>(url: string): Promise<T> {
 // and DOCUMENT_NOT_ALLOWED (403, detail.url).
 export async function getDocument(name: string, version: string, src: DocumentSource, repository?: string): Promise<HubDocument> {
   const url = 'attestation' in src
-    ? attestationContentUrl(name, version, src.attestation, repository, true)
+    ? supplyChainDocumentUrl(name, version, src.attestation, repository, true)
     : componentUrl(name, ['resources', version, src.resource], src.extraIdentity, repository, { as: 'document' })
   return getJson<HubDocument>(url)
 }
 
 // getAttestationJson: the attestation document as stored (the predicate of a statement), parsed as plain JSON.
 export async function getAttestationJson(name: string, version: string, digest: string, repository?: string): Promise<unknown> {
-  return getJson<unknown>(attestationContentUrl(name, version, digest, repository))
+  return getJson<unknown>(supplyChainDocumentUrl(name, version, digest, repository))
 }
 
 export async function getImage(name: string, version: string, resource: string, extraIdentity?: Record<string, string> | null, repository?: string): Promise<ImageIndex> {

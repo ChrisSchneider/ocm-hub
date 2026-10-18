@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { createMemoryHistory, createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/react-router'
 import { delay, http, HttpResponse } from 'msw'
 import type { OcmDescriptor } from '../api/ocm'
-import type { AttestationSet } from '../lib/attestations'
+import type { SupplyChain } from '../lib/supplyChain'
 import type { View } from '../lib/contentsRows'
 import { VEX_LABEL } from '../lib/labels'
 import { parseComponentSearch } from '../router'
@@ -16,22 +16,22 @@ const name = 'github.com/acme/app'
 const descriptor = (resources: object[], extra: object = {}): OcmDescriptor =>
   ({ meta: { schemaVersion: 'v2' }, component: { name, version: '1.0.0', provider: 'acme', resources, ...extra } }) as OcmDescriptor
 
-const entry = (kind: string, how = 'referrer', extra = {}) => ({ kind, how, signed: 'no', ...extra })
-const set = (levels: object[]) => ({ name, version: '1.0.0', repository: 'oci::ghcr.io/acme', checkedAt: '2026-10-01T00:00:00Z', levels }) as AttestationSet
+const entry = (kind: string, source = 'referrer', extra = {}) => ({ kind, source, signed: 'no', ...extra })
+const set = (levels: object[]) => ({ name, version: '1.0.0', repository: 'oci::ghcr.io/acme', checkedAt: '2026-10-01T00:00:00Z', levels }) as SupplyChain
 
 const img = { name: 'web', type: 'ociImage', version: '1.0.0', access: { imageReference: 'ghcr.io/acme/web:1' } }
 const webId = { name: 'web', version: '1.0.0' }
 const cli = (os: string, architecture: string) => ({ name: 'cli', type: 'executable', version: '1.0.0', extraIdentity: { os, architecture }, access: { type: 'localBlob' } })
 const bom = { name: 'bom', type: 'sbom', version: '1.0.0', access: { type: 'localBlob', mediaType: 'application/vnd.cyclonedx+json' } }
 
-interface Opts { view?: View; onView?: (v: View) => void; repository?: string; url?: string; attestations?: AttestationSet | (() => Response | Promise<Response>) }
+interface Opts { view?: View; onView?: (v: View) => void; repository?: string; url?: string; attestations?: SupplyChain | (() => Response | Promise<Response>) }
 
 // show renders the list in a router (NotCollected links) with its view in local state; it
 // answers the attestation set from opts and counts the set requests.
 function show(d: OcmDescriptor, opts: Opts = {}) {
   const calls = { set: 0 }
   server.use(
-    http.get('/v1/components/:name/attestations/:version', () => {
+    http.get('/v1/components/:name/supply-chain/:version', () => {
       calls.set++
       const a = opts.attestations
       return typeof a === 'function' ? a() : HttpResponse.json(a ?? set([]))
@@ -79,7 +79,7 @@ test('segmented control calls onView', async () => {
   const { user } = show(descriptor([img]), { onView })
   await screen.findByRole('table', { name: 'Contents' })
   const group = screen.getByRole('radiogroup', { name: 'Contents view' })
-  expect(within(group).getAllByRole('radio').map((r) => r.textContent)).toEqual(['Contents', 'Labels', 'OCI Attestations'])
+  expect(within(group).getAllByRole('radio').map((r) => r.textContent)).toEqual(['Contents', 'Labels', 'Supply chain', 'Findings'])
   expect(segment('Contents')).toHaveAttribute('aria-checked', 'true')
   await user.click(segment('Labels'))
   expect(onView).toHaveBeenCalledWith('labels')
@@ -100,7 +100,7 @@ test('resource group expands and its children appear in all views', async () => 
   await user.click(segment('Labels'))
   expect(await screen.findByRole('row', { name: 'resource linux/amd64' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Expand cli' })).toHaveAttribute('aria-expanded', 'true')
-  await user.click(segment('OCI Attestations'))
+  await user.click(segment('Supply chain'))
   expect(await screen.findByRole('row', { name: 'resource linux/arm64' })).toBeInTheDocument()
 })
 
@@ -132,7 +132,7 @@ test('labels view: object value shows {…} and opens a JSON modal on click, wit
 
 test('labels view: VEX label opens the attestation by digest', async () => {
   let doc = ''
-  server.use(http.get('/v1/components/:name/attestations/:version/:digest', ({ request }) => {
+  server.use(http.get('/v1/components/:name/supply-chain/:version/:digest', ({ request }) => {
     doc = decodeURIComponent(request.url)
     return HttpResponse.json({ format: 'OpenVEX', vex: { statements: [] } })
   }))
@@ -144,9 +144,9 @@ test('labels view: VEX label opens the attestation by digest', async () => {
   expect(calls.set).toBe(0)
   await user.click(within(row).getByRole('button', { name: `View ${VEX_LABEL}` }))
   expect(await screen.findByRole('dialog', { name: 'VEX' })).toBeInTheDocument()
-  await waitFor(() => expect(doc).toContain('/attestations/1.0.0/sha256:abc?as=document'))
+  await waitFor(() => expect(doc).toContain('/supply-chain/1.0.0/sha256:abc?as=document'))
   expect(calls.set).toBe(1)
-  expect(within(row).getByRole('link', { name: `Download ${VEX_LABEL}` })).toHaveAttribute('href', `/v1/components/${encodeURIComponent(name)}/attestations/1.0.0/sha256%3Aabc`)
+  expect(within(row).getByRole('link', { name: `Download ${VEX_LABEL}` })).toHaveAttribute('href', `/v1/components/${encodeURIComponent(name)}/supply-chain/1.0.0/sha256%3Aabc`)
 })
 
 test('labels view: VEX label without digest links the original URL', async () => {
@@ -175,24 +175,24 @@ test('attestations view requests the set only when opened', async () => {
   await user.click(segment('Labels'))
   await screen.findByRole('table', { name: 'Labels' })
   expect(calls.set).toBe(0)
-  await user.click(segment('OCI Attestations'))
-  expect(await screen.findByText('Loading attestations…')).toBeInTheDocument()
-  await waitFor(() => expect(screen.queryByText('Loading attestations…')).not.toBeInTheDocument())
+  await user.click(segment('Supply chain'))
+  expect(await screen.findByText('Loading supply chain…')).toBeInTheDocument()
+  await waitFor(() => expect(screen.queryByText('Loading supply chain…')).not.toBeInTheDocument())
   expect(calls.set).toBe(1)
 })
 
-test('attestations view: name, predicate type, details, signed icon, eye only with viewer', async () => {
+test('supply chain view: name, source, type, details, signed icon, eye only with viewer', async () => {
   const slsa = entry('slsa', 'referrer', { type: 'https://slsa.dev/provenance/v1', buildLevel: 3, builder: 'gha', signed: 'signed', digest: 'sha256:1' })
   const sbom = entry('sbom', 'referrer', { type: 'https://cyclonedx.org/bom', format: 'CycloneDX 1.6', summary: { format: 'CycloneDX 1.6', packages: 5 }, digest: 'sha256:2' })
-  show(descriptor([img]), { view: 'attestations', attestations: set([{ resource: webId, status: 'ok', entries: [slsa, sbom] }]) })
-  const table = await screen.findByRole('table', { name: 'OCI Attestations' })
-  expect(within(table).getAllByRole('columnheader').map((h) => h.textContent)).toEqual(['Name', 'Attestation', 'Predicate type', 'Details', 'Signed', 'View'])
+  show(descriptor([img]), { view: 'supply-chain', attestations: set([{ resource: webId, status: 'ok', entries: [slsa, sbom] }]) })
+  const table = await screen.findByRole('table', { name: 'Supply chain' })
+  expect(within(table).getAllByRole('columnheader').map((h) => h.textContent)).toEqual(['Name', 'Document', 'Source', 'Type', 'Details', 'Signed', 'View'])
   await screen.findByText('SLSA provenance')
-  const rows = await bodyRows('OCI Attestations')
+  const rows = await bodyRows('Supply chain')
   expect(rows.map(cells)).toEqual([
-    ['component itself', '—', '', '', '', ''],
-    ['web▸', 'SLSA provenance', 'https://slsa.dev/provenance/v1', 'Build L3 · gha', '', ''],
-    ['', 'SBOM', 'https://cyclonedx.org/bom', 'CycloneDX 1.6 · 5 packages', '', ''],
+    ['component itself', '—', '', '', '', '', ''],
+    ['web▸', 'SLSA provenance', 'OCI referrer', 'https://slsa.dev/provenance/v1', 'Build L3 · gha', '', ''],
+    ['', 'SBOM', 'OCI referrer', 'https://cyclonedx.org/bom', 'CycloneDX 1.6 · 5 packages', '', ''],
   ])
   const predicate = within(rows[1]).getByRole('cell', { name: 'https://slsa.dev/provenance/v1' })
   expect(predicate.className).toMatch(/font-mono/)
@@ -204,38 +204,55 @@ test('attestations view: name, predicate type, details, signed icon, eye only wi
   expect(within(rows[2]).getByRole('button', { name: 'View SBOM' })).toBeInTheDocument()
 })
 
-test('a label-linked VEX is not listed in OCI attestations', async () => {
-  const vex = entry('vex', 'labelLink', { label: VEX_LABEL, url: 'https://example.com/vex.json', digest: 'sha256:abc' })
-  show(descriptor([img]), { view: 'attestations', attestations: set([{ status: 'ok', entries: [vex] }, { resource: webId, status: 'ok', entries: [vex] }]) })
-  await waitFor(() => expect(screen.queryByText('Loading attestations…')).not.toBeInTheDocument())
-  const rows = await bodyRows('OCI Attestations')
-  expect(rows.map((r) => cells(r).slice(0, 2))).toEqual([['component itself', '—'], ['web▸', '—']])
+test('a label-linked VEX is listed with its label; ↗ without a digest', async () => {
+  const vex = entry('vex', 'labelLink', { label: VEX_LABEL, url: 'https://example.com/vex.json', digest: 'sha256:abc', format: 'OpenVEX 0.2' })
+  const undigested = entry('vex', 'labelLink', { label: VEX_LABEL, url: 'https://example.com/web.json' })
+  show(descriptor([img]), { view: 'supply-chain', attestations: set([{ status: 'ok', entries: [vex] }, { resource: webId, status: 'ok', entries: [undigested] }]) })
+  await waitFor(() => expect(screen.queryByText('Loading supply chain…')).not.toBeInTheDocument())
+  const rows = await bodyRows('Supply chain')
+  expect(rows.map((r) => cells(r).slice(0, 4))).toEqual([['component itself', 'VEX', 'Label link', 'https://example.com/vex.json'], ['web▸', 'VEX', 'Label link', 'https://example.com/web.json']])
+  expect(within(rows[0]).getByRole('cell', { name: 'Label link' })).toHaveAttribute('title', VEX_LABEL)
+  expect(within(rows[0]).getByRole('button', { name: 'View VEX' })).toBeInTheDocument()
+  expect(within(rows[1]).getByRole('link', { name: 'Open VEX' })).toHaveAttribute('href', 'https://example.com/web.json')
 })
 
-test('embedded SBOM is not listed in attestations', async () => {
-  const embedded = entry('sbom', 'embedded', { format: 'CycloneDX 1.6', resource: { name: 'bom', version: '1.0.0' } })
-  show(descriptor([bom]), { view: 'attestations', attestations: set([{ status: 'ok', entries: [embedded] }]) })
-  await waitFor(() => expect(screen.queryByText('Loading attestations…')).not.toBeInTheDocument())
-  const rows = await bodyRows('OCI Attestations')
-  expect(rows.map((r) => cells(r).slice(0, 2))).toEqual([['component itself', '—'], ['bom', '—']])
+test('an embedded SBOM is a document of the subject it is listed with, opened as resource', async () => {
+  const embedded = entry('sbom', 'embedded', { type: 'application/vnd.cyclonedx+json', format: 'CycloneDX', signed: 'component', resource: { name: 'bom', version: '1.0.0' } })
+  const { user } = show(descriptor([bom]), { view: 'supply-chain', attestations: set([{ status: 'ok', entries: [embedded] }]) })
+  await waitFor(() => expect(screen.queryByText('Loading supply chain…')).not.toBeInTheDocument())
+  const rows = await bodyRows('Supply chain')
+  expect(rows.map((r) => cells(r).slice(0, 4))).toEqual([['component itself', 'SBOM', 'Resource bom', 'application/vnd.cyclonedx+json']])
+  expect(within(rows[0]).getByTitle('covered by the component signature (not verified)')).toBeInTheDocument()
+  await user.click(within(rows[0]).getByRole('button', { name: 'View SBOM' }))
+  expect(await screen.findByRole('dialog', { name: 'SBOM' })).toBeInTheDocument()
+})
+
+test('filtered, an SBOM resource says which subject lists it', async () => {
+  const embedded = entry('sbom', 'embedded', { resource: { name: 'bom', version: '1.0.0' } })
+  const { user } = show(descriptor([img, bom]), { view: 'supply-chain', attestations: set([{ resource: webId, status: 'ok', entries: [embedded] }]) })
+  await waitFor(() => expect(screen.queryByText('Loading supply chain…')).not.toBeInTheDocument())
+  await user.click(screen.getByRole('button', { name: 'sbom 1' }))
+  const rows = await bodyRows('Supply chain')
+  expect(rows.map((r) => cells(r).slice(0, 2))).toEqual([['bom', 'listed with web']])
+  expect(rows[0]).toHaveClass('opacity-50')
 })
 
 test('group parent shows per resource; failed level message under the table, not red', async () => {
   const levels = [{ resource: webId, status: 'failed', error: 'unauthorized', entries: [] }, { resource: { name: 'web2', version: '1.0.0' }, status: 'ok', entries: [entry('slsa', 'buildx', { platform: 'linux/amd64' })] }]
-  show(descriptor([cli('linux', 'amd64'), cli('linux', 'arm64'), img, { ...img, name: 'web2' }]), { view: 'attestations', attestations: set(levels) })
+  show(descriptor([cli('linux', 'amd64'), cli('linux', 'arm64'), img, { ...img, name: 'web2' }]), { view: 'supply-chain', attestations: set(levels) })
   const message = await screen.findByText("Couldn't check Resource web 1.0.0: unauthorized")
   expect(message).toHaveClass('text-slate-600')
-  expect(screen.getByRole('table', { name: 'OCI Attestations' })).not.toContainElement(message)
-  const rows = await bodyRows('OCI Attestations')
+  expect(screen.getByRole('table', { name: 'Supply chain' })).not.toContainElement(message)
+  const rows = await bodyRows('Supply chain')
   expect(rows.map((r) => cells(r).slice(0, 2))).toEqual([['component itself', '—'], ['cli▸ 2', 'per resource'], ['web▸', '—'], ['web2▸', 'on platforms']])
   expect(document.body.innerHTML).not.toMatch(/(red|green|emerald)-\d/)
 })
 
 test('not collected message under the table', async () => {
   const notCollected = () => HttpResponse.json({ errors: [{ code: 'NOT_COLLECTED', message: 'not collected', detail: { collected: [{ version: '0.9.0', repository: 'oci::ghcr.io/acme' }] } }] }, { status: 404 })
-  show(descriptor([img]), { view: 'attestations', attestations: notCollected })
-  const message = await screen.findByText(/Attestations are not collected for this version/)
-  expect(screen.getByRole('table', { name: 'OCI Attestations' })).not.toContainElement(message)
+  show(descriptor([img]), { view: 'supply-chain', attestations: notCollected })
+  const message = await screen.findByText(/Supply chain documents are not collected for this version/)
+  expect(screen.getByRole('table', { name: 'Supply chain' })).not.toContainElement(message)
   expect(screen.getByRole('link', { name: '0.9.0 at ghcr.io/acme' })).toBeInTheDocument()
 })
 
@@ -267,11 +284,11 @@ test('level anchor id on the first line', async () => {
   Element.prototype.scrollIntoView = scroll
   try {
     const entries = [entry('slsa', 'referrer', { type: 'https://slsa.dev/provenance/v1' }), entry('vex', 'referrer', { format: 'OpenVEX' })]
-    show(descriptor([img]), { view: 'attestations', url: '/#attestations-web-1.0.0', attestations: set([{ resource: webId, status: 'ok', entries }]) })
+    show(descriptor([img]), { view: 'supply-chain', url: '/#supply-chain-web-1.0.0', attestations: set([{ resource: webId, status: 'ok', entries }]) })
     await screen.findByText('SLSA provenance')
-    const anchored = document.getElementById('attestations-web-1.0.0')
+    const anchored = document.getElementById('supply-chain-web-1.0.0')
     expect(anchored).toBe(screen.getByRole('row', { name: 'resource web' }))
-    expect(document.getElementById('attestations-component')).toBe(screen.getByRole('row', { name: 'component itself' }))
+    expect(document.getElementById('supply-chain-component')).toBe(screen.getByRole('row', { name: 'component itself' }))
     await waitFor(() => expect(scroll).toHaveBeenCalled())
     expect(scroll.mock.contexts.at(-1)).toBe(anchored)
   } finally {
@@ -344,7 +361,7 @@ test('a single manifest without os/arch shows its row as — and titles it by th
 test('attestations view shows a platform without os/arch as —', async () => {
   serveImage(() => HttpResponse.json(imageIndex([{ platform: '', digest: sha }])))
   const entries = [entry('sbom', 'referrer', { type: 'application/spdx+json' })]
-  const { user } = show(descriptor([img]), { view: 'attestations', attestations: set([{ resource: webId, status: 'ok', entries }]) })
+  const { user } = show(descriptor([img]), { view: 'supply-chain', attestations: set([{ resource: webId, status: 'ok', entries }]) })
   expect(await screen.findByText(/SBOM/)).toBeInTheDocument()
   await user.click(within(screen.getByRole('row', { name: 'resource web' })).getByRole('button', { name: 'Expand web' }))
   const row = await screen.findByRole('row', { name: 'platform —' })
@@ -372,7 +389,7 @@ test('attestations view lists buildx entries per platform', async () => {
   const error = vi.spyOn(console, 'error').mockImplementation(() => {})
   serveImage(() => HttpResponse.json(imageIndex([{ platform: 'linux/amd64', digest: sha }, { platform: 'linux/arm64', digest: sha2 }])))
   const entries = [entry('slsa', 'referrer', { type: 'https://slsa.dev/provenance/v1', platform: 'linux/amd64' })]
-  const { user } = show(descriptor([img]), { view: 'attestations', attestations: set([{ resource: webId, status: 'ok', entries }]) })
+  const { user } = show(descriptor([img]), { view: 'supply-chain', attestations: set([{ resource: webId, status: 'ok', entries }]) })
   const index = await screen.findByRole('row', { name: 'resource web' })
   expect(await within(index).findByText('on platforms')).toBeInTheDocument()
   await user.click(within(index).getByRole('button', { name: 'Expand web' }))
@@ -396,4 +413,15 @@ test('platform eye opens image details', async () => {
   await user.click(await screen.findByRole('button', { name: 'View web linux/amd64' }))
   expect(await screen.findByRole('dialog', { name: 'web linux/amd64' })).toBeInTheDocument()
   await waitFor(() => expect(path).toContain('/images/1.0.0/web/'))
+})
+
+test('findings view is an outlook with greyed-out placeholders, no set requested', async () => {
+  const { user, calls } = show(descriptor([img]))
+  await screen.findByRole('table', { name: 'Contents' })
+  await user.click(segment('Findings'))
+  expect(await screen.findByText(/Not implemented yet/)).toBeInTheDocument()
+  const table = screen.getByRole('table', { name: 'Findings' })
+  expect(table).toHaveClass('text-slate-400')
+  expect(within(table).getAllByRole('columnheader').map((h) => h.textContent)).toEqual(['Finding', 'Severity', 'Affected', 'Sources', 'Status'])
+  expect(calls.set).toBe(0)
 })

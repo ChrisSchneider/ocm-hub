@@ -37,8 +37,8 @@ func Content(ctx context.Context, open RepositoryOpener, fetch document.FetchFun
 	if e.Digest == "" {
 		return nil, ErrNoContent
 	}
-	switch e.How {
-	case HowLabelLink:
+	switch e.Source {
+	case SourceLabelLink:
 		b, err := fetch(ctx, e.URL)
 		if err != nil {
 			return nil, err
@@ -51,7 +51,7 @@ func Content(ctx context.Context, open RepositoryOpener, fetch document.FetchFun
 			return nil, ErrDocumentChanged
 		}
 		return b, nil
-	case HowReferrer, HowCosignTag, HowBuildx:
+	case SourceReferrer, SourceCosignTag, SourceBuildx:
 		dgst, err := digest.Parse(e.Digest)
 		if err != nil {
 			return nil, fmt.Errorf("digest %q: %w", e.Digest, err)
@@ -61,7 +61,7 @@ func Content(ctx context.Context, open RepositoryOpener, fetch document.FetchFun
 			return nil, err
 		}
 		var layer ocispec.Descriptor
-		if e.How == HowReferrer {
+		if e.Source == SourceReferrer {
 			if layer, err = firstLayer(ctx, repo, dgst); err != nil {
 				return nil, err
 			}

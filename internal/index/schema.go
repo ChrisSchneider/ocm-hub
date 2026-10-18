@@ -12,7 +12,7 @@ import (
 
 // SchemaVersion is the version of the schema below. Bump it on every change:
 // the next sync then discards the old file and runs a full sync.
-const SchemaVersion = 8
+const SchemaVersion = 9
 
 var (
 	// ErrSchemaMismatch: the file was written with another SchemaVersion.
@@ -117,7 +117,7 @@ var ddl = []string{
 		kind VARCHAR NOT NULL,
 		format VARCHAR,
 		type VARCHAR,
-		how VARCHAR NOT NULL,
+		source VARCHAR NOT NULL,
 		platform VARCHAR,
 		signed VARCHAR NOT NULL,
 		digest VARCHAR,

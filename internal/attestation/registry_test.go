@@ -83,7 +83,7 @@ func TestInspectReferrers(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []Entry{{Kind: KindSLSA, Format: "SLSA v1", Type: "https://slsa.dev/provenance/v1", How: HowReferrer, Signed: SignedYes, Digest: ref.Digest.String(), Repository: reg.Host + "/att/referrers"}}
+	want := []Entry{{Kind: KindSLSA, Format: "SLSA v1", Type: "https://slsa.dev/provenance/v1", Source: SourceReferrer, Signed: SignedYes, Digest: ref.Digest.String(), Repository: reg.Host + "/att/referrers"}}
 	if len(got) != 1 || got[0] != want[0] {
 		t.Fatalf("got %+v, want %+v", got, want)
 	}
@@ -211,7 +211,7 @@ func TestInspectCosignTag(t *testing.T) {
 	}
 	kinds := map[Kind]bool{}
 	for _, e := range got {
-		if e.How != HowCosignTag || e.Signed != SignedYes {
+		if e.Source != SourceCosignTag || e.Signed != SignedYes {
 			t.Errorf("entry %+v", e)
 		}
 		kinds[e.Kind] = true
@@ -238,7 +238,7 @@ func TestInspectBuildx(t *testing.T) {
 	}
 	count := map[string]int{}
 	for _, e := range got {
-		if e.How != HowBuildx || e.Signed != SignedNo {
+		if e.Source != SourceBuildx || e.Signed != SignedNo {
 			t.Errorf("entry %+v", e)
 		}
 		count[e.Platform+"|"+string(e.Kind)]++
@@ -380,7 +380,7 @@ func TestInspectSLSABuilder(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(got) != 1 || got[0].Kind != KindSLSA || got[0].How != HowCosignTag || got[0].Builder != builder || got[0].Summary != nil {
+	if len(got) != 1 || got[0].Kind != KindSLSA || got[0].Source != SourceCosignTag || got[0].Builder != builder || got[0].Summary != nil {
 		t.Fatalf("got %+v", got)
 	}
 }

@@ -18,18 +18,20 @@ const (
 	KindSecrets Kind = "secrets"
 	KindVirus   Kind = "virus"
 	KindSources Kind = "sources"
-	KindOther   Kind = "other"
+	// KindCompliance is an assessment of requirements (OSCAL assessment results).
+	KindCompliance Kind = "compliance"
+	KindOther      Kind = "other"
 )
 
-// How an attestation was found.
-type How string
+// Source is where an entry was found.
+type Source string
 
 const (
-	HowEmbedded  How = "embedded"
-	HowReferrer  How = "referrer"
-	HowCosignTag How = "cosignTag"
-	HowBuildx    How = "buildx"
-	HowLabelLink How = "labelLink"
+	SourceEmbedded  Source = "embedded"
+	SourceReferrer  Source = "referrer"
+	SourceCosignTag Source = "cosignTag"
+	SourceBuildx    Source = "buildx"
+	SourceLabelLink Source = "labelLink"
 )
 
 // Signed says what covers an attestation. Nothing is verified.
@@ -61,7 +63,7 @@ type Entry struct {
 	Kind     Kind
 	Format   string // e.g. "CycloneDX 1.6"; "" unknown
 	Type     string // raw predicate/artifact/media type; "" for label links
-	How      How
+	Source   Source
 	Platform string
 	Signed   Signed
 	Digest   string    // attestation manifest or layer digest (registry entries); sha256 of the linked document (label links)

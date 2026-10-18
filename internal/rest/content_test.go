@@ -60,7 +60,7 @@ func pushReferrer(t *testing.T, repoName, layerMediaType string, layer []byte) a
 		t.Fatal(err)
 	}
 	d := fixtures.PushReferrer(ctx, t, target, repoName, subject, layerMediaType, nil, layerMediaType, layer)
-	return attestation.Entry{Kind: attestation.KindSBOM, How: attestation.HowReferrer, Signed: attestation.SignedNo,
+	return attestation.Entry{Kind: attestation.KindSBOM, Source: attestation.SourceReferrer, Signed: attestation.SignedNo,
 		Digest: d.Digest.String(), Repository: reg.Host + "/" + repoName}
 }
 
@@ -71,7 +71,7 @@ func sha(b []byte) string {
 
 // vexEntry is a label-link entry recorded with doc's digest.
 func vexEntry(doc []byte) attestation.Entry {
-	return attestation.Entry{Kind: attestation.KindVEX, How: attestation.HowLabelLink, Signed: attestation.SignedByComponent,
+	return attestation.Entry{Kind: attestation.KindVEX, Source: attestation.SourceLabelLink, Signed: attestation.SignedByComponent,
 		URL: vexURL, Label: attestation.LabelVEX, Digest: sha(doc)}
 }
 
@@ -103,7 +103,7 @@ func contentHandler(t *testing.T, fetch *countingFetch, entries ...attestation.E
 }
 
 func contentPath(digest, query string) string {
-	p := "/v1/components/acme.org%2Fx/attestations/1.1.0/" + digest + "?repository=" + url.QueryEscape(testLoc)
+	p := "/v1/components/acme.org%2Fx/supply-chain/1.1.0/" + digest + "?repository=" + url.QueryEscape(testLoc)
 	if query != "" {
 		p += "&" + query
 	}
@@ -149,13 +149,13 @@ func TestAttestationContentDocument(t *testing.T) {
 func TestAttestationContentUnknownDigest(t *testing.T) {
 	doc := []byte(`{"x":1}`)
 	f := &countingFetch{body: doc}
-	embedded := attestation.Entry{Kind: attestation.KindSBOM, How: attestation.HowEmbedded, Signed: attestation.SignedByComponent,
+	embedded := attestation.Entry{Kind: attestation.KindSBOM, Source: attestation.SourceEmbedded, Signed: attestation.SignedByComponent,
 		Resource: &attestation.Identity{Name: "sbom"}, Digest: "sha256:" + hex.EncodeToString(make([]byte, 32))}
 	h := contentHandler(t, f, vexEntry(doc), embedded)
 	for _, p := range []string{
 		contentPath("sha256:"+hex.EncodeToString(make([]byte, 31))+"ff", ""),
 		contentPath(embedded.Digest, ""),
-		"/v1/components/acme.org%2Fx/attestations/1.0.0/" + vexEntry(doc).Digest + "?repository=" + url.QueryEscape(testLoc),
+		"/v1/components/acme.org%2Fx/supply-chain/1.0.0/" + vexEntry(doc).Digest + "?repository=" + url.QueryEscape(testLoc),
 	} {
 		if r := do(t, h, "GET", p, nil); r.StatusCode != 404 || errCode(t, r) != "NOT_FOUND" {
 			t.Errorf("%s: %d", p, r.StatusCode)
@@ -170,11 +170,11 @@ func TestAttestationContentRedirects(t *testing.T) {
 	doc := []byte(`{"x":1}`)
 	h := contentHandler(t, &countingFetch{body: doc}, vexEntry(doc))
 	dgst := vexEntry(doc).Digest
-	r := do(t, h, "GET", "/v1/components/acme.org%2Fx/attestations/latest/"+dgst+"?as=document", nil)
+	r := do(t, h, "GET", "/v1/components/acme.org%2Fx/supply-chain/latest/"+dgst+"?as=document", nil)
 	if r.StatusCode != 307 {
 		t.Fatalf("status %d", r.StatusCode)
 	}
-	if loc := r.Header.Get("Location"); loc != "/v1/components/acme.org%2Fx/attestations/1.1.0/"+dgst+"?as=document&repository="+url.QueryEscape(testLoc) {
+	if loc := r.Header.Get("Location"); loc != "/v1/components/acme.org%2Fx/supply-chain/1.1.0/"+dgst+"?as=document&repository="+url.QueryEscape(testLoc) {
 		t.Errorf("location = %s", loc)
 	}
 }
@@ -196,7 +196,7 @@ func TestAttestationContentNotConfigured(t *testing.T) {
 // TestAttestationContentNoRegistry: a referrer entry without WithRegistry
 // answers 501 (Content would panic on a nil opener).
 func TestAttestationContentNoRegistry(t *testing.T) {
-	ref := attestation.Entry{Kind: attestation.KindSBOM, How: attestation.HowReferrer, Signed: attestation.SignedNo,
+	ref := attestation.Entry{Kind: attestation.KindSBOM, Source: attestation.SourceReferrer, Signed: attestation.SignedNo,
 		Digest: "sha256:" + hex.EncodeToString(make([]byte, 32)), Repository: "localhost:1/none"}
 	res := attestation.Result{Levels: []attestation.Level{{Status: attestation.StatusOK, Entries: []attestation.Entry{ref}}}}
 	idx := testIndexWith(t, func(ctx context.Context, w *index.Writer) {

@@ -29,6 +29,7 @@ Open items first, grouped by area; finished work at the end.
       and a native way to add components from GitHub instead of manual config.
 
 ## Attestations
+- [ ] Attestations should be re-checked for component view, as there might be new ones...
 - [ ] Gather attestations for other versions and locations (today: default version at
       its overview location only).
 - [ ] GitHub attestation API (attestations stored only at GitHub, not in the registry).
@@ -40,7 +41,6 @@ Open items first, grouped by area; finished work at the end.
       a folder URL also needs resolving to the product's document.
 - [ ] Docker Hardened Images predicate types for STIG, secrets and virus scans
       (today listed as "Other").
-- [ ] Deep browsing into components (e.g. open an SBOM).
 - [ ] SLSA provenance viewer (today: raw JSON of the predicate). Parse it in
       `document.Parse` with the entry's predicate type as hint (the predicate alone has
       none), for v0.2 (buildx, older GitHub generators) and v1: builder id, build type,
@@ -52,7 +52,12 @@ Open items first, grouped by area; finished work at the end.
 
 ## Compliance pipeline (standalone commands)
 First prototype: FIPS step 1 (SBOM-only heuristics) as SARIF attached to the component,
-and a BSI-like OSCAL assessment result (e.g. every image has an SBOM). Later:
+and a BSI-like OSCAL assessment result (e.g. every image has an SBOM): `cmd/fipscheck`
+(`--attest` attaches the SARIF to the component's OCI artifact) and `cmd/assess`. Later:
+- [ ] Sign the SARIF attestation (today an unsigned in-toto statement as OCI referrer).
+- [ ] Read SBOMs behind label links too (the commands pass no document fetcher yet).
+- [ ] fuse all discovered SBOM,VEX,SARIF,CBOM etc documents, and cyclonedx can contain anything
+      — into the Findings view of the Contents tab (today an outlook with greyed-out placeholders).
 - [ ] OCM verify (`ocm verify cv` / bindings) against allowed signers: Sigstore identity
       `github.com/chrisschneider` for now; `sigstore.ocmconfig` has no verifier policy yet.
 - [ ] All OCI artifacts / container images signed (BSI SYS.1.6.A12), via cosign or

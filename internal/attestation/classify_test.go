@@ -24,6 +24,8 @@ func TestClassify(t *testing.T) {
 		{"application/csaf+json", KindVEX, "CSAF"},
 		{"https://cosign.sigstore.dev/attestation/vuln/v1", KindCVE, "cosign vuln v1"},
 		{"https://docker.com/dhi/fips/v0.1", KindFIPS, ""},
+		{"https://chrisschneider.dev/attestation/fips-scan/v1", KindFIPS, "SARIF"},
+		{"https://chrisschneider.dev/attestation/oscal-assessment-results/v1", KindCompliance, "OSCAL assessment results"},
 		{"https://docker.com/dhi/source/v0.1", KindSources, ""},
 		{"https://example.com/custom/v1", KindOther, ""},
 		{"", KindOther, ""},

@@ -25,14 +25,14 @@ const (
 	RouteResource
 	RouteDiscovery
 	RouteOverview
-	RouteAttestations
-	RouteAttestationContent
+	RouteSupplyChain
+	RouteSupplyChainDocument
 	RouteImage
 	RouteImageDetails
 )
 
 func (k RouteKind) String() string {
-	return [...]string{"not-found", "health", "base", "components", "component", "versions", "descriptor", "resource", "discovery", "overview", "attestations", "attestation-content", "image", "image-details"}[k]
+	return [...]string{"not-found", "health", "base", "components", "component", "versions", "descriptor", "resource", "discovery", "overview", "supply-chain", "supply-chain-document", "image", "image-details"}[k]
 }
 
 // Route is a parsed request path.
@@ -41,7 +41,7 @@ type Route struct {
 	Name     string
 	Version  string
 	Resource string
-	// Digest is the attestation digest of RouteAttestationContent, or the
+	// Digest is the document digest of RouteSupplyChainDocument, or the
 	// platform digest of RouteImageDetails.
 	Digest string
 }
@@ -130,15 +130,15 @@ func keywordRoute(seg []string) (Route, int, bool) {
 		return Route{Kind: RouteDescriptor, Version: seg[n-1]}, n - 2, true
 	case n >= 3 && seg[n-2] == "overview" && seg[n-1] != "":
 		return Route{Kind: RouteOverview, Version: seg[n-1]}, n - 2, true
-	// Before the set route: .../attestations/{version}/{digest}. Only a
+	// Before the set route: .../supply-chain/{version}/{digest}. Only a
 	// digest-like last segment (with ':') matches, so the set route of a
-	// component named .../attestations stays reachable.
-	case n >= 4 && seg[n-3] == "attestations" && seg[n-2] != "" && strings.Contains(seg[n-1], ":"):
-		return Route{Kind: RouteAttestationContent, Version: seg[n-2], Digest: seg[n-1]}, n - 3, true
-	case n >= 3 && seg[n-2] == "attestations" && seg[n-1] != "":
-		return Route{Kind: RouteAttestations, Version: seg[n-1]}, n - 2, true
+	// component named .../supply-chain stays reachable.
+	case n >= 4 && seg[n-3] == "supply-chain" && seg[n-2] != "" && strings.Contains(seg[n-1], ":"):
+		return Route{Kind: RouteSupplyChainDocument, Version: seg[n-2], Digest: seg[n-1]}, n - 3, true
+	case n >= 3 && seg[n-2] == "supply-chain" && seg[n-1] != "":
+		return Route{Kind: RouteSupplyChain, Version: seg[n-1]}, n - 2, true
 	// After the routes above, so a name ending in "images" keeps its overview,
-	// descriptors, versions and attestations routes; before resources.
+	// descriptors, versions and supply-chain routes; before resources.
 	// .../images/{version}/{resource}/{digest} matches only a digest-like last
 	// segment, so the image route of a resource in a component named
 	// .../images stays reachable.

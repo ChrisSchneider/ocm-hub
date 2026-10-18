@@ -26,6 +26,8 @@ var rules = []rule{
 	{"application/csaf", KindVEX, "CSAF"},
 	{"https://cosign.sigstore.dev/attestation/vuln/", KindCVE, "cosign vuln "},
 	{"https://docker.com/dhi/fips/", KindFIPS, ""},
+	{"https://chrisschneider.dev/attestation/fips-scan/", KindFIPS, "SARIF"},
+	{"https://chrisschneider.dev/attestation/oscal-assessment-results/", KindCompliance, "OSCAL assessment results"},
 	{"https://docker.com/dhi/source/", KindSources, ""},
 }
 

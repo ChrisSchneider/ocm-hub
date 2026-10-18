@@ -593,16 +593,16 @@ func TestSetAttestationsRoundTrip(t *testing.T) {
 	ctx := context.Background()
 	res := attestation.Result{Levels: []attestation.Level{
 		{Status: attestation.StatusOK, Entries: []attestation.Entry{
-			{Kind: attestation.KindVEX, How: attestation.HowLabelLink, Signed: attestation.SignedByComponent, URL: "https://example.com/vex.json"},
-			{Kind: attestation.KindSBOM, Format: "CycloneDX 1.6", Type: "application/vnd.cyclonedx+json", How: attestation.HowEmbedded,
+			{Kind: attestation.KindVEX, Source: attestation.SourceLabelLink, Signed: attestation.SignedByComponent, URL: "https://example.com/vex.json"},
+			{Kind: attestation.KindSBOM, Format: "CycloneDX 1.6", Type: "application/vnd.cyclonedx+json", Source: attestation.SourceEmbedded,
 				Signed: attestation.SignedByComponent, Resource: &attestation.Identity{Name: "sbom", Version: "1.0.0", ExtraIdentity: map[string]string{"arch": "amd64"}}},
 		}},
 		{Resource: &attestation.Identity{Name: "img", Version: "1.0.0", ExtraIdentity: map[string]string{"os": "linux", "arch": "arm64"}},
 			Status: attestation.StatusOK, Entries: []attestation.Entry{
-				{Kind: attestation.KindSLSA, Format: "SLSA Provenance v1", Type: "https://slsa.dev/provenance/v1", How: attestation.HowBuildx,
+				{Kind: attestation.KindSLSA, Format: "SLSA Provenance v1", Type: "https://slsa.dev/provenance/v1", Source: attestation.SourceBuildx,
 					Platform: "linux/arm64", Signed: attestation.SignedYes, Digest: "sha256:abc", BuildLevel: 3,
 					Builder: "https://github.com/actions/runner", Repository: "ghcr.io/acme/x", Label: "provenance"},
-				{Kind: attestation.KindCVE, Format: "SARIF 2.1.0", How: attestation.HowReferrer, Signed: attestation.SignedNo,
+				{Kind: attestation.KindCVE, Format: "SARIF 2.1.0", Source: attestation.SourceReferrer, Signed: attestation.SignedNo,
 					Summary: &document.Summary{Format: "SARIF 2.1.0", Tool: "Trivy", Findings: 37, ImportantFindings: 4, ImportantBasis: "security-severity"}},
 			}},
 		{Resource: &attestation.Identity{Name: "img", Version: "1.0.0"}, Status: attestation.StatusFailed, Error: "401 unauthorized", Entries: []attestation.Entry{}},
@@ -641,7 +641,7 @@ func TestSetAttestationsReplaces(t *testing.T) {
 	ctx := context.Background()
 	entry := func(k attestation.Kind) attestation.Result {
 		return attestation.Result{Levels: []attestation.Level{{Status: attestation.StatusOK,
-			Entries: []attestation.Entry{{Kind: k, How: attestation.HowReferrer, Signed: attestation.SignedNo}}}}}
+			Entries: []attestation.Entry{{Kind: k, Source: attestation.SourceReferrer, Signed: attestation.SignedNo}}}}}
 	}
 	t110 := AttestationTarget{"acme.org/x", "1.1.0", locB}
 	t100 := AttestationTarget{"acme.org/x", "1.0.0", locA}

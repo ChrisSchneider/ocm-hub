@@ -17,9 +17,10 @@ import (
 )
 
 // Parse detects the document family by content and parses it. Anything that
-// is not a recognised SPDX, CycloneDX, OpenVEX or SARIF 2.1 JSON document
+// is not a recognised SPDX, CycloneDX, OpenVEX, SARIF 2.1 or OSCAL
+// assessment-results JSON document
 // (including invalid JSON and XML) fails with ErrUnsupported. CycloneDX
-// vulnerabilities become VEX statements when analysed, else scan findings.
+// vulnerabilities are scan findings, and VEX statements too when analysed.
 func Parse(b []byte) (Document, error) {
 	if len(b) > MaxSize {
 		return Document{}, ErrTooLarge
@@ -31,6 +32,7 @@ func Parse(b []byte) (Document, error) {
 		Context     string          `json:"@context"`
 		Version     json.RawMessage `json:"version"`
 		Runs        json.RawMessage `json:"runs"`
+		Assessment  json.RawMessage `json:"assessment-results"`
 	}
 	if err := json.Unmarshal(b, &head); err != nil {
 		return Document{}, fmt.Errorf("%w: %v", ErrUnsupported, err)
@@ -44,6 +46,8 @@ func Parse(b []byte) (Document, error) {
 		return parseVEX(b, head.Context)
 	case head.Runs != nil && strings.HasPrefix(strings.Trim(string(head.Version), `"`), "2.1"):
 		return parseSARIF(b)
+	case head.Assessment != nil:
+		return parseOSCAL(head.Assessment)
 	}
 	return Document{}, ErrUnsupported
 }
@@ -65,6 +69,7 @@ func parseSBOM(b []byte, format string) (Document, error) {
 			Version: n.GetVersion(),
 			License: nodeLicense(n),
 			Type:    purlType(string(n.Purl())),
+			PURL:    string(n.Purl()),
 		})
 	}
 	return Document{Format: format, SBOM: s}, nil
@@ -114,7 +119,8 @@ var cdxStatus = map[string]string{
 var severityScore = map[string]float64{"critical": 9, "high": 7, "medium": 4, "low": 0.1}
 
 // parseCycloneDX reads the packages through protobom and the vulnerabilities
-// itself: analysed ones become VEX statements, the others scan findings. A
+// itself: each is a scan finding (what was found), an analysed one also a VEX
+// statement (what the vendor says about it). A
 // document without components but with vulnerabilities has no SBOM part.
 func parseCycloneDX(b []byte, format string) (Document, error) {
 	d, err := parseSBOM(b, format)
@@ -164,7 +170,6 @@ func parseCycloneDX(b []byte, format string) (Document, error) {
 			action := strings.Join(slices.DeleteFunc([]string{strings.Join(a.Response, ", "), a.Detail}, func(s string) bool { return s == "" }), ": ")
 			d.VEX.Statements = append(d.VEX.Statements, Statement{Vulnerability: v.ID, Products: products,
 				Status: cmp.Or(cdxStatus[a.State], a.State), Justification: justification, Action: action})
-			continue
 		}
 		if d.Scan == nil {
 			d.Scan = &Scan{Tool: cdxTool(bom.Metadata.Tools), ImportantBasis: basisLevel}

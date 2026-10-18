@@ -447,7 +447,7 @@ func TestVersionOverview(t *testing.T) {
 	}}
 	d.Component.Labels = []descriptorruntime.Label{
 		{Name: "catalog.chrisschneider.dev/title", Value: []byte(`"X"`)},
-		{Name: "catalog.chrisschneider.dev/kubernetes-compatibility", Version: "v1", Value: []byte(`{"constraint": ">=1.30 <1.32"}`)},
+		{Name: "catalog.chrisschneider.dev/compatibility", Version: "v1", Value: []byte(`{"kubernetes": {"constraint": ">=1.30 <1.32"}}`)},
 		{Name: "security.ocm.software/risk-profile", Version: "v1", Value: []byte(`{"network_exposure": "public"}`)},
 		{Name: "odg.ocm.software/responsibles", Version: "v1", Value: []byte(`[{"type": "codeowners"}]`)},
 	}
@@ -740,8 +740,8 @@ func TestFacetAndSourceGroups(t *testing.T) {
 func TestAttestations(t *testing.T) {
 	checked := time.Date(2026, 2, 1, 0, 0, 0, 0, time.UTC)
 	res := attestation.Result{Levels: []attestation.Level{
-		{Status: attestation.StatusOK, Entries: []attestation.Entry{{Kind: attestation.KindVEX, How: attestation.HowLabelLink, Signed: attestation.SignedByComponent, URL: "https://example.com/vex.json"},
-			{Kind: attestation.KindSLSA, How: attestation.HowReferrer, Signed: attestation.SignedYes, BuildLevel: 3,
+		{Status: attestation.StatusOK, Entries: []attestation.Entry{{Kind: attestation.KindVEX, Source: attestation.SourceLabelLink, Signed: attestation.SignedByComponent, URL: "https://example.com/vex.json"},
+			{Kind: attestation.KindSLSA, Source: attestation.SourceReferrer, Signed: attestation.SignedYes, BuildLevel: 3,
 				Builder: "https://github.com/actions/runner", Repository: "ghcr.io/acme/x", Label: "provenance",
 				Summary: &document.Summary{Format: "SARIF 2.1.0", Tool: "Trivy", Findings: 37, ImportantFindings: 4, ImportantBasis: "security-severity"}}}},
 		{Resource: &attestation.Identity{Name: "image", Version: "1.1.0", ExtraIdentity: map[string]string{"arch": "amd64"}}, Status: attestation.StatusFailed, Error: "401", Entries: []attestation.Entry{}},
@@ -752,7 +752,7 @@ func TestAttestations(t *testing.T) {
 		}
 	})
 	h := NewHandler(&fakeService{}, idx)
-	base := "/v1/components/acme.org%2Fx/attestations/"
+	base := "/v1/components/acme.org%2Fx/supply-chain/"
 	pin := "?repository=" + url.QueryEscape(testLoc)
 
 	r := do(t, h, "GET", base+"1.1.0"+pin, nil)
@@ -774,7 +774,7 @@ func TestAttestations(t *testing.T) {
 	if strings.Contains(string(raw), `"repository":"ghcr.io/acme/x"`) {
 		t.Errorf("entry repository exposed: %s", raw)
 	}
-	var got gen.AttestationSet
+	var got gen.SupplyChain
 	if err := json.Unmarshal(raw, &got); err != nil {
 		t.Fatal(err)
 	}
@@ -784,7 +784,7 @@ func TestAttestations(t *testing.T) {
 	if l := got.Levels[1]; l.Status != gen.Failed || l.Resource == nil || (*l.Resource.ExtraIdentity)["arch"] != "amd64" || l.Error == nil || len(l.Entries) != 0 {
 		t.Fatalf("level %+v", l)
 	}
-	if e := got.Levels[0].Entries[0]; e.Kind != gen.Vex || e.How != gen.LabelLink || e.Signed != gen.AttestationEntrySignedComponent || *e.Url != "https://example.com/vex.json" {
+	if e := got.Levels[0].Entries[0]; e.Kind != gen.Vex || e.Source != gen.LabelLink || e.Signed != gen.SupplyChainEntrySignedComponent || *e.Url != "https://example.com/vex.json" {
 		t.Fatalf("entry %+v", e)
 	}
 	if e := got.Levels[0].Entries; e[0].BuildLevel != nil || e[1].BuildLevel == nil || *e[1].BuildLevel != 3 {
@@ -822,10 +822,10 @@ func TestAttestations(t *testing.T) {
 	if r := do(t, h, "GET", base+"1.1.0?repository=%25bad", nil); r.StatusCode != 400 || errCode(t, r) != "REPOSITORY_INVALID" {
 		t.Fatalf("bad repository: %d", r.StatusCode)
 	}
-	if r := do(t, h, "GET", "/v1/components/nope.org%2Fx/attestations/1.0.0", nil); r.StatusCode != 404 || errCode(t, r) != "COMPONENT_UNKNOWN" {
+	if r := do(t, h, "GET", "/v1/components/nope.org%2Fx/supply-chain/1.0.0", nil); r.StatusCode != 404 || errCode(t, r) != "COMPONENT_UNKNOWN" {
 		t.Fatalf("unknown: %d", r.StatusCode)
 	}
-	if r := do(t, h, "GET", "/v1/components/nope.org%2Fx/attestations/latest", nil); r.StatusCode != 404 || errCode(t, r) != "COMPONENT_UNKNOWN" {
+	if r := do(t, h, "GET", "/v1/components/nope.org%2Fx/supply-chain/latest", nil); r.StatusCode != 404 || errCode(t, r) != "COMPONENT_UNKNOWN" {
 		t.Fatalf("unknown latest: %d", r.StatusCode)
 	}
 	none := NewHandler(&fakeService{}, noIndex(t))
@@ -854,7 +854,7 @@ func TestAttestationsExactLocation(t *testing.T) {
 		}
 	})
 	h := NewHandler(&fakeService{}, idx)
-	base := "/v1/components/acme.org%2Fx/attestations/"
+	base := "/v1/components/acme.org%2Fx/supply-chain/"
 	pin := func(loc string) string { return "?repository=" + url.QueryEscape(loc) }
 
 	for target, want := range map[string]string{
@@ -876,7 +876,7 @@ func TestAttestationsExactLocation(t *testing.T) {
 	if r.StatusCode != 200 {
 		t.Fatalf("older version: %d", r.StatusCode)
 	}
-	if got := decode[gen.AttestationSet](t, r); got.Repository != testLoc || !got.CheckedAt.Equal(older) {
+	if got := decode[gen.SupplyChain](t, r); got.Repository != testLoc || !got.CheckedAt.Equal(older) {
 		t.Fatalf("older version: %+v", got)
 	}
 	if r := do(t, h, "GET", base+"1.0.0"+pin(testLoc), nil); r.StatusCode != 404 || errCode(t, r) != "NOT_COLLECTED" {
@@ -886,7 +886,7 @@ func TestAttestationsExactLocation(t *testing.T) {
 	if r.StatusCode != 200 {
 		t.Fatalf("pinned: %d", r.StatusCode)
 	}
-	if got := decode[gen.AttestationSet](t, r); got.Repository != otherLoc {
+	if got := decode[gen.SupplyChain](t, r); got.Repository != otherLoc {
 		t.Fatalf("pinned: %+v", got)
 	}
 	if r := do(t, h, "GET", base+"9.9.9", nil); r.StatusCode != 404 || errCode(t, r) != "NOT_COLLECTED" {

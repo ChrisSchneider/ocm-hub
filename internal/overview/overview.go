@@ -22,9 +22,8 @@ type Options struct {
 	KubernetesVersions []string // nil: DefaultKubernetesVersions
 }
 
-// Kubernetes is the kubernetes part of the compatibility label (or the
-// deprecated kubernetes-compatibility label); Versions are the known minors
-// the constraint admits.
+// Kubernetes is the kubernetes part of the compatibility label; Versions are
+// the known minors the constraint admits.
 type Kubernetes struct {
 	Constraint    string
 	Versions      []string

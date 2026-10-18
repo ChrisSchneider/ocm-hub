@@ -1,14 +1,14 @@
 import type { Component, VersionOverview } from '../api/client'
-import { isAttestation, isOciAttestation, KINDS, levelAnchor, type AttestationSet, type Entry, type Kind, type Level } from './attestations'
+import { embeddedLevel, isAttestation, KINDS, levelAnchor, sameIdentity, type SupplyChain, type Entry, type Kind, type Level } from './supplyChain'
 import { summaryItems } from './contentsSummary'
 import { plural, signatureLabel, sourceLink } from './facts'
 import { collapseMinors } from './kubernetes'
-import { sbomResources } from './sbom'
+import { sbomFormat, sbomResources } from './sbom'
 
 export type RowKey = 'contents' | 'kubernetes' | 'architectures' | 'signature' | 'slsa' | 'sbom' | 'vex' | 'scans' | 'responsibles' | 'referencedBy'
 
 // Target: where a row's details are shown (the view, and an anchor in it).
-export type Target = { view?: 'contents' | 'versions' | 'descriptor' | 'labels' | 'attestations'; hash?: string }
+export type Target = { view?: 'contents' | 'versions' | 'descriptor' | 'labels' | 'supply-chain'; hash?: string }
 
 export interface Row {
   key: RowKey
@@ -49,7 +49,11 @@ const SCANS: Kind[] = ['cve', 'secrets', 'virus', 'stig', 'fips', 'other']
 
 const unique = (xs: string[]) => [...new Set(xs.filter(Boolean))]
 
-const documents = (n: number) => plural(n, 'document', 'documents')
+// documents: "2 documents · CycloneDX + SPDX", the format families sorted.
+const documents = (formats: string[]) =>
+  [plural(formats.length, 'document', 'documents'), unique(formats.map((f) => f.split(' ')[0])).sort().join(' + ')].filter(Boolean).join(' · ')
+
+const entryFormat = (e: Entry) => e.summary?.format ?? e.format ?? ''
 
 // counts: a verification summary is evidence only when it claims a level
 // (failed or unreadable summaries carry none).
@@ -58,18 +62,17 @@ const counts = (e: Entry) => isAttestation(e) && !(e.kind === 'slsa' && e.type?.
 // overviewRows: the Overview's items, one fixed row each. Descriptor rows
 // come from the component and overview; the attestation rows from the set
 // (undefined: loading, or setFailed when it could not be loaded).
-export function overviewRows(component: Component, ov: VersionOverview, set: AttestationSet | undefined, setFailed: boolean): Row[] {
+export function overviewRows(component: Component, ov: VersionOverview, set: SupplyChain | undefined, setFailed: boolean): Row[] {
   const levels = set?.levels ?? []
   const absent = set && !setFailed && !levels.some((l) => l.status === 'failed') ? 'missing' : 'unknown'
   // of: the entries of kinds, or carrying what also asks for (a CycloneDX SBOM may hold VEX
-  // and findings). The row links to an OCI attestation, else to the labels linking documents.
+  // and findings). The row links to the subject in the Supply chain view.
   const of = (kinds: Kind[], also: (e: Entry) => boolean = () => false) => {
     const pick = (l: Level) => l.entries.filter((e) => counts(e) && (kinds.includes(e.kind) || also(e)))
     // The subject with the highest build level first: the row links to it.
     const best = (l: Level) => Math.max(0, ...pick(l).map((e) => e.buildLevel ?? 0))
     const found = levels.filter((l) => pick(l).length > 0).sort((a, b) => best(b) - best(a))
-    const oci = found.find((l) => pick(l).some(isOciAttestation))
-    const target: Target | undefined = oci ? { view: 'attestations', hash: levelAnchor(oci.resource) } : found[0] && { view: 'labels' }
+    const target: Target | undefined = found[0] && { view: 'supply-chain', hash: levelAnchor(found[0].resource) }
     return { entries: found.flatMap(pick), target }
   }
   const list = (xs: string[], empty: string, sep = ', ', target?: Target): Partial<Row> =>
@@ -104,16 +107,20 @@ export function overviewRows(component: Component, ov: VersionOverview, set: Att
       const value = [att.state === 'present' ? att.value : undefined, src.label].filter(Boolean).join(' · ')
       return { state: 'present', value, target: att.target }
     },
-    // sbom and vex: the number of documents carrying packages or statements; one document
-    // (a CycloneDX VEX listing its components) may count for both.
+    // sbom and vex: the documents carrying packages or statements and their formats; one
+    // document (a CycloneDX VEX listing its components) may count for both.
     sbom: () => {
       const shipped = sbomResources(ov.resources)
+      const embedded = (r: (typeof shipped)[number]) =>
+        levels.flatMap((l) => l.entries).find((e) => e.source === 'embedded' && e.kind === 'sbom' && sameIdentity(e.resource, r))?.format
       const withPackages = (e: Entry) => !!e.summary?.packages
       const attested = of(['sbom'], withPackages)
-      if (shipped.length === 0) return fromAttestations(['sbom'], (es) => documents(es.length), withPackages)
-      return { state: 'present', value: documents(shipped.length + attested.entries.length), target: attested.target ?? { view: 'contents' } }
+      if (shipped.length === 0) return fromAttestations(['sbom'], (es) => documents(es.map(entryFormat)), withPackages)
+      const formats = [...shipped.map((r) => sbomFormat(r, embedded(r))), ...attested.entries.map(entryFormat)]
+      const at = embeddedLevel(set, shipped[0])
+      return { state: 'present', value: documents(formats), target: attested.target ?? (at ? { view: 'supply-chain', hash: levelAnchor(at.resource) } : { view: 'contents' }) }
     },
-    vex: () => fromAttestations(['vex'], (es) => documents(es.length), (e) => !!e.summary?.statements),
+    vex: () => fromAttestations(['vex'], (es) => documents(es.map(entryFormat)), (e) => !!e.summary?.statements),
     scans: () =>
       fromAttestations(SCANS, (es) => {
         // Findings in another kind's document (a CycloneDX SBOM) count as a CVE scan.

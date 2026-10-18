@@ -33,3 +33,12 @@ export function describedResource<R extends Resource>(sbom: Resource, resources:
   const { name, ...extra } = sel
   return resources.find((r) => r !== sbom && r.name === name && Object.entries(extra).every(([k, v]) => r.extraIdentity?.[k] === v))
 }
+
+// sbomFormat: the detected format when known, else derived from the media type.
+export function sbomFormat(r: Resource, detected?: string): string {
+  if (detected) return detected
+  const mt = typeof r.access?.mediaType === 'string' ? r.access.mediaType : ''
+  if (/cyclonedx/i.test(mt)) return 'CycloneDX'
+  if (/spdx/i.test(mt)) return 'SPDX'
+  return ''
+}

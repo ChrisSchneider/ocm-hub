@@ -1,6 +1,6 @@
-import { attestationName, detailsText, entriesOf, entryViewer, howLabel, labelEntry, levelAnchor, levelFor, sameIdentity, signedLabel, type AttestationSet, type Entry } from './attestations'
+import { attestationName, detailsText, entriesOf, entryViewer, sourceLabel, labelEntry, levelAnchor, levelFor, sameIdentity, signedLabel, type SupplyChain, type Entry } from './supplyChain'
 
-const e = (kind: Entry['kind'], how: Entry['how'] = 'referrer'): Entry => ({ kind, how, signed: 'no' })
+const e = (kind: Entry['kind'], source: Entry['source'] = 'referrer'): Entry => ({ kind, source, signed: 'no' })
 
 test('sameIdentity compares name, version and extraIdentity exactly', () => {
   expect(sameIdentity({ name: 'a', extraIdentity: { arch: 'amd64' } }, { name: 'a', extraIdentity: { arch: 'arm64' } })).toBe(false)
@@ -12,20 +12,20 @@ test('sameIdentity compares name, version and extraIdentity exactly', () => {
 })
 
 test('labels', () => {
-  expect(howLabel({ ...e('sbom', 'embedded'), resource: { name: 'sbom' } })).toBe('Embedded resource sbom')
-  expect(howLabel({ ...e('sbom', 'buildx'), platform: 'linux/amd64' })).toBe('Buildx attestation (linux/amd64)')
-  expect(howLabel(e('sbom', 'buildx'))).toBe('Buildx attestation')
-  expect(howLabel(e('sbom', 'cosignTag'))).toBe('Cosign attestation tag')
-  expect(howLabel(e('vex', 'labelLink'))).toBe('Label link')
+  expect(sourceLabel({ ...e('sbom', 'embedded'), resource: { name: 'sbom' } })).toBe('Resource sbom')
+  expect(sourceLabel({ ...e('sbom', 'buildx'), platform: 'linux/amd64' })).toBe('Buildx attestation')
+  expect(sourceLabel(e('sbom', 'referrer'))).toBe('OCI referrer')
+  expect(sourceLabel(e('sbom', 'cosignTag'))).toBe('Cosign tag')
+  expect(sourceLabel(e('vex', 'labelLink'))).toBe('Label link')
   expect(signedLabel('signed')).toBe('Signed (not verified)')
   expect(signedLabel('component')).toBe('By component signature')
   expect(signedLabel('no')).toBe('No')
 })
 
 test('levelAnchor', () => {
-  expect(levelAnchor()).toBe('attestations-component')
-  expect(levelAnchor({ name: 'img' })).toBe('attestations-img')
-  expect(levelAnchor({ name: 'img', version: '1.0+b', extraIdentity: { os: 'linux', arch: 'amd64' } })).toBe('attestations-img-1.0_b-arch=amd64-os=linux')
+  expect(levelAnchor()).toBe('supply-chain-component')
+  expect(levelAnchor({ name: 'img' })).toBe('supply-chain-img')
+  expect(levelAnchor({ name: 'img', version: '1.0+b', extraIdentity: { os: 'linux', arch: 'amd64' } })).toBe('supply-chain-img-1.0_b-arch=amd64-os=linux')
 })
 
 test('attestationName', () => {
@@ -41,6 +41,7 @@ test('detailsText', () => {
   expect(detailsText({ ...e('vex'), summary: { format: 'OpenVEX 0.2', statements: 9, affected: 1 } })).toBe('OpenVEX 0.2 · 9 statements · 1 affected')
   expect(detailsText({ ...e('cve'), summary: { format: 'SARIF 2.1.0', tool: 'Trivy', findings: 37, importantFindings: 4, importantBasis: 'security-severity' } })).toBe('Trivy · SARIF 2.1.0 · 37 findings · 4 high or critical')
   expect(detailsText({ ...e('cve'), summary: { format: 'SARIF 2.1.0', findings: 2, importantFindings: 1, importantBasis: 'level' } })).toBe('SARIF 2.1.0 · 2 findings · 1 with level error')
+  expect(detailsText({ ...e('compliance'), summary: { format: 'OSCAL 1.1.3 assessment results', requirements: 2, notSatisfied: 1 } })).toBe('OSCAL 1.1.3 assessment results · 2 requirements · 1 not satisfied')
   expect(detailsText({ ...e('sbom'), summary: { format: 'CycloneDX 1.6', packages: 14, statements: 56, affected: 5 } })).toBe('CycloneDX 1.6 · 14 packages · 56 statements · 5 affected')
   expect(detailsText({ ...e('fips'), format: 'x' })).toBe('x')
   expect(detailsText(e('fips'))).toBe('')
@@ -60,7 +61,7 @@ test('entryViewer', () => {
   expect(entryViewer(e('slsa'))).toBeUndefined()
 })
 
-const set: AttestationSet = {
+const set: SupplyChain = {
   name: 'c',
   version: '1',
   repository: 'oci::h/c',
@@ -77,13 +78,13 @@ test('levelFor and entriesOf', () => {
   expect(levelFor(set, { name: 'nope' })).toBeUndefined()
   expect(levelFor(undefined)).toBeUndefined()
   const l = levelFor(set, { name: 'img' })
-  expect(entriesOf(l)).toHaveLength(1)
-  expect(entriesOf(l, 'linux/amd64').map((x) => x.how)).toEqual(['buildx'])
+  expect(entriesOf(l).map((x) => x.source)).toEqual(['referrer', 'embedded'])
+  expect(entriesOf(l, 'linux/amd64').map((x) => x.source)).toEqual(['buildx'])
   expect(entriesOf(undefined)).toEqual([])
 })
 
 test('labelEntry', () => {
-  expect(labelEntry(set, undefined, 'l')?.how).toBe('labelLink')
+  expect(labelEntry(set, undefined, 'l')?.source).toBe('labelLink')
   expect(labelEntry(set, undefined, 'other')).toBeUndefined()
   expect(labelEntry(set, { name: 'img' }, 'l')).toBeUndefined()
 })

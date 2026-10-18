@@ -80,7 +80,7 @@ func FromDescriptor(d *descriptorruntime.Descriptor, location string) (Result, [
 		signed = SignedByComponent
 	}
 	for _, res := range sboms {
-		e := Entry{Kind: KindSBOM, How: HowEmbedded, Resource: identity(res.ElementMeta), Signed: signed}
+		e := Entry{Kind: KindSBOM, Source: SourceEmbedded, Resource: identity(res.ElementMeta), Signed: signed}
 		e.Type = mediaType(res.Access)
 		if k, f := Classify(e.Type); k == KindSBOM {
 			e.Format = f
@@ -127,7 +127,7 @@ func FromDescriptor(d *descriptorruntime.Descriptor, location string) (Result, [
 				warn(l.Name, "%v; label skipped", err)
 				continue
 			}
-			lv.Entries = append(lv.Entries, Entry{Kind: KindVEX, How: HowLabelLink, URL: u, Label: LabelVEX, Signed: SignedNo})
+			lv.Entries = append(lv.Entries, Entry{Kind: KindVEX, Source: SourceLabelLink, URL: u, Label: LabelVEX, Signed: SignedNo})
 		}
 	}
 	addVEX(&r.Levels[0], component.Labels)

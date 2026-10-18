@@ -23,7 +23,7 @@ func descWith(labels ...descriptorruntime.Label) *descriptorruntime.Descriptor {
 func TestFromDescriptorFull(t *testing.T) {
 	d := descWith(
 		label("catalog.chrisschneider.dev/title", "", `"App"`),
-		label(LabelKubernetes, "v1", `{"constraint": ">=1.28 <1.33, !=1.30", "distributions": ["gardener", "", "eks"]}`),
+		label(LabelCompatibility, "v1", `{"kubernetes": {"constraint": ">=1.28 <1.33, !=1.30", "distributions": ["gardener", "", "eks"]}}`),
 		label(LabelDocs, "v1", `[{"title": "Docs", "url": "https://example.com/docs", "kind": "docs"},
 			{"title": "Ref", "url": "https://example.com/ref", "kind": "weird"},
 			{"title": "", "url": "https://example.com/x"}, {"title": "Insecure", "url": "http://example.com"}]`),
@@ -70,9 +70,9 @@ func TestFromDescriptorFull(t *testing.T) {
 
 func TestFromDescriptorSkipsBadLabels(t *testing.T) {
 	cases := map[string]descriptorruntime.Label{
-		"wrong version":    label(LabelKubernetes, "v2", `{"constraint": ">=1.28"}`),
-		"bad constraint":   label(LabelKubernetes, "v1", `{"constraint": "not a constraint"}`),
-		"empty constraint": label(LabelKubernetes, "v1", `{"distributions": ["eks"]}`),
+		"wrong version":    label(LabelCompatibility, "v2", `{"kubernetes": {"constraint": ">=1.28"}}`),
+		"bad constraint":   label(LabelCompatibility, "v1", `{"kubernetes": {"constraint": "not a constraint"}}`),
+		"empty constraint": label(LabelCompatibility, "v1", `{"kubernetes": {"distributions": ["eks"]}}`),
 		"docs not a list":  label(LabelDocs, "v1", `"https://example.com"`),
 		"responsibles obj": label(LabelResponsibles, "v1", `{"type": "codeowners"}`),
 		"bad exposure":     label(LabelRiskProfile, "v1", `{"network_exposure": "internet"}`),
@@ -95,7 +95,7 @@ func TestFromDescriptorSkipsBadLabels(t *testing.T) {
 
 func TestFromDescriptorAcceptsUnversionedLabels(t *testing.T) {
 	got := FromDescriptor(descWith(
-		label(LabelKubernetes, "", `{"constraint": ">=1.35"}`),
+		label(LabelCompatibility, "", `{"kubernetes": {"constraint": ">=1.35"}}`),
 		label(LabelDocs, "", `[{"title": "Docs", "url": "https://example.com"}]`),
 	), Options{})
 	if want := []string{"1.35", "1.36"}; got.Kubernetes == nil || !reflect.DeepEqual(got.Kubernetes.Versions, want) {
@@ -117,7 +117,7 @@ func TestFromDescriptorEmpty(t *testing.T) {
 }
 
 func TestDefaultKubernetesVersionsUsed(t *testing.T) {
-	got := FromDescriptor(descWith(label(LabelKubernetes, "v1", `{"constraint": ">=1.35"}`)), Options{})
+	got := FromDescriptor(descWith(label(LabelCompatibility, "v1", `{"kubernetes": {"constraint": ">=1.35"}}`)), Options{})
 	if want := []string{"1.35", "1.36"}; got.Kubernetes == nil || !reflect.DeepEqual(got.Kubernetes.Versions, want) {
 		t.Fatalf("got %+v", got.Kubernetes)
 	}
@@ -179,19 +179,10 @@ func TestCompatibilityLabel(t *testing.T) {
 		t.Errorf("warnings = %q", got.Warnings)
 	}
 
-	// The deprecated label still works alone; next to the new kubernetes part it is ignored.
-	got = FromDescriptor(descWith(label(LabelKubernetes, "v1", `{"constraint": ">=1.30"}`)), known)
-	if got.Kubernetes == nil || got.Kubernetes.Constraint != ">=1.30" || len(got.Warnings) != 0 {
-		t.Errorf("legacy alone = %+v, %q", got.Kubernetes, got.Warnings)
-	}
-	got = FromDescriptor(descWith(label(LabelKubernetes, "v1", `{"constraint": ">=1.30"}`), label(LabelCompatibility, "v1", `{"kubernetes": {"constraint": ">=1.28"}}`)), known)
-	if got.Kubernetes == nil || got.Kubernetes.Constraint != ">=1.28" || len(got.Warnings) != 1 || !strings.Contains(got.Warnings[0], "superseded") {
-		t.Errorf("both = %+v, %q", got.Kubernetes, got.Warnings)
-	}
-	// Storage only keeps the deprecated label's kubernetes.
-	got = FromDescriptor(descWith(label(LabelKubernetes, "v1", `{"constraint": ">=1.30"}`), label(LabelCompatibility, "v1", `{"storage": [{"accessMode": "RWO"}]}`)), known)
-	if got.Kubernetes == nil || got.Kubernetes.Constraint != ">=1.30" || len(got.Storage) != 1 || len(got.Warnings) != 0 {
-		t.Errorf("storage + legacy = %+v, %+v, %q", got.Kubernetes, got.Storage, got.Warnings)
+	// A bad kubernetes part next to storage is skipped; alone it skips the label.
+	got = FromDescriptor(descWith(label(LabelCompatibility, "v1", `{"kubernetes": {"constraint": "nope"}, "storage": [{"accessMode": "RWO"}]}`)), known)
+	if got.Kubernetes != nil || len(got.Storage) != 1 || len(got.Warnings) != 1 {
+		t.Errorf("bad kubernetes + storage = %+v, %+v, %q", got.Kubernetes, got.Storage, got.Warnings)
 	}
 	got = FromDescriptor(descWith(label(LabelCompatibility, "v1", `{}`)), known)
 	if got.Kubernetes != nil || got.Storage != nil || len(got.Warnings) != 1 {

@@ -112,6 +112,19 @@ components:
           type: File/v1
           path: ./sbom/alpine.cdx.json
           mediaType: application/vnd.cyclonedx+json
+      - name: python3-sbom                            # from DevGuard (same artifact as the python3 VEX label)
+        type: sbom
+        version: 3.14-minimal
+        labels:
+          - name: ocm.software/artifact-references
+            version: v1
+            value:
+              - identity:
+                  name: python3
+        input:
+          type: File/v1
+          path: ./sbom/python3.cdx.json
+          mediaType: application/vnd.cyclonedx+json
       - name: component-sbom
         type: sbom
         version: ${VERSION}

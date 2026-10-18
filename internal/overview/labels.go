@@ -16,7 +16,6 @@ import (
 // Label names read by FromDescriptor (version v1, or no version: the OCM CLI drops label versions).
 const (
 	LabelCompatibility = display.LabelPrefix + "compatibility"
-	LabelKubernetes    = display.LabelPrefix + "kubernetes-compatibility" // deprecated: the kubernetes part of LabelCompatibility
 	LabelDocs          = display.LabelPrefix + "docs"
 	LabelResponsibles  = "odg.ocm.software/responsibles"
 	LabelRiskProfile   = "security.ocm.software/risk-profile"
@@ -42,10 +41,9 @@ func parseLabels(ov *Overview, labels []descriptorruntime.Label, o Options) {
 	warn := func(name, format string, args ...any) {
 		ov.Warnings = append(ov.Warnings, name+": "+fmt.Sprintf(format, args...))
 	}
-	var legacy *Kubernetes // from LabelKubernetes; LabelCompatibility's kubernetes wins
 	for _, l := range labels {
 		switch l.Name {
-		case LabelCompatibility, LabelKubernetes, LabelDocs, LabelResponsibles, LabelRiskProfile:
+		case LabelCompatibility, LabelDocs, LabelResponsibles, LabelRiskProfile:
 		default:
 			continue
 		}
@@ -57,8 +55,6 @@ func parseLabels(ov *Overview, labels []descriptorruntime.Label, o Options) {
 		switch l.Name {
 		case LabelCompatibility:
 			ov.Kubernetes, ov.Storage, err = parseCompatibility(l.Value, o.KubernetesVersions, func(f string, a ...any) { warn(l.Name, f, a...) })
-		case LabelKubernetes:
-			legacy, err = parseKubernetes(l.Value, o.KubernetesVersions)
 		case LabelDocs:
 			ov.Docs, err = parseDocs(l.Value, func(f string, a ...any) { warn(l.Name, f, a...) })
 		case LabelResponsibles:
@@ -69,12 +65,6 @@ func parseLabels(ov *Overview, labels []descriptorruntime.Label, o Options) {
 		if err != nil {
 			warn(l.Name, "%v; label skipped", err)
 		}
-	}
-	switch {
-	case legacy != nil && ov.Kubernetes != nil:
-		warn(LabelKubernetes, "superseded by the kubernetes part of %s; label ignored", LabelCompatibility)
-	case legacy != nil:
-		ov.Kubernetes = legacy
 	}
 }
 
@@ -91,11 +81,9 @@ func parseCompatibility(raw []byte, known []string, warn func(string, ...any)) (
 		return nil, nil, err
 	}
 	var k *Kubernetes
+	var kerr error
 	if len(v.Kubernetes) > 0 && string(v.Kubernetes) != "null" {
-		var err error
-		if k, err = parseKubernetes(v.Kubernetes, known); err != nil {
-			warn("kubernetes: %v; skipped", err)
-		}
+		k, kerr = parseKubernetes(v.Kubernetes, known)
 	}
 	var storage []StorageNeed
 	for i, e := range v.Storage {
@@ -114,7 +102,12 @@ func parseCompatibility(raw []byte, known []string, warn func(string, ...any)) (
 		}
 		storage = append(storage, StorageNeed{AccessMode: mode, VolumeMode: vm, Purpose: strings.TrimSpace(e.Purpose)})
 	}
-	if k == nil && storage == nil {
+	switch {
+	case kerr != nil && storage == nil:
+		return nil, nil, fmt.Errorf("kubernetes: %w", kerr)
+	case kerr != nil:
+		warn("kubernetes: %v; skipped", kerr)
+	case k == nil && storage == nil:
 		return nil, nil, fmt.Errorf("neither kubernetes nor storage declared")
 	}
 	return k, storage, nil

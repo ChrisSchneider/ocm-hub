@@ -1,4 +1,4 @@
-import { artifactReference, describedResource, sbomResources } from './sbom'
+import { artifactReference, describedResource, sbomFormat, sbomResources } from './sbom'
 
 const res = (name: string, type: string, extra: Record<string, unknown> = {}) => ({ name, version: '1.0.0', type, relation: 'local' as const, access: { type: 'LocalBlob/v1' }, ...extra })
 const ref = (identitySelector: Record<string, string>) => ({ labels: [{ name: 'ocm.software/artifactReference', version: 'v1', value: { identitySelector } }] })
@@ -16,6 +16,13 @@ test('describedResource matches name and extra identity of the selector', () => 
   expect(describedResource(sbom, [amd, arm, sbom])).toBe(arm)
   expect(describedResource(res('sbom', 'sbom', ref({ name: 'missing' })), [amd])).toBeUndefined()
   expect(describedResource(res('sbom', 'sbom'), [amd])).toBeUndefined()
+})
+
+test('sbomFormat prefers the detected format, else the media type', () => {
+  expect(sbomFormat(res('s', 'sbom', { access: { type: 'LocalBlob/v1', mediaType: 'application/vnd.cyclonedx+json' } }))).toBe('CycloneDX')
+  expect(sbomFormat(res('s', 'sbom', { access: { type: 'LocalBlob/v1', mediaType: 'application/spdx+json' } }))).toBe('SPDX')
+  expect(sbomFormat(res('s', 'sbom', { access: { type: 'LocalBlob/v1', mediaType: 'application/spdx+json' } }), 'SPDX 2.3')).toBe('SPDX 2.3')
+  expect(sbomFormat(res('s', 'sbom'))).toBe('')
 })
 
 test('sbomResources picks the sbom resources', () => {

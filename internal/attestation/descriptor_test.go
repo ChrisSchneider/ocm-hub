@@ -114,7 +114,7 @@ func TestFromDescriptorEmbeddedSBOM(t *testing.T) {
 	if len(r.Levels) != 2 {
 		t.Fatalf("sbom resources must not be levels: %d levels", len(r.Levels))
 	}
-	wantAPI := Entry{Kind: KindSBOM, Format: "CycloneDX", Type: "application/vnd.cyclonedx+json", How: HowEmbedded,
+	wantAPI := Entry{Kind: KindSBOM, Format: "CycloneDX", Type: "application/vnd.cyclonedx+json", Source: SourceEmbedded,
 		Resource: &Identity{Name: "sbom-api", Version: "1.0.0"}, Signed: SignedNo}
 	if got := r.Levels[1].Entries; !reflect.DeepEqual(got, []Entry{wantAPI}) {
 		t.Errorf("api entries = %+v", got)
@@ -186,7 +186,7 @@ func TestVEXLabel(t *testing.T) {
 		res("chart", "1", "helmChart", nil, blob("application/gzip", dig1), lbl(LabelVEX, "", `{"url":"`+u+`"}`)),
 	}
 	r, _, warns := FromDescriptor(d, "oci::h/p")
-	want := []Entry{{Kind: KindVEX, How: HowLabelLink, URL: u, Label: LabelVEX, Signed: SignedNo}}
+	want := []Entry{{Kind: KindVEX, Source: SourceLabelLink, URL: u, Label: LabelVEX, Signed: SignedNo}}
 	if len(warns) != 0 || !reflect.DeepEqual(r.Levels[0].Entries, want) || !reflect.DeepEqual(r.Levels[1].Entries, want) {
 		t.Fatalf("entries = %+v / %+v, warnings = %v", r.Levels[0].Entries, r.Levels[1].Entries, warns)
 	}

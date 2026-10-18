@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import type { Component, VersionOverview } from '../api/client'
-import type { AttestationSet, Entry } from './attestations'
+import type { SupplyChain, Entry } from './supplyChain'
 import { overviewRows, type Row } from './overviewRows'
 
 const comp = (o: Partial<Component> = {}): Component => ({
@@ -14,8 +14,8 @@ const ov = (o: Partial<VersionOverview> = {}): VersionOverview => ({
   ...o,
 })
 const img = { name: 'image', version: '1.0', extraIdentity: { arch: 'amd64' } }
-const e = (o: Partial<Entry>): Entry => ({ kind: 'other', how: 'referrer', signed: 'no', ...o })
-const set = (component: Entry[], image: Entry[] = []): AttestationSet => ({
+const e = (o: Partial<Entry>): Entry => ({ kind: 'other', source: 'referrer', signed: 'no', ...o })
+const set = (component: Entry[], image: Entry[] = []): SupplyChain => ({
   name: 'acme.org/x', version: '1.0', repository: 'oci::ghcr.io/acme', checkedAt: '2026-01-01T00:00:00Z',
   levels: [
     { status: 'ok', entries: component },
@@ -48,7 +48,7 @@ test('signature row shows name and algorithm', () => {
 test('slsa row merges build level and source', () => {
   const sources = [{ name: 'src', version: '1', type: 'git', access: { type: 'gitHub', repoUrl: 'https://github.com/acme/web', commit: '0123456789' } }]
   const both = row(overviewRows(comp(), ov({ sources }), set([e({ kind: 'slsa', format: 'SLSA v1' })], [e({ kind: 'slsa', buildLevel: 3 })]), false), 'slsa')
-  expect(both).toMatchObject({ state: 'present', value: 'Build Level 3 · github.com/acme/web @ 0123456', target: { view: 'attestations', hash: 'attestations-image-1.0-arch=amd64' } })
+  expect(both).toMatchObject({ state: 'present', value: 'Build Level 3 · github.com/acme/web @ 0123456', target: { view: 'supply-chain', hash: 'supply-chain-image-1.0-arch=amd64' } })
   // The source alone is present without the attestation set, and has nowhere to go.
   const src = row(overviewRows(comp(), ov({ sources }), undefined, true), 'slsa')
   expect(src).toMatchObject({ state: 'present', value: 'github.com/acme/web @ 0123456' })
@@ -59,24 +59,24 @@ test('slsa row merges build level and source', () => {
 test('sbom row counts shipped and attested documents', () => {
   const sbom = { name: 'sbom', version: '1', type: 'sbom', relation: 'local' as const, access: { mediaType: 'application/vnd.cyclonedx+json' } }
   const both = row(overviewRows(comp(), ov({ resources: [sbom] }), set([], [e({ kind: 'sbom', format: 'SPDX' })]), false), 'sbom')
-  expect(both).toMatchObject({ state: 'present', value: '2 documents', target: { view: 'attestations', hash: 'attestations-image-1.0-arch=amd64' } })
+  expect(both).toMatchObject({ state: 'present', value: '2 documents · CycloneDX + SPDX', target: { view: 'supply-chain', hash: 'supply-chain-image-1.0-arch=amd64' } })
   // Only shipped: present without the set, and points to Contents.
-  expect(row(overviewRows(comp(), ov({ resources: [sbom] }), undefined, true), 'sbom')).toMatchObject({ state: 'present', value: '1 document', target: { view: 'contents' } })
+  expect(row(overviewRows(comp(), ov({ resources: [sbom] }), undefined, true), 'sbom')).toMatchObject({ state: 'present', value: '1 document · CycloneDX', target: { view: 'contents' } })
   // A VEX document listing packages counts as well.
-  const vex = e({ kind: 'vex', how: 'labelLink', summary: { format: 'CycloneDX 1.6', packages: 14, statements: 56 } })
-  expect(row(overviewRows(comp(), ov(), set([vex]), false), 'sbom')).toMatchObject({ state: 'present', value: '1 document', target: { view: 'labels' } })
+  const vex = e({ kind: 'vex', source: 'labelLink', summary: { format: 'CycloneDX 1.6', packages: 14, statements: 56 } })
+  expect(row(overviewRows(comp(), ov(), set([vex]), false), 'sbom')).toMatchObject({ state: 'present', value: '1 document · CycloneDX', target: { view: 'supply-chain', hash: 'supply-chain-component' } })
 })
 
 test('vex row counts documents', () => {
-  const r = row(overviewRows(comp(), ov(), set([e({ kind: 'vex', how: 'labelLink', format: 'OpenVEX' }), e({ kind: 'vex', format: 'OpenVEX', summary: { format: 'OpenVEX v0.2.0', statements: 12 } })]), false), 'vex')
-  expect(r).toMatchObject({ state: 'present', value: '2 documents', target: { view: 'attestations', hash: 'attestations-component' } })
+  const r = row(overviewRows(comp(), ov(), set([e({ kind: 'vex', source: 'labelLink', format: 'OpenVEX' }), e({ kind: 'vex', format: 'OpenVEX', summary: { format: 'OpenVEX v0.2.0', statements: 12 } })]), false), 'vex')
+  expect(r).toMatchObject({ state: 'present', value: '2 documents · OpenVEX', target: { view: 'supply-chain', hash: 'supply-chain-component' } })
 })
 
-test('vex row: a label-only VEX links to Labels; VEX inside an SBOM counts', () => {
-  const linked = e({ kind: 'vex', how: 'labelLink', summary: { format: 'CycloneDX 1.6', statements: 56 } })
-  expect(row(overviewRows(comp(), ov(), set([linked]), false), 'vex')).toMatchObject({ state: 'present', value: '1 document', target: { view: 'labels' } })
+test('vex row: a label-only VEX links to Supply chain; VEX inside an SBOM counts', () => {
+  const linked = e({ kind: 'vex', source: 'labelLink', summary: { format: 'CycloneDX 1.6', statements: 56 } })
+  expect(row(overviewRows(comp(), ov(), set([linked]), false), 'vex')).toMatchObject({ state: 'present', value: '1 document · CycloneDX', target: { view: 'supply-chain', hash: 'supply-chain-component' } })
   const sbom = e({ kind: 'sbom', summary: { format: 'CycloneDX 1.6', packages: 3, statements: 2, findings: 1 } })
-  expect(row(overviewRows(comp(), ov(), set([], [sbom]), false), 'vex')).toMatchObject({ state: 'present', value: '1 document', target: { view: 'attestations' } })
+  expect(row(overviewRows(comp(), ov(), set([], [sbom]), false), 'vex')).toMatchObject({ state: 'present', value: '1 document · CycloneDX', target: { view: 'supply-chain' } })
   expect(row(overviewRows(comp(), ov(), set([], [sbom]), false), 'scans')).toMatchObject({ state: 'present', value: 'CVE' })
 })
 
@@ -84,7 +84,7 @@ test('scans row sums high or critical', () => {
   const sarif = (n: number, basis = 'security-severity') => e({ kind: 'cve', summary: { format: 'SARIF 2.1.0', importantBasis: basis, importantFindings: n } })
   const r = row(overviewRows(comp(), ov(), set([e({ kind: 'secrets' }), e({ kind: 'other' })], [sarif(3), sarif(1), sarif(5, 'level'), e({ kind: 'other' }), e({ kind: 'fips' })]), false), 'scans')
   expect(r).toMatchObject({ state: 'present', value: 'CVE · Secrets · FIPS · 2 other · 4 high or critical' })
-  expect(r.target?.view).toBe('attestations')
+  expect(r.target?.view).toBe('supply-chain')
   // A sum of 0 says nothing.
   expect(row(overviewRows(comp(), ov(), set([], [sarif(0)]), false), 'scans')).toMatchObject({ state: 'present', value: 'CVE' })
   // Sources and SLSA attestations are not scans.

@@ -111,7 +111,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeBody(w, r, http.StatusOK, mediaJSON, []byte("{}"))
 	case RouteDiscovery:
 		writeError(w, r, http.StatusNotImplemented, "NOT_IMPLEMENTED", "discovery is not implemented yet (see TODOS.md)", nil)
-	case RouteComponents, RouteComponent, RouteVersions, RouteDescriptor, RouteResource, RouteOverview, RouteAttestations, RouteAttestationContent, RouteImage, RouteImageDetails:
+	case RouteComponents, RouteComponent, RouteVersions, RouteDescriptor, RouteResource, RouteOverview, RouteSupplyChain, RouteSupplyChainDocument, RouteImage, RouteImageDetails:
 		h.withStore(w, r, route)
 	default:
 		writeError(w, r, http.StatusNotFound, "NOT_FOUND", "no such endpoint", nil)
@@ -144,10 +144,10 @@ func (h *handler) withStore(w http.ResponseWriter, r *http.Request, route Route)
 		h.resource(w, r, st, route)
 	case RouteOverview:
 		h.versionOverview(w, r, st, route)
-	case RouteAttestations:
-		h.attestations(w, r, st, route)
-	case RouteAttestationContent:
-		h.attestationContent(w, r, st, route)
+	case RouteSupplyChain:
+		h.supplyChain(w, r, st, route)
+	case RouteSupplyChainDocument:
+		h.supplyChainDocument(w, r, st, route)
 	case RouteImage, RouteImageDetails:
 		h.image(w, r, st, route)
 	}

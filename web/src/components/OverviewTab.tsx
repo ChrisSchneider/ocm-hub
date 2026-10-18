@@ -15,7 +15,7 @@ import { ErrorPanel } from './ErrorPanel'
 import { inspectSearch, useDefaultView } from './InspectLabel'
 import { linkClass, NotCollected } from './NotCollected'
 import { OverviewGate } from './OverviewGate'
-import { useAttestations } from './useAttestations'
+import { useSupplyChain } from './useSupplyChain'
 
 const MAX_PARENTS = 10
 // MAX_NAMES: resource names shown per type in the Resources pod.
@@ -398,7 +398,7 @@ export function OverviewTab({ component, version, repository, inspecting }: { co
 
 function OverviewBody({ component, ov, version, repository }: { component: Component; ov: VersionOverview; version: string; repository?: string }) {
   const name = component.name
-  const q = useAttestations(name, version, repository)
+  const q = useSupplyChain(name, version, repository)
   // The locations holding this version, from the versions list narrowed to it
   // (undefined while loading, on error or for a non-semver version).
   const held = useQuery({

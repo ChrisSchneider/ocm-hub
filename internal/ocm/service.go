@@ -99,10 +99,22 @@ func (s *Service) descriptor(ctx context.Context, ref Ref) (*descriptorruntime.D
 	return desc, repo.CVR, nil
 }
 
+// getComponentVersion calls the bindings and turns a panic into an error:
+// bindings v0.0.8 dereference nil when a tag names a manifest that is not a
+// component descriptor (e.g. an OCI referrers index).
+func getComponentVersion(ctx context.Context, repo ocmrepository.ComponentVersionRepository, ref Ref) (desc *descriptorruntime.Descriptor, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			desc, err = nil, fmt.Errorf("%s:%s is not a component descriptor (bindings panicked: %v)", ref.Component, ref.Version, r)
+		}
+	}()
+	return repo.GetComponentVersion(ctx, ref.Component, ref.Version)
+}
+
 // getDescriptor fetches the descriptor and classifies not-found as unknown
 // component or unknown version; every other failure is an upstream error.
 func getDescriptor(ctx context.Context, repo ocmrepository.ComponentVersionRepository, ref Ref) (*descriptorruntime.Descriptor, error) {
-	desc, err := repo.GetComponentVersion(ctx, ref.Component, ref.Version)
+	desc, err := getComponentVersion(ctx, repo, ref)
 	if err == nil {
 		return desc, nil
 	}

@@ -4,27 +4,31 @@ import type { OcmDescriptor } from '../api/ocm'
 import { contentItems, identityString, typeCounts, type ContentItem } from '../lib/contents'
 import { childName, groupItems, isImage, type View } from '../lib/contentsRows'
 import { describedResource } from '../lib/sbom'
-import { AttestationsView } from './contents/AttestationsView'
+import { SupplyChainView } from './contents/SupplyChainView'
 import { ContentsView } from './contents/ContentsView'
+import { FindingsView } from './contents/FindingsView'
 import type { Line } from './contents/grid'
 import { LabelsView } from './contents/LabelsView'
 import { PullDialog } from './PullDialog'
-import { attestationsQuery, useAttestations } from './useAttestations'
+import { supplyChainQuery, useSupplyChain } from './useSupplyChain'
 import { ViewerPanel, type ViewerTarget } from './viewers/ViewerPanel'
 
 const SOURCE = '\0source'
 const VIEWS: { id: View; label: string }[] = [
   { id: 'contents', label: 'Contents' },
   { id: 'labels', label: 'Labels' },
-  { id: 'attestations', label: 'OCI Attestations' },
+  { id: 'supply-chain', label: 'Supply chain' },
+  { id: 'findings', label: 'Findings' },
 ]
 
 const pill = (on: boolean) => `rounded px-2 py-0.5 ${on ? 'bg-slate-800 text-white' : 'bg-slate-100'}`
 
-// ContentsList: the sources and resources of a descriptor in one of three views. Resources
+// ContentsList: the sources and resources of a descriptor in one of its views (Findings is an
+// outlook only, not built from the descriptor yet). Resources
 // differing only in extraIdentity fold into an expandable group; an SBOM with an artifact
-// reference sits right under the resource it describes. The attestation set is loaded only for
-// the OCI Attestations view or the first VEX label action.
+// reference sits right under the resource it describes (in Supply chain it is one of that
+// resource's documents instead). The attestation set is loaded only for the Supply chain view
+// or the first VEX label action.
 export function ContentsList({ descriptor, repository, query, view, onView }: { descriptor: OcmDescriptor; repository?: string; query?: string; view: View; onView: (v: View) => void }) {
   const items = contentItems(descriptor)
   const { name, version } = descriptor.component
@@ -33,7 +37,7 @@ export function ContentsList({ descriptor, repository, query, view, onView }: { 
   const [viewer, setViewer] = useState<ViewerTarget>()
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set())
   const [labelsNeedSet, setLabelsNeedSet] = useState(false)
-  const attestations = useAttestations(name, version, repository, { enabled: view === 'attestations' || labelsNeedSet })
+  const attestations = useSupplyChain(name, version, repository, { enabled: view === 'supply-chain' || labelsNeedSet })
   const queryClient = useQueryClient()
 
   const byType = !type ? items : type === SOURCE ? items.filter((i) => i.kind === 'source') : items.filter((i) => i.kind === 'resource' && (i.element.type ?? 'unknown') === type)
@@ -52,7 +56,7 @@ export function ContentsList({ descriptor, repository, query, view, onView }: { 
   const withSboms = (item: ContentItem, depth: 0 | 1, label: string): Line[] => [
     { kind: 'item', key: item.key, item, depth, label },
     ...(view !== 'labels' && item.kind === 'resource' && isImage(item.element.type) && expanded.has(item.key) ? [{ kind: 'platforms', key: `${item.key}/platforms`, item, depth: depth === 0 ? 1 : 2 } as Line] : []),
-    ...(under.get(item.element) ?? []).map((s): Line => ({ kind: 'item', key: s.key, item: s, depth: depth === 0 ? 1 : 2, label: s.element.name, note: `SBOM of ${describes.get(s.key)}` })),
+    ...(view === 'supply-chain' ? [] : (under.get(item.element) ?? [])).map((s): Line => ({ kind: 'item', key: s.key, item: s, depth: depth === 0 ? 1 : 2, label: s.element.name, note: `SBOM of ${describes.get(s.key)}` })),
   ]
   const lines = groupItems(filtered.filter((i) => !describes.has(i.key))).flatMap((r): Line[] =>
     r.kind === 'group'
@@ -68,7 +72,7 @@ export function ContentsList({ descriptor, repository, query, view, onView }: { 
   const loadSet = async () => {
     setLabelsNeedSet(true)
     try {
-      return await queryClient.fetchQuery(attestationsQuery(name, version, repository))
+      return await queryClient.fetchQuery(supplyChainQuery(name, version, repository))
     } catch {
       return undefined
     }
@@ -123,12 +127,14 @@ export function ContentsList({ descriptor, repository, query, view, onView }: { 
           settled={attestations.isSuccess || attestations.isError}
           loadSet={loadSet}
         />
-      ) : view === 'attestations' ? (
-        <AttestationsView {...common} showComponent={unfiltered} scope={scope} set={attestations.data} pending={attestations.isPending} error={attestations.error} />
+      ) : view === 'findings' ? (
+        <FindingsView />
+      ) : view === 'supply-chain' ? (
+        <SupplyChainView {...common} showComponent={unfiltered} scope={scope} set={attestations.data} pending={attestations.isPending} error={attestations.error} />
       ) : (
         <ContentsView {...common} scope={scope} onPull={setPull} />
       )}
-      {lines.length === 0 && !unfiltered && <p className="text-sm text-slate-500">No match in this component.</p>}
+      {view !== 'findings' && lines.length === 0 && !unfiltered && <p className="text-sm text-slate-500">No match in this component.</p>}
     </div>
   )
 }

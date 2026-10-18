@@ -32,7 +32,7 @@ import (
 )
 
 type attEntry struct {
-	Kind, Format, Type, How, Platform, Signed, URL string
+	Kind, Format, Type, Source, Platform, Signed, URL string
 	Resource                                       *struct{ Name string }
 }
 
@@ -118,7 +118,7 @@ func TestExampleComponentAttestationsE2E(t *testing.T) {
 		t.Fatal(verrs)
 	}
 	s := &stack{srv: srv, validator: v}
-	resp, body := s.do(t, "GET", "/v1/components/github.com%2Fchrisschneider%2Fexample-with-opencode-images/attestations/1.1.0", nil, "", false)
+	resp, body := s.do(t, "GET", "/v1/components/github.com%2Fchrisschneider%2Fexample-with-opencode-images/supply-chain/1.1.0", nil, "", false)
 	if resp.StatusCode != 200 {
 		t.Fatalf("%d %s", resp.StatusCode, body)
 	}
@@ -138,7 +138,6 @@ func TestExampleComponentAttestationsE2E(t *testing.T) {
 	if len(set.Levels) != 5 {
 		t.Fatalf("levels = %d, want 5 (component, alpine, python3, changelog, docs): %s", len(set.Levels), body)
 	}
-	const redhat = "https://security.access.redhat.com/data/csaf/v2/vex/"
 	find := func(level string, match func(attEntry) bool) *attEntry {
 		for _, e := range levels[level].Entries {
 			if match(e) {
@@ -149,11 +148,10 @@ func TestExampleComponentAttestationsE2E(t *testing.T) {
 		return nil
 	}
 
-	if e := find("", func(e attEntry) bool { return e.How == "labelLink" }); e != nil && (e.Kind != "vex" || e.URL != redhat) {
-		t.Errorf("component VEX: %+v", e)
-	}
 	embedded := func(_, resource string) func(attEntry) bool {
-		return func(e attEntry) bool { return e.How == "embedded" && e.Resource != nil && e.Resource.Name == resource }
+		return func(e attEntry) bool {
+			return e.Source == "embedded" && e.Resource != nil && e.Resource.Name == resource
+		}
 	}
 	if e := find("", embedded("", "component-sbom")); e != nil && (e.Kind != "sbom" || e.Format == "") {
 		t.Errorf("component SBOM: %+v", e)
@@ -161,16 +159,16 @@ func TestExampleComponentAttestationsE2E(t *testing.T) {
 	if e := find("alpine", embedded("alpine", "alpine-sbom")); e != nil && (e.Kind != "sbom" || e.Format != "CycloneDX") {
 		t.Errorf("alpine SBOM: %+v", e)
 	}
-	if e := find("alpine", func(e attEntry) bool { return e.How == "referrer" }); e != nil && (e.Kind != "slsa" || e.Signed != "signed" || e.Type != "https://slsa.dev/provenance/v1") {
+	if e := find("alpine", func(e attEntry) bool { return e.Source == "referrer" }); e != nil && (e.Kind != "slsa" || e.Signed != "signed" || e.Type != "https://slsa.dev/provenance/v1") {
 		t.Errorf("alpine SLSA: %+v", e)
 	}
 
-	if e := find("python3", func(e attEntry) bool { return e.How == "labelLink" }); e != nil && (e.Kind != "vex" || e.URL != "https://api.devguard.opencode.de/api/v1/public/edbe3483-e769-424c-bd25-b88b44164715/refs/oc-13/artifacts/pkg%3Aoci%2Fpython3%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3%26arch%3Damd64%26tag%3D3.10-oc.13-amd64/vex.json/") {
+	if e := find("python3", func(e attEntry) bool { return e.Source == "labelLink" }); e != nil && (e.Kind != "vex" || e.URL != "https://api.devguard.opencode.de/api/v1/public/edbe3483-e769-424c-bd25-b88b44164715/refs/oc-13/artifacts/pkg%3Aoci%2Fpython3%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3%26arch%3Damd64%26tag%3D3.14-oc.13-minimal-amd64/vex.json/") {
 		t.Errorf("python3 VEX: %+v", e)
 	}
 	var buildx []attEntry
 	for _, e := range levels["python3"].Entries {
-		if e.How == "buildx" {
+		if e.Source == "buildx" {
 			buildx = append(buildx, e)
 		}
 	}
@@ -187,7 +185,7 @@ func TestExampleComponentAttestationsE2E(t *testing.T) {
 	if !kinds["sbom"] || !kinds["slsa"] {
 		t.Errorf("buildx kinds %v, want sbom and slsa", kinds)
 	}
-	if e := find("python3", func(e attEntry) bool { return e.How == "cosignTag" }); e != nil && (e.Kind != "cve" || e.Type != "https://cosign.sigstore.dev/attestation/vuln/v1") {
+	if e := find("python3", func(e attEntry) bool { return e.Source == "cosignTag" }); e != nil && (e.Kind != "cve" || e.Type != "https://cosign.sigstore.dev/attestation/vuln/v1") {
 		t.Errorf("python3 CVE: %+v", e)
 	}
 

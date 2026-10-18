@@ -102,7 +102,7 @@ func TestContentBuildx(t *testing.T) {
 	pushBuildxLayer(t, open, reg.Host+"/att/contentbx", "v1", "https://cyclonedx.org/bom", []byte(cdxStatement))
 
 	got, err := Inspect(ctx, open, Subject{reg.Host + "/att/contentbx", "v1"})
-	if err != nil || len(got) != 1 || got[0].How != HowBuildx {
+	if err != nil || len(got) != 1 || got[0].Source != SourceBuildx {
 		t.Fatalf("got %+v, %v", got, err)
 	}
 	if s := got[0].Summary; s == nil || s.Packages != 2 {
@@ -114,7 +114,7 @@ func TestContentBuildx(t *testing.T) {
 
 func labelEntry(b []byte) Entry {
 	sum := sha256.Sum256(b)
-	return Entry{Kind: KindVEX, How: HowLabelLink, URL: "https://example.com/doc.json", Label: LabelVEX,
+	return Entry{Kind: KindVEX, Source: SourceLabelLink, URL: "https://example.com/doc.json", Label: LabelVEX,
 		Signed: SignedNo, Digest: "sha256:" + hex.EncodeToString(sum[:])}
 }
 
@@ -140,9 +140,9 @@ func TestContentLabelLinkChanged(t *testing.T) {
 
 func TestContentNoContent(t *testing.T) {
 	for name, e := range map[string]Entry{
-		"embedded":           {Kind: KindSBOM, How: HowEmbedded, Resource: &Identity{Name: "sbom"}},
-		"label without hash": {Kind: KindVEX, How: HowLabelLink, URL: "https://example.com/doc.json"},
-		"referrer no digest": {Kind: KindSBOM, How: HowReferrer, Repository: "h/p"},
+		"embedded":           {Kind: KindSBOM, Source: SourceEmbedded, Resource: &Identity{Name: "sbom"}},
+		"label without hash": {Kind: KindVEX, Source: SourceLabelLink, URL: "https://example.com/doc.json"},
+		"referrer no digest": {Kind: KindSBOM, Source: SourceReferrer, Repository: "h/p"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			if _, err := Content(t.Context(), nil, noFetch(t), e); !errors.Is(err, ErrNoContent) {

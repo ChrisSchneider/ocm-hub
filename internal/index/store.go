@@ -782,7 +782,7 @@ func (s *Store) Attestations(ctx context.Context, component, version, repository
 		return AttestationSet{}, false, err
 	}
 
-	erows, err := s.db.QueryContext(ctx, `SELECT level_position, kind, format, type, how, platform, signed, digest,
+	erows, err := s.db.QueryContext(ctx, `SELECT level_position, kind, format, type, source, platform, signed, digest,
 			resource_name, resource_version, resource_extra_identity::VARCHAR, url, build_level,
 			repository, builder, label, summary::VARCHAR
 		FROM attestation_entries WHERE component = ? AND version = ? AND location_id = ? ORDER BY level_position, position`,
@@ -793,13 +793,13 @@ func (s *Store) Attestations(ctx context.Context, component, version, repository
 	defer erows.Close()
 	for erows.Next() {
 		var lp int
-		var kind, how, signed string
+		var kind, source, signed string
 		var format, typ, platform, digest, name, ver, extra, url, repo, builder, label, summary sql.NullString
 		var level sql.NullInt64
-		if err := erows.Scan(&lp, &kind, &format, &typ, &how, &platform, &signed, &digest, &name, &ver, &extra, &url, &level, &repo, &builder, &label, &summary); err != nil {
+		if err := erows.Scan(&lp, &kind, &format, &typ, &source, &platform, &signed, &digest, &name, &ver, &extra, &url, &level, &repo, &builder, &label, &summary); err != nil {
 			return AttestationSet{}, false, err
 		}
-		e := attestation.Entry{Kind: attestation.Kind(kind), Format: format.String, Type: typ.String, How: attestation.How(how),
+		e := attestation.Entry{Kind: attestation.Kind(kind), Format: format.String, Type: typ.String, Source: attestation.Source(source),
 			Platform: platform.String, Signed: attestation.Signed(signed), Digest: digest.String, URL: url.String, BuildLevel: int(level.Int64),
 			Repository: repo.String, Builder: builder.String, Label: label.String}
 		if summary.Valid {

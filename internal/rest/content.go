@@ -15,17 +15,17 @@ import (
 	"chrisschneider.dev/delivery-bundler/internal/rest/gen"
 )
 
-// attestationContent answers GET /v1/components/{name}/attestations/{version}/{digest}:
+// supplyChainDocument answers GET /v1/components/{name}/supply-chain/{version}/{digest}:
 // the document of one entry of the stored set, as bytes or (?as=document)
 // parsed. The digest is looked up in the set first, so only what a sync
 // recorded is ever read or fetched.
-func (h *handler) attestationContent(w http.ResponseWriter, r *http.Request, st *index.Store, route Route) {
+func (h *handler) supplyChainDocument(w http.ResponseWriter, r *http.Request, st *index.Store, route Route) {
 	asDocument, err := parseAs(r.URL.Query())
 	if err != nil {
 		writeError(w, r, http.StatusBadRequest, "PARAMETER_INVALID", err.Error(), nil)
 		return
 	}
-	if h.redirectAttestations(w, r, st, route) {
+	if h.redirectSupplyChain(w, r, st, route) {
 		return
 	}
 	set, ok, err := h.attestationSet(r, st, route)
@@ -36,17 +36,17 @@ func (h *handler) attestationContent(w http.ResponseWriter, r *http.Request, st 
 	e, found := findEntry(set.Result, route.Digest)
 	if !ok || !found {
 		writeError(w, r, http.StatusNotFound, "NOT_FOUND",
-			fmt.Sprintf("%s:%s has no attestation %s at %s", route.Name, route.Version, route.Digest, r.URL.Query().Get("repository")), nil)
+			fmt.Sprintf("%s:%s has no supply chain document %s at %s", route.Name, route.Version, route.Digest, r.URL.Query().Get("repository")), nil)
 		return
 	}
 	// Content panics without the opener or fetcher an entry needs.
-	switch e.How {
-	case attestation.HowLabelLink:
+	switch e.Source {
+	case attestation.SourceLabelLink:
 		if h.fetch == nil {
 			writeError(w, r, http.StatusNotImplemented, "NOT_IMPLEMENTED", "fetching linked documents is not configured", nil)
 			return
 		}
-	case attestation.HowReferrer, attestation.HowCosignTag, attestation.HowBuildx:
+	case attestation.SourceReferrer, attestation.SourceCosignTag, attestation.SourceBuildx:
 		if h.open == nil {
 			writeError(w, r, http.StatusNotImplemented, "NOT_IMPLEMENTED", "reading attestations from registries is not configured", nil)
 			return
@@ -164,6 +164,24 @@ func genDocument(d document.Document) gen.Document {
 				Level: optional(f.Level), Location: optional(f.Location), Message: f.Message})
 		}
 		out.Scan = &s
+	}
+	if d.Assessment != nil {
+		a := gen.DocumentAssessment{Title: optional(d.Assessment.Title), Findings: make([]gen.AssessmentFinding, 0, len(d.Assessment.Findings))}
+		for _, f := range d.Assessment.Findings {
+			gf := gen.AssessmentFinding{Target: optional(f.Target), Title: f.Title, Description: optional(f.Description),
+				State: f.State, Reason: optional(f.Reason), Remarks: optional(f.Remarks), Implementation: optional(f.Implementation),
+				Source: optional(f.Source), Observations: make([]gen.AssessmentObservation, 0, len(f.Observations))}
+			for _, o := range f.Observations {
+				evidence := o.Evidence
+				if evidence == nil {
+					evidence = []string{}
+				}
+				gf.Observations = append(gf.Observations, gen.AssessmentObservation{Title: o.Title,
+					Description: optional(o.Description), Result: optional(o.Result), Evidence: evidence})
+			}
+			a.Findings = append(a.Findings, gf)
+		}
+		out.Assessment = &a
 	}
 	return out
 }

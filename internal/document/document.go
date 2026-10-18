@@ -1,6 +1,7 @@
-// Package document normalises SBOM, VEX and scan documents into one small
-// model. Parsing is delegated to protobom, go-vex and go-sarif (CycloneDX
-// vulnerabilities are read here); this package only detects the family,
+// Package document normalises SBOM, VEX, scan and compliance assessment
+// documents into one small model. Parsing is delegated to protobom, go-vex and
+// go-sarif (CycloneDX vulnerabilities and OSCAL assessment results are read
+// here); this package only detects the family,
 // flattens the result and counts for summaries.
 package document
 
@@ -28,7 +29,7 @@ const (
 const importantScore = 7.0
 
 // Package is one flattened SBOM package.
-type Package struct{ Name, Version, License, Type string }
+type Package struct{ Name, Version, License, Type, PURL string }
 
 // SBOM is the flattened package list of an SPDX or CycloneDX document.
 type SBOM struct{ Packages []Package }
@@ -46,7 +47,7 @@ type Statement struct {
 // vulnerabilities of a CycloneDX one.
 type VEX struct{ Statements []Statement }
 
-// Finding is one SARIF result or one CycloneDX vulnerability without analysis.
+// Finding is one SARIF result or one CycloneDX vulnerability.
 type Finding struct {
 	Rule, Severity, Level, Location, Message string
 
@@ -54,7 +55,7 @@ type Finding struct {
 	score float64
 }
 
-// Scan is the findings of a SARIF document's first run, or the unanalysed
+// Scan is the findings of a SARIF document's first run, or all the
 // vulnerabilities of a CycloneDX one.
 type Scan struct {
 	Tool     string
@@ -64,19 +65,23 @@ type Scan struct {
 	ImportantBasis string
 }
 
-// Document is a parsed document; at least one of SBOM, VEX and Scan is set.
-// A CycloneDX document may carry all three.
+// Document is a parsed document; at least one of SBOM, VEX, Scan and
+// Assessment is set. A CycloneDX document may carry the first three.
 type Document struct {
-	Format string
-	SBOM   *SBOM
-	VEX    *VEX
-	Scan   *Scan
+	Format     string
+	SBOM       *SBOM
+	VEX        *VEX
+	Scan       *Scan
+	Assessment *Assessment
 }
 
 // Summary is the counts a sync stores for a document.
 type Summary struct {
 	Format, Tool, ImportantBasis                                string
 	Packages, Statements, Affected, Findings, ImportantFindings int
+	// Requirements counts the findings of an assessment, NotSatisfied those
+	// whose status is not satisfied.
+	Requirements, NotSatisfied int
 }
 
 // Summary counts the document's packages, statements and findings.
@@ -104,6 +109,14 @@ func (d Document) Summary() Summary {
 				}
 			} else if f.Level == "error" {
 				s.ImportantFindings++
+			}
+		}
+	}
+	if d.Assessment != nil {
+		s.Requirements = len(d.Assessment.Findings)
+		for _, f := range d.Assessment.Findings {
+			if f.State != "satisfied" {
+				s.NotSatisfied++
 			}
 		}
 	}

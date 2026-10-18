@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 import { Eye, Maximize2 } from 'lucide-react'
-import { attestationContentUrl } from '../../api/client'
+import { supplyChainDocumentUrl } from '../../api/client'
 import type { OcmLabel } from '../../api/ocm'
-import { attestationName, entryViewer, isHttpsUrl, labelEntry, type AttestationSet, type Entry, type ResourceIdentity } from '../../lib/attestations'
+import { attestationName, entryViewer, isHttpsUrl, labelEntry, type SupplyChain, type Entry, type ResourceIdentity } from '../../lib/supplyChain'
 import { labelValue, VEX_LABEL } from '../../lib/labels'
 import { attestationTarget, type ViewerTarget } from '../viewers/ViewerPanel'
 import { VirtualList } from '../VirtualList'
@@ -22,9 +22,9 @@ interface Props {
   version: string
   repository?: string
   // set and settled: the attestation set, once its request finished (successfully or not).
-  set?: AttestationSet
+  set?: SupplyChain
   settled: boolean
-  loadSet: () => Promise<AttestationSet | undefined>
+  loadSet: () => Promise<SupplyChain | undefined>
   onViewer: (t: ViewerTarget) => void
 }
 
@@ -33,7 +33,7 @@ interface Props {
 // Sources are no attestation subject (subject false).
 function VexActions({ id, subject, label, p }: { id?: ResourceIdentity; subject: boolean; label: OcmLabel; p: Props }) {
   const e = subject ? labelEntry(p.set, id, VEX_LABEL) : undefined
-  const contentUrl = (digest: string) => attestationContentUrl(p.name, p.version, digest, p.repository)
+  const contentUrl = (digest: string) => supplyChainDocumentUrl(p.name, p.version, digest, p.repository)
   if (!subject || (p.settled && !e?.digest)) {
     const url = e?.url ?? (typeof label.value === 'string' ? label.value : undefined)
     if (!url) return null

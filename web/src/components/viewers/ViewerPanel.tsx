@@ -1,8 +1,9 @@
-import { ApiError, attestationContentUrl, resourceUrl, type DocumentSource } from '../../api/client'
+import { ApiError, supplyChainDocumentUrl, resourceUrl, type DocumentSource } from '../../api/client'
 import { useState } from 'react'
 import type { components } from '../../api/schema'
-import { isHttpsUrl, type DocumentPart, type EntryViewer } from '../../lib/attestations'
+import { isHttpsUrl, type DocumentPart, type EntryViewer } from '../../lib/supplyChain'
 import { ErrorPanel } from '../ErrorPanel'
+import { AssessmentViewer } from './AssessmentViewer'
 import { ImageViewer } from './ImageViewer'
 import { JsonModal } from './JsonModal'
 import { SbomViewer } from './SbomViewer'
@@ -55,12 +56,12 @@ function DocumentError({ error, links, originalUrl }: { error: unknown; links: P
   return <><ErrorPanel error={error} /><PanelLinks links={links} /><OriginalText url={originalUrl} /></>
 }
 
-const PART_LABELS: Record<DocumentPart, string> = { sbom: 'Packages', vex: 'VEX', scan: 'Scan results' }
+const PART_LABELS: Record<DocumentPart, string> = { sbom: 'Packages', vex: 'VEX', scan: 'Scan results', assessment: 'Assessment' }
 
 // DocumentParts: the parts a document carries; with several, a switch between them that
 // starts at part (else the first).
 function DocumentParts({ doc, part }: { doc: components['schemas']['Document']; part?: DocumentPart }) {
-  const parts = (['sbom', 'vex', 'scan'] as const).filter((k) => doc[k])
+  const parts = (['sbom', 'vex', 'scan', 'assessment'] as const).filter((k) => doc[k])
   const [chosen, setChosen] = useState<DocumentPart | undefined>(part)
   const shown = chosen && parts.includes(chosen) ? chosen : parts[0]
   if (!shown) return <p className="text-sm text-slate-600">This document can't be shown here.</p>
@@ -76,7 +77,10 @@ function DocumentParts({ doc, part }: { doc: components['schemas']['Document']; 
           ))}
         </div>
       )}
-      {shown === 'sbom' ? <SbomViewer sbom={doc.sbom!} /> : shown === 'vex' ? <VexViewer vex={doc.vex!} /> : <ScanViewer scan={doc.scan!} />}
+      {shown === 'sbom' ? <SbomViewer sbom={doc.sbom!} />
+        : shown === 'vex' ? <VexViewer vex={doc.vex!} />
+          : shown === 'assessment' ? <AssessmentViewer assessment={doc.assessment!} />
+            : <ScanViewer scan={doc.scan!} />}
     </>
   )
 }
@@ -86,7 +90,7 @@ function DocumentViewer({ scope, source, part, originalUrl }: { scope: ViewerSco
   const { name, version, repository } = scope
   const links: PanelLink[] = [
     'attestation' in source
-      ? { label: 'Raw document', href: attestationContentUrl(name, version, source.attestation, repository) }
+      ? { label: 'Raw document', href: supplyChainDocumentUrl(name, version, source.attestation, repository) }
       : { label: 'Download', href: resourceUrl(name, version, source.resource, source.extraIdentity, repository) },
     ...original(originalUrl),
   ]
@@ -106,7 +110,7 @@ function DocumentViewer({ scope, source, part, originalUrl }: { scope: ViewerSco
 // RawViewer: an attestation document the hub doesn't parse, as pretty-printed JSON.
 function RawViewer({ scope, attestation, originalUrl }: { scope: ViewerScope; attestation: string; originalUrl?: string }) {
   const q = useAttestationJson(scope, attestation)
-  const links: PanelLink[] = [{ label: 'Raw document', href: attestationContentUrl(scope.name, scope.version, attestation, scope.repository) }, ...original(originalUrl)]
+  const links: PanelLink[] = [{ label: 'Raw document', href: supplyChainDocumentUrl(scope.name, scope.version, attestation, scope.repository) }, ...original(originalUrl)]
   if (q.isPending) return <p className="text-sm text-slate-500">Fetching document…</p>
   if (q.isError) return <DocumentError error={q.error} links={links} originalUrl={originalUrl} />
   return (
@@ -118,7 +122,7 @@ function RawViewer({ scope, attestation, originalUrl }: { scope: ViewerScope; at
   )
 }
 
-// ViewerPanel: parsed documents (packages, VEX, scan results), raw attestation and image targets open in the side panel, JSON values in a modal.
+// ViewerPanel: parsed documents (packages, VEX, scan results, assessments), raw attestation and image targets open in the side panel, JSON values in a modal.
 export function ViewerPanel({ scope, target, onClose }: { scope: ViewerScope; target: ViewerTarget; onClose: () => void }) {
   if (target.kind === 'json') return <JsonModal title={target.title} value={target.value} onClose={onClose} />
   return (

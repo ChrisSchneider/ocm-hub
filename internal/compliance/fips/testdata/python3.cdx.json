@@ -1,0 +1,648 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-18T21:51:53Z",
+    "component": {
+      "bom-ref": "pkg:oci/python3@oc.13?arch=amd64&repository_url=registry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3&tag=3.14-oc.13-minimal-amd64",
+      "type": "application",
+      "name": "pkg:oci/python3@oc.13?arch=amd64&repository_url=registry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3&tag=3.14-oc.13-minimal-amd64",
+      "purl": "pkg:oci/python3@oc.13?arch=amd64&repository_url=registry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3&tag=3.14-oc.13-minimal-amd64"
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "pkg:deb/debian/ca-certificates@20250419?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/ca-certificates@20250419?arch=amd64&distro=debian-13",
+      "version": "20250419",
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-2.0-or-later"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/ca-certificates@20250419?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/debconf@1.5.91?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/debconf@1.5.91?arch=amd64&distro=debian-13",
+      "version": "1.5.91",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-2-Clause"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/debconf@1.5.91?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/gcc-14-base@14.2.0-19?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/gcc-14-base@14.2.0-19?arch=amd64&distro=debian-13",
+      "version": "14.2.0-19",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/gcc-14-base@14.2.0-19?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libbz2-1.0@1.0.8-6?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libbz2-1.0@1.0.8-6?arch=amd64&distro=debian-13",
+      "version": "1.0.8-6",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libbz2-1.0@1.0.8-6?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13",
+      "version": "2.41-12+deb13u4",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libcrypt1@1:4.4.38-1?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libcrypt1@1:4.4.38-1?arch=amd64&distro=debian-13",
+      "version": "1:4.4.38-1",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libcrypt1@1:4.4.38-1?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libexpat1@2.8.3-1~deb13u1?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libexpat1@2.8.3-1~deb13u1?arch=amd64&distro=debian-13",
+      "version": "2.8.3-1~deb13u1",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libexpat1@2.8.3-1~deb13u1?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libffi8@3.4.8-2?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libffi8@3.4.8-2?arch=amd64&distro=debian-13",
+      "version": "3.4.8-2",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libffi8@3.4.8-2?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libgcc-s1@14.2.0-19?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libgcc-s1@14.2.0-19?arch=amd64&distro=debian-13",
+      "version": "14.2.0-19",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libgcc-s1@14.2.0-19?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libgdbm-compat4t64@1.24-2?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libgdbm-compat4t64@1.24-2?arch=amd64&distro=debian-13",
+      "version": "1.24-2",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libgdbm-compat4t64@1.24-2?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libgdbm6t64@1.24-2?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libgdbm6t64@1.24-2?arch=amd64&distro=debian-13",
+      "version": "1.24-2",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libgdbm6t64@1.24-2?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/liblzma5@5.8.1-1+deb13u2?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/liblzma5@5.8.1-1+deb13u2?arch=amd64&distro=debian-13",
+      "version": "5.8.1-1+deb13u2",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/liblzma5@5.8.1-1+deb13u2?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libmpdec4@4.0.1-5?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libmpdec4@4.0.1-5?arch=amd64&distro=debian-13",
+      "version": "4.0.1-5",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libmpdec4@4.0.1-5?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libncursesw6@6.5+20250216-2?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libncursesw6@6.5+20250216-2?arch=amd64&distro=debian-13",
+      "version": "6.5+20250216-2",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libncursesw6@6.5+20250216-2?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libreadline8t64@8.2-6?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libreadline8t64@8.2-6?arch=amd64&distro=debian-13",
+      "version": "8.2-6",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libreadline8t64@8.2-6?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libsqlite3-0@3.46.1-7+deb13u2?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libsqlite3-0@3.46.1-7+deb13u2?arch=amd64&distro=debian-13",
+      "version": "3.46.1-7+deb13u2",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libsqlite3-0@3.46.1-7+deb13u2?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libssl3t64@3.5.7-1~deb13u3?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libssl3t64@3.5.7-1~deb13u3?arch=amd64&distro=debian-13",
+      "version": "3.5.7-1~deb13u3",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libssl3t64@3.5.7-1~deb13u3?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libtinfo6@6.5+20250216-2?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libtinfo6@6.5+20250216-2?arch=amd64&distro=debian-13",
+      "version": "6.5+20250216-2",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libtinfo6@6.5+20250216-2?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libuuid1@2.41.5-0+deb13u1?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libuuid1@2.41.5-0+deb13u1?arch=amd64&distro=debian-13",
+      "version": "2.41.5-0+deb13u1",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libuuid1@2.41.5-0+deb13u1?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libzstd1@1.5.7+dfsg-1?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/libzstd1@1.5.7+dfsg-1?arch=amd64&distro=debian-13",
+      "version": "1.5.7+dfsg-1",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/libzstd1@1.5.7+dfsg-1?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/media-types@13.0.0?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/media-types@13.0.0?arch=amd64&distro=debian-13",
+      "version": "13.0.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/media-types@13.0.0?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/netbase@6.5?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/netbase@6.5?arch=amd64&distro=debian-13",
+      "version": "6.5",
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-2.0-only"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/netbase@6.5?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/openssl-provider-legacy@3.5.7-1~deb13u3?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/openssl-provider-legacy@3.5.7-1~deb13u3?arch=amd64&distro=debian-13",
+      "version": "3.5.7-1~deb13u3",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/openssl-provider-legacy@3.5.7-1~deb13u3?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/openssl@3.5.7-1~deb13u3?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/openssl@3.5.7-1~deb13u3?arch=amd64&distro=debian-13",
+      "version": "3.5.7-1~deb13u3",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/openssl@3.5.7-1~deb13u3?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/readline-common@8.2-6?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/readline-common@8.2-6?arch=amd64&distro=debian-13",
+      "version": "8.2-6",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/readline-common@8.2-6?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/tzdata@2026c-0+deb13u1?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/tzdata@2026c-0+deb13u1?arch=amd64&distro=debian-13",
+      "version": "2026c-0+deb13u1",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/tzdata@2026c-0+deb13u1?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/zlib1g@1:1.3.dfsg+really1.3.1-1+b1?arch=amd64&distro=debian-13",
+      "type": "library",
+      "name": "pkg:deb/debian/zlib1g@1:1.3.dfsg+really1.3.1-1+b1?arch=amd64&distro=debian-13",
+      "version": "1:1.3.dfsg+really1.3.1-1+b1",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:deb/debian/zlib1g@1:1.3.dfsg+really1.3.1-1+b1?arch=amd64&distro=debian-13"
+    },
+    {
+      "bom-ref": "pkg:github.com/python/cpython@v3.14.8",
+      "type": "library",
+      "name": "pkg:github.com/python/cpython@v3.14.8",
+      "version": "v3.14.8",
+      "licenses": [
+        {
+          "license": {
+            "name": "unknown"
+          }
+        }
+      ],
+      "purl": "pkg:github.com/python/cpython@v3.14.8"
+    },
+    {
+      "bom-ref": "pkg:oci/python3@oc.13?arch=amd64&repository_url=registry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3&tag=3.14-oc.13-minimal-amd64",
+      "type": "application",
+      "name": "pkg:oci/python3@oc.13?arch=amd64&repository_url=registry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3&tag=3.14-oc.13-minimal-amd64",
+      "purl": "pkg:oci/python3@oc.13?arch=amd64&repository_url=registry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3&tag=3.14-oc.13-minimal-amd64"
+    }
+  ],
+  "externalReferences": [
+    {
+      "url": "https://api.devguard.opencode.de/api/v1/public/edbe3483-e769-424c-bd25-b88b44164715/refs/oc-13/artifacts/pkg%3Aoci%2Fpython3%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3%26arch%3Damd64%26tag%3D3.14-oc.13-minimal-amd64/vex.json/",
+      "comment": "Up to date Vulnerability exploitability information.",
+      "type": "exploitability-statement"
+    },
+    {
+      "url": "https://api.devguard.opencode.de/api/v1/public/edbe3483-e769-424c-bd25-b88b44164715/refs/oc-13/artifacts/pkg%3Aoci%2Fpython3%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3%26arch%3Damd64%26tag%3D3.14-oc.13-minimal-amd64/sbom.json/",
+      "comment": "Software bill of materials.",
+      "type": "bom"
+    },
+    {
+      "url": "https://devguard.opencode.de/@opencode/projects/zendis-3/assets/python3/refs/oc-13?artifact=pkg%3Aoci%2Fpython3%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3%26arch%3Damd64%26tag%3D3.14-oc.13-minimal-amd64",
+      "comment": "Dynamic analysis report",
+      "type": "dynamic-analysis-report"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:deb/debian/ca-certificates@20250419?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/openssl@3.5.7-1~deb13u3?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/debconf@1.5.91?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/debconf@1.5.91?arch=amd64&distro=debian-13",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:deb/debian/gcc-14-base@14.2.0-19?arch=amd64&distro=debian-13",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:deb/debian/libbz2-1.0@1.0.8-6?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libgcc-s1@14.2.0-19?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libcrypt1@1:4.4.38-1?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libexpat1@2.8.3-1~deb13u1?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libffi8@3.4.8-2?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libgcc-s1@14.2.0-19?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/gcc-14-base@14.2.0-19?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libgdbm-compat4t64@1.24-2?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libgdbm6t64@1.24-2?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libgdbm6t64@1.24-2?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/liblzma5@5.8.1-1+deb13u2?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libmpdec4@4.0.1-5?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libncursesw6@6.5+20250216-2?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libtinfo6@6.5+20250216-2?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libreadline8t64@8.2-6?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libtinfo6@6.5+20250216-2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/readline-common@8.2-6?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libsqlite3-0@3.46.1-7+deb13u2?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libssl3t64@3.5.7-1~deb13u3?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libzstd1@1.5.7+dfsg-1?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/zlib1g@1:1.3.dfsg+really1.3.1-1+b1?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/openssl-provider-legacy@3.5.7-1~deb13u3?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libtinfo6@6.5+20250216-2?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libuuid1@2.41.5-0+deb13u1?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/libzstd1@1.5.7+dfsg-1?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/media-types@13.0.0?arch=amd64&distro=debian-13",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:deb/debian/netbase@6.5?arch=amd64&distro=debian-13",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:deb/debian/openssl-provider-legacy@3.5.7-1~deb13u3?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/openssl@3.5.7-1~deb13u3?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libssl3t64@3.5.7-1~deb13u3?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/readline-common@8.2-6?arch=amd64&distro=debian-13",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:deb/debian/tzdata@2026c-0+deb13u1?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/debconf@1.5.91?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:deb/debian/zlib1g@1:1.3.dfsg+really1.3.1-1+b1?arch=amd64&distro=debian-13",
+      "dependsOn": [
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:github.com/python/cpython@v3.14.8",
+      "dependsOn": [
+        "pkg:deb/debian/libgdbm-compat4t64@1.24-2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libcrypt1@1:4.4.38-1?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libzstd1@1.5.7+dfsg-1?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/zlib1g@1:1.3.dfsg+really1.3.1-1+b1?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libncursesw6@6.5+20250216-2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/media-types@13.0.0?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libreadline8t64@8.2-6?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libexpat1@2.8.3-1~deb13u1?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libsqlite3-0@3.46.1-7+deb13u2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libmpdec4@4.0.1-5?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libtinfo6@6.5+20250216-2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libffi8@3.4.8-2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/liblzma5@5.8.1-1+deb13u2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/tzdata@2026c-0+deb13u1?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/netbase@6.5?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libuuid1@2.41.5-0+deb13u1?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/ca-certificates@20250419?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libgdbm6t64@1.24-2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libgcc-s1@14.2.0-19?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libssl3t64@3.5.7-1~deb13u3?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libbz2-1.0@1.0.8-6?arch=amd64&distro=debian-13"
+      ]
+    },
+    {
+      "ref": "pkg:oci/python3@oc.13?arch=amd64&repository_url=registry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3&tag=3.14-oc.13-minimal-amd64",
+      "dependsOn": [
+        "pkg:deb/debian/libgdbm-compat4t64@1.24-2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libcrypt1@1:4.4.38-1?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libzstd1@1.5.7+dfsg-1?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/zlib1g@1:1.3.dfsg+really1.3.1-1+b1?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libncursesw6@6.5+20250216-2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/media-types@13.0.0?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libreadline8t64@8.2-6?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libexpat1@2.8.3-1~deb13u1?arch=amd64&distro=debian-13",
+        "pkg:github.com/python/cpython@v3.14.8",
+        "pkg:deb/debian/libsqlite3-0@3.46.1-7+deb13u2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libc6@2.41-12+deb13u4?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libmpdec4@4.0.1-5?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libffi8@3.4.8-2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/liblzma5@5.8.1-1+deb13u2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/tzdata@2026c-0+deb13u1?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/netbase@6.5?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libuuid1@2.41.5-0+deb13u1?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/ca-certificates@20250419?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libgdbm6t64@1.24-2?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libgcc-s1@14.2.0-19?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libssl3t64@3.5.7-1~deb13u3?arch=amd64&distro=debian-13",
+        "pkg:deb/debian/libbz2-1.0@1.0.8-6?arch=amd64&distro=debian-13"
+      ]
+    }
+  ]
+}

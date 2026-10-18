@@ -170,7 +170,9 @@ func TestGatherVEXLabel(t *testing.T) {
 	// Off the allow list: still listed, without digest or summary, logged at debug.
 	var logs bytes.Buffer
 	g.Logger = slog.New(slog.NewTextHandler(&logs, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	g.Fetch = func(_ context.Context, url string) ([]byte, error) { return nil, fmt.Errorf("%w: %s", document.ErrNotAllowed, url) }
+	g.Fetch = func(_ context.Context, url string) ([]byte, error) {
+		return nil, fmt.Errorf("%w: %s", document.ErrNotAllowed, url)
+	}
 	r, _ = g.Gather(t.Context(), d, location)
 	if l := r.Levels[0]; l.Status != StatusOK || len(l.Entries) != 1 || l.Entries[0].Digest != "" || l.Entries[0].Summary != nil {
 		t.Errorf("not allowed: level = %+v", l)

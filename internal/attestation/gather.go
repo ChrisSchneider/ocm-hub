@@ -62,7 +62,7 @@ func (g Gatherer) Gather(ctx context.Context, d *descriptorruntime.Descriptor, l
 		for i := range res.Levels {
 			for j := range res.Levels[i].Entries {
 				e := &res.Levels[i].Entries[j]
-				if e.How != HowLabelLink {
+				if e.Source != SourceLabelLink {
 					continue
 				}
 				wg.Add(1)

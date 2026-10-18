@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -130,5 +131,21 @@ func TestGitHubErrorStopsIteration(t *testing.T) {
 func TestPackagePathIsEscaped(t *testing.T) {
 	if got := versionsPath(Owner{Org: "acme"}, "component-descriptors/acme.org/x"); got != "/orgs/acme/packages/container/"+url.PathEscape("component-descriptors/acme.org/x")+"/versions" {
 		t.Fatalf("path = %s", got)
+	}
+}
+
+func TestIsArtifactTag(t *testing.T) {
+	hex := strings.Repeat("0a", 32)
+	for tag, want := range map[string]bool{
+		"sha256-" + hex:          true, // referrers tag schema
+		"sha256-" + hex + ".sig": true, // cosign
+		"sha256-" + hex + ".att": true,
+		"1.1.0":                  false,
+		"sha256-abc":             false,
+		"1.0.0-sha256-" + hex:    false,
+	} {
+		if got := isArtifactTag(tag); got != want {
+			t.Errorf("isArtifactTag(%q) = %v, want %v", tag, got, want)
+		}
 	}
 }

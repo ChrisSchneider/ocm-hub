@@ -523,7 +523,7 @@ func TestCleanupDropsAttestationsOfRemovedComponents(t *testing.T) {
 		Found{Component: "acme.org/y", Repository: locA, Versions: []FoundVersion{v("1.0.0", 1)}})
 	runSync(t, w, "c2", 1, true, day(1), Found{Component: "acme.org/x", Repository: locB, Versions: []FoundVersion{v("1.0.0", 1)}})
 	res := attestation.Result{Levels: []attestation.Level{{Status: attestation.StatusOK,
-		Entries: []attestation.Entry{{Kind: attestation.KindSBOM, How: attestation.HowReferrer, Signed: attestation.SignedNo}}}}}
+		Entries: []attestation.Entry{{Kind: attestation.KindSBOM, Source: attestation.SourceReferrer, Signed: attestation.SignedNo}}}}}
 	for _, t0 := range []AttestationTarget{{"acme.org/x", "1.0.0", locA}, {"acme.org/x", "1.0.0", locB}, {"acme.org/y", "1.0.0", locA}} {
 		if err := w.SetAttestations(ctx, t0, res, day(2)); err != nil {
 			t.Fatal(err)

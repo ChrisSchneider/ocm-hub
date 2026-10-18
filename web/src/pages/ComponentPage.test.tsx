@@ -193,12 +193,12 @@ function withResource() {
   }))
 }
 
-test('?view=attestations opens Contents with the Attestations segment selected', async () => {
+test('?view=supply-chain opens Contents with the Supply chain segment selected', async () => {
   withResource()
-  renderApp('/components/ocm.software/how-to/product?view=attestations')
-  expect(await screen.findByRole('radio', { name: 'OCI Attestations', checked: true })).toBeInTheDocument()
+  renderApp('/components/ocm.software/how-to/product?view=supply-chain')
+  expect(await screen.findByRole('radio', { name: 'Supply chain', checked: true })).toBeInTheDocument()
   expect(screen.getByRole('tab', { name: 'Contents', selected: true })).toBeInTheDocument()
-  expect(screen.queryByRole('tab', { name: 'OCI Attestations' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('tab', { name: 'Supply chain' })).not.toBeInTheDocument()
 })
 
 test('?view=labels selects Labels', async () => {

@@ -7,6 +7,7 @@ import (
 	"iter"
 	"net/http"
 	"net/url"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -274,7 +275,7 @@ func versionsPath(owner Owner, pkg string) string {
 }
 
 // versions returns every tag of every version of pkg; untagged versions
-// (e.g. superseded manifests) are skipped.
+// (e.g. superseded manifests) and artifact tags (isArtifactTag) are skipped.
 func (g *GitHub) versions(ctx context.Context, owner Owner, pkg string) ([]Version, error) {
 	var out []Version
 	next := g.apiURL + versionsPath(owner, pkg) + "?per_page=100"
@@ -286,6 +287,9 @@ func (g *GitHub) versions(ctx context.Context, owner Owner, pkg string) ([]Versi
 		}
 		for _, v := range page {
 			for _, tag := range v.Metadata.Container.Tags {
+				if isArtifactTag(tag) {
+					continue
+				}
 				out = append(out, Version{Name: tag, PublishedAt: v.CreatedAt})
 			}
 		}
@@ -293,3 +297,11 @@ func (g *GitHub) versions(ctx context.Context, owner Owner, pkg string) ([]Versi
 	}
 	return out, nil
 }
+
+// artifactTag matches tags that name an artifact of another manifest, not a
+// component version: the OCI referrers tag schema ("sha256-<hex>", used where
+// the registry has no referrers API, e.g. ghcr.io) and cosign's
+// "sha256-<hex>.sig|.att|.sbom".
+var artifactTag = regexp.MustCompile(`^sha(256|512)-[0-9a-f]{64,128}(\.[a-z]+)?$`)
+
+func isArtifactTag(tag string) bool { return artifactTag.MatchString(tag) }

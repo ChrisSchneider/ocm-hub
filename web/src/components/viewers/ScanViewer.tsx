@@ -15,7 +15,7 @@ function severityCounts(findings: Scan['findings']): Map<string, number> {
   return new Map(keys.map((k) => [k, raw.get(k)!]))
 }
 
-// ScanViewer: the findings of a SARIF run or the unanalysed vulnerabilities of a CycloneDX document.
+// ScanViewer: the findings of a SARIF run or the vulnerabilities of a CycloneDX document.
 export function ScanViewer({ scan }: { scan: Scan }) {
   const [q, setQ] = useState('')
   const all = scan.findings.map((f, i) => ({ ...f, key: String(i) }))

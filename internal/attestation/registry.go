@@ -85,9 +85,9 @@ func Inspect(ctx context.Context, open RepositoryOpener, s Subject) ([]Entry, er
 	return entries, nil
 }
 
-func newEntry(typ string, how How, signed Signed, dgst string) Entry {
+func newEntry(typ string, src Source, signed Signed, dgst string) Entry {
 	kind, format := Classify(typ)
-	return Entry{Kind: kind, Format: format, Type: typ, How: how, Signed: signed, Digest: dgst}
+	return Entry{Kind: kind, Format: format, Type: typ, Source: src, Signed: signed, Digest: dgst}
 }
 
 func fetchManifest(ctx context.Context, repo *remote.Repository, d ocispec.Descriptor) (ocispec.Manifest, error) {
@@ -138,7 +138,7 @@ func layerType(ctx context.Context, repo *remote.Repository, l ocispec.Descripto
 
 // summarised are the kinds whose document withDetails reads for a summary.
 var summarised = map[Kind]bool{
-	KindSBOM: true, KindVEX: true, KindCVE: true, KindSTIG: true, KindSecrets: true, KindVirus: true, KindOther: true,
+	KindSBOM: true, KindVEX: true, KindCVE: true, KindFIPS: true, KindSTIG: true, KindSecrets: true, KindVirus: true, KindCompliance: true, KindOther: true,
 }
 
 // withDetails reads what an entry's layers say beyond their type. slsa: the
@@ -243,7 +243,7 @@ func referrerEntry(ctx context.Context, repo *remote.Repository, r ocispec.Descr
 			}
 		}
 	}
-	return withDetails(ctx, repo, newEntry(typ, HowReferrer, signed, r.Digest.String()), m.Layers...), nil
+	return withDetails(ctx, repo, newEntry(typ, SourceReferrer, signed, r.Digest.String()), m.Layers...), nil
 }
 
 func cosignEntries(ctx context.Context, repo *remote.Repository, subject ocispec.Descriptor) ([]Entry, error) {
@@ -265,7 +265,7 @@ func cosignEntries(ctx context.Context, repo *remote.Repository, subject ocispec
 		if err != nil {
 			return nil, err
 		}
-		out = append(out, withDetails(ctx, repo, newEntry(t, HowCosignTag, SignedYes, l.Digest.String()), l))
+		out = append(out, withDetails(ctx, repo, newEntry(t, SourceCosignTag, SignedYes, l.Digest.String()), l))
 	}
 	return out, nil
 }
@@ -300,7 +300,7 @@ func buildxEntries(ctx context.Context, repo *remote.Repository, index ocispec.D
 			if err != nil {
 				return nil, err
 			}
-			e := withDetails(ctx, repo, newEntry(t, HowBuildx, SignedNo, l.Digest.String()), l)
+			e := withDetails(ctx, repo, newEntry(t, SourceBuildx, SignedNo, l.Digest.String()), l)
 			e.Platform = platform
 			out = append(out, e)
 		}

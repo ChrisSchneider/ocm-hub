@@ -8,8 +8,8 @@ REPO=${REPO:-ghcr.io/chrisschneider}
 NAME=github.com/chrisschneider/example-with-opencode-images
 # The source entry points at this commit of the hub repository; push it first.
 SOURCE_COMMIT=${SOURCE_COMMIT:-$(git rev-parse HEAD)}
-export SOURCE_COMMIT
-VERSION=1.1.0 K8S_MAX=1.34
-export VERSION K8S_MAX
+VERSION=1.1.0
+K8S_MAX=1.34
+export SOURCE_COMMIT VERSION K8S_MAX
 ocm add cv --repository "$REPO" --constructor component-constructor.yaml --component-version-conflict-policy replace
 ocm sign cv "$REPO//$NAME:$VERSION" --force --config sigstore.ocmconfig

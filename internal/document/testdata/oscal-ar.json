@@ -1,0 +1,32 @@
+{
+  "assessment-results": {
+    "uuid": "11111111-1111-4111-8111-111111111111",
+    "metadata": {"title": "Compliance assessment of demo:1.1.0", "last-modified": "2026-10-19T10:00:00Z", "version": "0.1.0", "oscal-version": "1.1.3"},
+    "import-ap": {"href": "#"},
+    "results": [{
+      "uuid": "22222222-2222-4222-8222-222222222222",
+      "title": "Compliance pipeline: demo:1.1.0",
+      "description": "Automated checks.",
+      "start": "2026-10-19T10:00:00Z",
+      "reviewed-controls": {"control-selections": [{"include-controls": [{"control-id": "sbom-1"}, {"control-id": "crypto-1"}]}]},
+      "observations": [
+        {"uuid": "o1", "title": "Every container image has an SBOM: python3", "description": "1 SBOM(s) found",
+         "props": [{"name": "image", "value": "python3"}, {"name": "result", "value": "pass"}], "methods": ["TEST"], "collected": "2026-10-19T10:00:00Z"},
+        {"uuid": "o2", "title": "FIPS: python3", "description": "Definitely not compliant",
+         "props": [{"name": "result", "value": "fail"}], "methods": ["TEST"], "collected": "2026-10-19T10:00:00Z",
+         "relevant-evidence": [{"href": "oci://ghcr.io/x@sha256:abc", "description": "SARIF report"}]},
+        {"uuid": "o3", "title": "FIPS: alpine", "description": "Not disproven",
+         "props": [{"name": "result", "value": "pass"}], "methods": ["TEST"], "collected": "2026-10-19T10:00:00Z"}
+      ],
+      "findings": [
+        {"uuid": "f1", "title": "Every container image has an SBOM", "description": "1 of 1 image(s) pass.",
+         "props": [{"name": "source", "value": "BSI TR-03183-2"}],
+         "target": {"type": "objective-id", "target-id": "sbom-1", "status": {"state": "satisfied", "reason": "pass"}, "implementation-status": {"state": "implemented"}},
+         "related-observations": [{"observation-uuid": "o1"}]},
+        {"uuid": "f2", "title": "", "description": "1 of 2 image(s) not disproven.",
+         "target": {"type": "objective-id", "target-id": "crypto-1", "title": "FIPS crypto", "status": {"state": "not-satisfied", "reason": "fail"}, "implementation-status": {"state": "partial"}},
+         "related-observations": [{"observation-uuid": "o2"}, {"observation-uuid": "o3"}, {"observation-uuid": "missing"}]}
+      ]
+    }]
+  }
+}

@@ -1,11 +1,11 @@
 import type { components } from '../api/schema'
 
 type Schemas = components['schemas']
-export type Entry = Schemas['AttestationEntry']
-export type Level = Schemas['AttestationLevel']
+export type Entry = Schemas['SupplyChainEntry']
+export type Level = Schemas['SupplyChainLevel']
 export type Kind = Entry['kind']
 export type ResourceIdentity = Schemas['ResourceIdentity']
-export type AttestationSet = Schemas['AttestationSet']
+export type SupplyChain = Schemas['SupplyChain']
 
 // isHttpsUrl: only https URLs from documents are linked; anything else is shown as text.
 export function isHttpsUrl(url: string): boolean {
@@ -26,19 +26,21 @@ export const KINDS: Record<Kind, { label: string; explain: string }> = {
   secrets: { label: 'Secrets', explain: 'Secrets scan — checked for leaked keys and passwords' },
   virus: { label: 'Virus', explain: 'Virus scan — checked for malware' },
   sources: { label: 'Sources', explain: 'Image sources — where the source code and build materials are' },
+  compliance: { label: 'Compliance', explain: 'Compliance assessment — which requirements are (not) satisfied, as OSCAL assessment results' },
   other: { label: 'Other', explain: 'Other attestation' },
 }
 
-export function howLabel(e: Entry): string {
-  switch (e.how) {
+// sourceLabel: where an entry was found; the platform of a buildx entry is its row.
+export function sourceLabel(e: Entry): string {
+  switch (e.source) {
     case 'embedded':
-      return `Embedded resource ${e.resource?.name ?? ''}`.trim()
+      return `Resource ${e.resource?.name ?? ''}`.trim()
     case 'referrer':
       return 'OCI referrer'
     case 'cosignTag':
-      return 'Cosign attestation tag'
+      return 'Cosign tag'
     case 'buildx':
-      return e.platform ? `Buildx attestation (${e.platform})` : 'Buildx attestation'
+      return 'Buildx attestation'
     case 'labelLink':
       return 'Label link'
   }
@@ -57,18 +59,14 @@ export function sameIdentity(a?: ResourceIdentity, b?: ResourceIdentity): boolea
 }
 
 // isAttestation: an embedded SBOM is a resource shipped with the component,
-// not an attestation; views list it separately.
-export const isAttestation = (e: Entry): boolean => !(e.how === 'embedded' && e.kind === 'sbom')
+// not an attestation; the Overview counts it from the descriptor.
+export const isAttestation = (e: Entry): boolean => !(e.source === 'embedded' && e.kind === 'sbom')
 
-// isOciAttestation: an attestation stored in the registry; a document linked from a
-// label (e.g. VEX) is shown with the label instead.
-export const isOciAttestation = (e: Entry): boolean => isAttestation(e) && e.how !== 'labelLink'
-
-// EntryViewer: document is the parsed viewer (packages, VEX, scan results); raw the JSON.
+// EntryViewer: document is the parsed viewer (packages, VEX, scan results, assessments); raw the JSON.
 export type EntryViewer = 'document' | 'raw'
 
 // DocumentPart: a part of a parsed document; one document may carry several.
-export type DocumentPart = 'sbom' | 'vex' | 'scan'
+export type DocumentPart = 'sbom' | 'vex' | 'scan' | 'assessment'
 
 // attestationName: the row title of an attestation.
 export function attestationName(e: Entry): string {
@@ -93,16 +91,17 @@ export function detailsText(e: Entry): string {
     if (s.findings !== undefined) parts.push(`${s.findings} findings`)
     if (s.importantFindings !== undefined)
       parts.push(s.importantBasis === 'security-severity' ? `${s.importantFindings} high or critical` : s.importantBasis === 'level' ? `${s.importantFindings} with level error` : undefined)
+    if (s.requirements !== undefined) parts.push(`${s.requirements} requirements`, `${s.notSatisfied ?? 0} not satisfied`)
   } else parts.push(e.format)
   return parts.filter(Boolean).join(' · ')
 }
 
-const parsedFormats = ['SPDX', 'CycloneDX', 'OpenVEX', 'SARIF']
+const parsedFormats = ['SPDX', 'CycloneDX', 'OpenVEX', 'SARIF', 'OSCAL']
 
 // entryViewer: which in-page viewer can open the attestation document. A summary
 // means the sync parsed it; without one the format decides.
 export function entryViewer(e: Entry): EntryViewer | undefined {
-  if (!e.digest || e.how === 'embedded') return undefined
+  if (!e.digest || e.source === 'embedded') return undefined
   if (e.kind === 'slsa') return 'raw'
   if (e.summary) return 'document'
   const f = e.format ?? ''
@@ -110,28 +109,33 @@ export function entryViewer(e: Entry): EntryViewer | undefined {
 }
 
 // entryPart: the document part an attestation is opened at.
-export const entryPart = (e: Entry): DocumentPart => (e.kind === 'vex' ? 'vex' : e.kind === 'sbom' ? 'sbom' : 'scan')
+export const entryPart = (e: Entry): DocumentPart => (e.kind === 'vex' ? 'vex' : e.kind === 'sbom' ? 'sbom' : e.kind === 'compliance' ? 'assessment' : 'scan')
 
 // levelFor: the level of a resource, or of the component when id is undefined.
-export function levelFor(set: AttestationSet | undefined, id?: ResourceIdentity): Level | undefined {
+export function levelFor(set: SupplyChain | undefined, id?: ResourceIdentity): Level | undefined {
   return set?.levels.find((l) => sameIdentity(l.resource, id))
 }
 
-// entriesOf: OCI attestations of a level; without platform only the platform-less ones.
+// entriesOf: the supply chain entries of a level, whatever their source; without platform only the platform-less ones.
 export function entriesOf(level: Level | undefined, platform?: string): Entry[] {
-  return (level?.entries ?? []).filter((e) => isOciAttestation(e) && (platform === undefined ? !e.platform : e.platform === platform))
+  return (level?.entries ?? []).filter((e) => (platform === undefined ? !e.platform : e.platform === platform))
 }
 
-export function labelEntry(set: AttestationSet | undefined, id: ResourceIdentity | undefined, label: string): Entry | undefined {
-  return levelFor(set, id)?.entries.find((e) => e.how === 'labelLink' && e.label === label)
+export function labelEntry(set: SupplyChain | undefined, id: ResourceIdentity | undefined, label: string): Entry | undefined {
+  return levelFor(set, id)?.entries.find((e) => e.source === 'labelLink' && e.label === label)
+}
+
+// embeddedLevel: the level an embedded SBOM resource is listed with.
+export function embeddedLevel(set: SupplyChain | undefined, id: ResourceIdentity): Level | undefined {
+  return set?.levels.find((l) => l.entries.some((e) => e.source === 'embedded' && sameIdentity(e.resource, id)))
 }
 
 // levelAnchor is the element id of a level's table, so other views can link to it.
 export function levelAnchor(id?: ResourceIdentity): string {
-  if (!id) return 'attestations-component'
+  if (!id) return 'supply-chain-component'
   const extra = Object.keys(id.extraIdentity ?? {})
     .sort()
     .map((k) => `-${k}=${id.extraIdentity![k]}`)
     .join('')
-  return `attestations-${id.name}${id.version ? `-${id.version}` : ''}${extra}`.replace(/[^A-Za-z0-9._=-]/g, '_')
+  return `supply-chain-${id.name}${id.version ? `-${id.version}` : ''}${extra}`.replace(/[^A-Za-z0-9._=-]/g, '_')
 }

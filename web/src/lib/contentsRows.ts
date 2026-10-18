@@ -1,7 +1,7 @@
 import type { OcmElement } from '../api/ocm'
 import { identityString, type ContentItem } from './contents'
 
-export type View = 'contents' | 'labels' | 'attestations'
+export type View = 'contents' | 'labels' | 'supply-chain' | 'findings'
 
 export interface GroupRow {
   kind: 'group'

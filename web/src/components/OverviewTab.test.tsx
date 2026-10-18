@@ -31,7 +31,7 @@ const full = {
 }
 const set = {
   name: 'github.com/acme/app', version: '1.1.0', repository: 'oci::ghcr.io/acme', checkedAt: '2026-01-01T00:00:00Z',
-  levels: [{ status: 'ok', entries: [{ kind: 'slsa', how: 'referrer', signed: 'no', format: 'SLSA v1', buildLevel: 2 }] }],
+  levels: [{ status: 'ok', entries: [{ kind: 'slsa', source: 'referrer', signed: 'no', format: 'SLSA v1', buildLevel: 2 }] }],
 }
 
 // held: the locations the versions list reports for the overview's version.
@@ -44,7 +44,7 @@ function serve(ov: object, comp: object = component, attestations: () => Respons
     const u = new URL(request.url)
     calls.push(u.pathname + u.search)
     if (u.pathname.includes('/overview/')) return HttpResponse.json(ov)
-    if (u.pathname.includes('/attestations/')) return attestations()
+    if (u.pathname.includes('/supply-chain/')) return attestations()
     if (u.pathname.endsWith('/versions')) return versions(u)
     return HttpResponse.json(comp)
   }))
@@ -111,7 +111,7 @@ test('evidence rows link with View', async () => {
   await screen.findByText('The app.')
   expect(within(rowOf('VEX')).queryByRole('link', { name: /^Show/ })).not.toBeInTheDocument()
   expect(within(rowOf('OCM signature')).getByRole('link', { name: 'Show OCM signature' })).toHaveAttribute('href', expect.stringContaining('view=descriptor'))
-  expect(await within(rowOf('Provenance')).findByRole('link', { name: 'Show Provenance' })).toHaveAttribute('href', expect.stringMatching(/view=attestations.*#attestations-component$/))
+  expect(await within(rowOf('Provenance')).findByRole('link', { name: 'Show Provenance' })).toHaveAttribute('href', expect.stringMatching(/view=supply-chain.*#supply-chain-component$/))
   // Replication is a tab; the sidebar does not repeat it.
   expect(within(facts()).queryByRole('link', { name: 'Replication' })).not.toBeInTheDocument()
 })
@@ -147,7 +147,7 @@ test('an empty version shows the gaps in grey', async () => {
   expect(within(fact('Locations')).getByText('ghcr.io/acme')).toHaveAttribute('title', 'Shown here')
   expect(within(fact('Locations')).queryByText(/location/)).not.toBeInTheDocument()
   expect(await within(rowOf('VEX')).findByText('Not checked')).toHaveClass('text-slate-400')
-  expect(screen.getByText(/Attestations are not collected for this version/)).toBeInTheDocument()
+  expect(screen.getByText(/Supply chain documents are not collected for this version/)).toBeInTheDocument()
 })
 
 test('a component with only pre-releases shows its newest pre-release', async () => {
@@ -193,7 +193,7 @@ function serveOverviewError() {
   server.use(http.get('/v1/components/*', ({ request }) => {
     const u = new URL(request.url)
     if (u.pathname.includes('/overview/')) return HttpResponse.json({ code: 'VERSION_UNKNOWN', message: 'nope' }, { status: 404 })
-    if (u.pathname.includes('/attestations/')) return attestationsNotCollected()
+    if (u.pathname.includes('/supply-chain/')) return attestationsNotCollected()
     return HttpResponse.json(component)
   }))
 }

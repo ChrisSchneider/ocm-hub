@@ -675,7 +675,7 @@ func (w *Writer) SetAttestations(ctx context.Context, t AttestationTarget, r att
 				summary = string(b)
 			}
 			if _, err := tx.ExecContext(ctx, `INSERT INTO attestation_entries VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::JSON, ?, ?, ?, ?, ?, ?::JSON)`,
-				t.Component, t.Version, loc, i, j, string(e.Kind), nullable(e.Format), nullable(e.Type), string(e.How),
+				t.Component, t.Version, loc, i, j, string(e.Kind), nullable(e.Format), nullable(e.Type), string(e.Source),
 				nullable(e.Platform), string(e.Signed), nullable(e.Digest), ername, erver, eextra, nullable(e.URL), nullable(e.BuildLevel),
 				nullable(e.Repository), nullable(e.Builder), nullable(e.Label), summary); err != nil {
 				return err

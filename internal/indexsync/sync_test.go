@@ -524,7 +524,7 @@ func (f countingFetcher) DescriptorAt(ctx context.Context, c, v, loc string) (*d
 }
 
 var okResult = attestation.Result{Levels: []attestation.Level{{Status: attestation.StatusOK, Entries: []attestation.Entry{
-	{Kind: "sbom", How: "referrer", Signed: "unsigned"}}}}}
+	{Kind: "sbom", Source: "referrer", Signed: "unsigned"}}}}}
 
 func storedSet(t *testing.T, p string) (index.AttestationSet, bool) {
 	t.Helper()

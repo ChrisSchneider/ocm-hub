@@ -117,7 +117,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/components/{name}/attestations/{version}": {
+    "/v1/components/{name}/supply-chain/{version}": {
         parameters: {
             query?: never;
             header?: never;
@@ -125,8 +125,9 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Attestations (SBOM, SLSA, VEX, ...) found on one component version and its
-         *     OCI resources, as gathered by a sync (index only, no OCM call). Each sync
+         * @description Supply chain documents (SBOM, SLSA, VEX, scans, ...) of one component version
+         *     and its OCI resources, whatever their source (OCI attestations, embedded SBOM
+         *     resources, label links), as gathered by a sync (index only, no OCM call). Each sync
          *     gathers each component's default version at its overview location; sets are
          *     kept per version and location and looked up exactly at `?repository=`, which
          *     a 200 therefore requires. Without it the route redirects (307) to the same
@@ -136,16 +137,16 @@ export interface paths {
          *     NOT_COLLECTED` with `detail.collected` listing what exists. Nothing is
          *     verified.
          */
-        get: operations["getAttestations"];
+        get: operations["getSupplyChain"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
-        head: operations["headAttestations"];
+        head: operations["headSupplyChain"];
         patch?: never;
         trace?: never;
     };
-    "/v1/components/{name}/attestations/{version}/{digest}": {
+    "/v1/components/{name}/supply-chain/{version}/{digest}": {
         parameters: {
             query?: never;
             header?: never;
@@ -153,23 +154,23 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description The document of one attestation of a stored set, found by its `digest`
+         * @description One document of a stored supply chain set, found by its `digest`
          *     (index lookup, then read from the registry or, for a label link, fetched
          *     from the link, which must still hash to the digest the sync recorded).
          *     In-toto statements are unwrapped to their predicate. `?repository=` and
-         *     `latest` behave as on `/attestations/{version}` (307). By default the bytes
+         *     `latest` behave as on `/supply-chain/{version}` (307). By default the bytes
          *     are sent as an attachment; `as=document` answers the parsed `Document`.
          *     A digest not in the set, an embedded SBOM (a resource) or an entry
          *     without content answer `404 NOT_FOUND`, with nothing fetched. A label
          *     link no longer on the allow list answers `403 DOCUMENT_NOT_ALLOWED`,
          *     with nothing fetched. Nothing is verified.
          */
-        get: operations["getAttestationContent"];
+        get: operations["getSupplyChainDocument"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
-        head: operations["headAttestationContent"];
+        head: operations["headSupplyChainDocument"];
         patch?: never;
         trace?: never;
     };
@@ -284,18 +285,21 @@ export interface components {
                 [key: string]: string;
             };
         };
-        AttestationEntry: {
+        SupplyChainEntry: {
             /** @enum {string} */
-            kind: "slsa" | "sbom" | "vex" | "cve" | "fips" | "stig" | "secrets" | "virus" | "sources" | "other";
+            kind: "slsa" | "sbom" | "vex" | "cve" | "fips" | "stig" | "secrets" | "virus" | "sources" | "compliance" | "other";
             /** @description e.g. `CycloneDX 1.6`. */
             format?: string;
             /** @description Raw predicate */
             type?: string;
-            /** @enum {string} */
-            how: "embedded" | "referrer" | "cosignTag" | "buildx" | "labelLink";
+            /**
+             * @description Where the entry was found.
+             * @enum {string}
+             */
+            source: "embedded" | "referrer" | "cosignTag" | "buildx" | "labelLink";
             platform?: string;
             /**
-             * @description What covers the attestation; nothing is verified.
+             * @description What covers the document; nothing is verified.
              * @enum {string}
              */
             signed: "signed" | "component" | "no";
@@ -309,10 +313,10 @@ export interface components {
             builder?: string;
             /** @description Label name a labelLink entry came from. */
             label?: string;
-            summary?: components["schemas"]["AttestationSummary"];
+            summary?: components["schemas"]["DocumentSummary"];
         };
-        /** @description Counts read from the attestation document; zero counts are omitted. */
-        AttestationSummary: {
+        /** @description Counts read from the document; zero counts are omitted. */
+        DocumentSummary: {
             format: string;
             tool?: string;
             /** @description What `importantFindings` counts */
@@ -322,23 +326,27 @@ export interface components {
             affected?: number;
             findings?: number;
             importantFindings?: number;
+            /** @description Requirements an assessment covers (its OSCAL findings). */
+            requirements?: number;
+            /** @description Requirements whose status is not satisfied. */
+            notSatisfied?: number;
         };
         /** @description The component (no `resource`) or one OCI resource. */
-        AttestationLevel: {
+        SupplyChainLevel: {
             resource?: components["schemas"]["ResourceIdentity"];
             /** @enum {string} */
             status: "ok" | "failed" | "notOci";
             error?: string;
-            entries: components["schemas"]["AttestationEntry"][];
+            entries: components["schemas"]["SupplyChainEntry"][];
         };
-        AttestationSet: {
+        SupplyChain: {
             name: string;
             version: string;
             /** @description Location gathered from, `oci::host/path`. */
             repository: string;
             /** Format: date-time */
             checkedAt: string;
-            levels: components["schemas"]["AttestationLevel"][];
+            levels: components["schemas"]["SupplyChainLevel"][];
         };
         /** @description An OCI image and the platforms it offers. */
         ImageIndex: {
@@ -380,13 +388,14 @@ export interface components {
             size: number;
             createdBy?: string;
         };
-        /** @description A parsed document; at least one of `sbom`, `vex` and `scan` is set. A CycloneDX document may carry all three: its analysed vulnerabilities are `vex` statements (states mapped to OpenVEX statuses), the others `scan` findings. Nothing is verified. */
+        /** @description A parsed document; at least one of `sbom`, `vex`, `scan` and `assessment` is set. A CycloneDX document may carry the first three: its vulnerabilities are `scan` findings, the analysed ones also `vex` statements (states mapped to OpenVEX statuses). Nothing is verified. */
         Document: {
-            /** @description e.g. `CycloneDX 1.6`, `OpenVEX`, `SARIF 2.1.0`. */
+            /** @description e.g. `CycloneDX 1.6`, `OpenVEX`, `SARIF 2.1.0`, `OSCAL 1.1.3 assessment results`. */
             format: string;
             sbom?: components["schemas"]["DocumentSBOM"];
             vex?: components["schemas"]["DocumentVEX"];
             scan?: components["schemas"]["DocumentScan"];
+            assessment?: components["schemas"]["DocumentAssessment"];
         };
         DocumentSBOM: {
             packages: components["schemas"]["SBOMPackage"][];
@@ -420,6 +429,35 @@ export interface components {
             level?: string;
             location?: string;
             message: string;
+        };
+        /** @description The findings of an OSCAL assessment-results document, across all its results. */
+        DocumentAssessment: {
+            title?: string;
+            findings: components["schemas"]["AssessmentFinding"][];
+        };
+        AssessmentFinding: {
+            /** @description Assessed objective or control id. */
+            target?: string;
+            title: string;
+            description?: string;
+            /** @description `satisfied` or `not-satisfied`. */
+            state: string;
+            /** @description `pass`, `fail` or `other`. */
+            reason?: string;
+            remarks?: string;
+            /** @description Implementation status, e.g. `implemented`, `partial`. */
+            implementation?: string;
+            /** @description The finding's `source` prop, e.g. the cited regulation. */
+            source?: string;
+            observations: components["schemas"]["AssessmentObservation"][];
+        };
+        AssessmentObservation: {
+            title: string;
+            description?: string;
+            /** @description The observation's `result` prop, e.g. `pass`, `fail`. */
+            result?: string;
+            /** @description Relevant evidence hrefs. */
+            evidence: string[];
         };
         ErrorItem: {
             code: components["schemas"]["ErrorCode"];
@@ -802,8 +840,8 @@ export interface components {
         Version: string;
         /** @description Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver. */
         Repository: string;
-        /** @description Digest of an attestation entry, as listed in its set (e.g. `sha256:<hex>`). */
-        AttestationDigest: string;
+        /** @description Digest of a supply chain entry, as listed in its set (e.g. `sha256:<hex>`). */
+        DocumentDigest: string;
         /** @description Resource name; add `extraIdentity.<key>=<value>` query parameters to pick one of several with the same name. */
         ImageResource: string;
         /** @description Digest of a platform manifest, as listed by the platforms route (e.g. `sha256:<hex>`). */
@@ -1285,7 +1323,7 @@ export interface operations {
             };
         };
     };
-    getAttestations: {
+    getSupplyChain: {
         parameters: {
             query?: {
                 /** @description Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver. */
@@ -1304,7 +1342,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The attestation set. */
+            /** @description The supply chain set. */
             200: {
                 headers: {
                     "Cache-Control": components["headers"]["CacheControl"];
@@ -1313,7 +1351,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AttestationSet"];
+                    "application/json": components["schemas"]["SupplyChain"];
                 };
             };
             304: components["responses"]["NotModified"];
@@ -1321,7 +1359,7 @@ export interface operations {
             default: components["responses"]["Error"];
         };
     };
-    headAttestations: {
+    headSupplyChain: {
         parameters: {
             query?: {
                 /** @description Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver. */
@@ -1361,7 +1399,7 @@ export interface operations {
             };
         };
     };
-    getAttestationContent: {
+    getSupplyChainDocument: {
         parameters: {
             query?: {
                 /** @description Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver. */
@@ -1377,8 +1415,8 @@ export interface operations {
                 name: components["parameters"]["Name"];
                 /** @description OCM version, or `latest`. */
                 version: components["parameters"]["Version"];
-                /** @description Digest of an attestation entry, as listed in its set (e.g. `sha256:<hex>`). */
-                digest: components["parameters"]["AttestationDigest"];
+                /** @description Digest of a supply chain entry, as listed in its set (e.g. `sha256:<hex>`). */
+                digest: components["parameters"]["DocumentDigest"];
             };
             cookie?: never;
         };
@@ -1403,7 +1441,7 @@ export interface operations {
             default: components["responses"]["Error"];
         };
     };
-    headAttestationContent: {
+    headSupplyChainDocument: {
         parameters: {
             query?: {
                 /** @description Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the index or a repository of a configured resolver. */
@@ -1419,8 +1457,8 @@ export interface operations {
                 name: components["parameters"]["Name"];
                 /** @description OCM version, or `latest`. */
                 version: components["parameters"]["Version"];
-                /** @description Digest of an attestation entry, as listed in its set (e.g. `sha256:<hex>`). */
-                digest: components["parameters"]["AttestationDigest"];
+                /** @description Digest of a supply chain entry, as listed in its set (e.g. `sha256:<hex>`). */
+                digest: components["parameters"]["DocumentDigest"];
             };
             cookie?: never;
         };

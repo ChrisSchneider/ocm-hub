@@ -10,8 +10,8 @@ info:
     All component routes live under `/v1/components/{name}`. `{name}` is an OCM
     component name and contains `/` (e.g. `ocm.software/ocmcli`). Clients send it
     percent-encoded (`ocm.software%2Focmcli`); the server also accepts it raw.
-    Routing is right-anchored: fixed suffixes (`/versions`, `/descriptors/{version}`, `/overview/{version}`, `/attestations/{version}`,
-    `/attestations/{version}/{digest}`, `/images/{version}/{resource}`,
+    Routing is right-anchored: fixed suffixes (`/versions`, `/descriptors/{version}`, `/overview/{version}`, `/supply-chain/{version}`,
+    `/supply-chain/{version}/{digest}`, `/images/{version}/{resource}`,
     `/images/{version}/{resource}/{digest}`, `/resources/{version}/{resource}`) are matched from the right. Consequently the
     overview of a component whose name ends in `/versions` is not addressable by
     path (`/v1/components/a/versions` is the version list of `a`); use its
@@ -256,12 +256,13 @@ paths:
         "304": {$ref: "#/components/responses/NotModified"}
         "307": {$ref: "#/components/responses/Redirect"}
         default: {description: Error (no body on HEAD).}
-  /v1/components/{name}/attestations/{version}:
+  /v1/components/{name}/supply-chain/{version}:
     get:
-      operationId: getAttestations
+      operationId: getSupplyChain
       description: |
-        Attestations (SBOM, SLSA, VEX, ...) found on one component version and its
-        OCI resources, as gathered by a sync (index only, no OCM call). Each sync
+        Supply chain documents (SBOM, SLSA, VEX, scans, ...) of one component version
+        and its OCI resources, whatever their source (OCI attestations, embedded SBOM
+        resources, label links), as gathered by a sync (index only, no OCM call). Each sync
         gathers each component's default version at its overview location; sets are
         kept per version and location and looked up exactly at `?repository=`, which
         a 200 therefore requires. Without it the route redirects (307) to the same
@@ -277,7 +278,7 @@ paths:
         - $ref: "#/components/parameters/IfNoneMatch"
       responses:
         "200":
-          description: The attestation set.
+          description: The supply chain set.
           headers:
             Cache-Control: {$ref: "#/components/headers/CacheControl"}
             ETag:
@@ -285,12 +286,12 @@ paths:
               schema: {type: string}
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/AttestationSet"}
+              schema: {$ref: "#/components/schemas/SupplyChain"}
         "304": {$ref: "#/components/responses/NotModified"}
         "307": {$ref: "#/components/responses/Redirect"}
         default: {$ref: "#/components/responses/Error"}
     head:
-      operationId: headAttestations
+      operationId: headSupplyChain
       parameters:
         - $ref: "#/components/parameters/Name"
         - $ref: "#/components/parameters/Version"
@@ -305,15 +306,15 @@ paths:
         "304": {$ref: "#/components/responses/NotModified"}
         "307": {$ref: "#/components/responses/Redirect"}
         default: {description: Error (no body on HEAD).}
-  /v1/components/{name}/attestations/{version}/{digest}:
+  /v1/components/{name}/supply-chain/{version}/{digest}:
     get:
-      operationId: getAttestationContent
+      operationId: getSupplyChainDocument
       description: |
-        The document of one attestation of a stored set, found by its `digest`
+        One document of a stored supply chain set, found by its `digest`
         (index lookup, then read from the registry or, for a label link, fetched
         from the link, which must still hash to the digest the sync recorded).
         In-toto statements are unwrapped to their predicate. `?repository=` and
-        `latest` behave as on `/attestations/{version}` (307). By default the bytes
+        `latest` behave as on `/supply-chain/{version}` (307). By default the bytes
         are sent as an attachment; `as=document` answers the parsed `Document`.
         A digest not in the set, an embedded SBOM (a resource) or an entry
         without content answer `404 NOT_FOUND`, with nothing fetched. A label
@@ -322,7 +323,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/Name"
         - $ref: "#/components/parameters/Version"
-        - $ref: "#/components/parameters/AttestationDigest"
+        - $ref: "#/components/parameters/DocumentDigest"
         - $ref: "#/components/parameters/Repository"
         - $ref: "#/components/parameters/As"
         - $ref: "#/components/parameters/IfNoneMatch"
@@ -347,11 +348,11 @@ paths:
         "307": {$ref: "#/components/responses/Redirect"}
         default: {$ref: "#/components/responses/Error"}
     head:
-      operationId: headAttestationContent
+      operationId: headSupplyChainDocument
       parameters:
         - $ref: "#/components/parameters/Name"
         - $ref: "#/components/parameters/Version"
-        - $ref: "#/components/parameters/AttestationDigest"
+        - $ref: "#/components/parameters/DocumentDigest"
         - $ref: "#/components/parameters/Repository"
         - $ref: "#/components/parameters/As"
         - $ref: "#/components/parameters/IfNoneMatch"
@@ -560,11 +561,11 @@ components:
         Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the
         index or a repository of a configured resolver.
       schema: {type: string}
-    AttestationDigest:
+    DocumentDigest:
       name: digest
       in: path
       required: true
-      description: "Digest of an attestation entry, as listed in its set (e.g. `sha256:<hex>`)."
+      description: "Digest of a supply chain entry, as listed in its set (e.g. `sha256:<hex>`)."
       schema: {type: string}
     ImageResource:
       name: resource
@@ -701,26 +702,26 @@ components:
         name: {type: string}
         version: {type: string}
         extraIdentity: {type: object, additionalProperties: {type: string}}
-    AttestationEntry:
+    SupplyChainEntry:
       type: object
-      required: [kind, how, signed]
+      required: [kind, source, signed]
       properties:
-        kind: {type: string, enum: [slsa, sbom, vex, cve, fips, stig, secrets, virus, sources, other]}
+        kind: {type: string, enum: [slsa, sbom, vex, cve, fips, stig, secrets, virus, sources, compliance, other]}
         format: {type: string, description: "e.g. `CycloneDX 1.6`."}
         type: {type: string, description: Raw predicate, artifact or media type.}
-        how: {type: string, enum: [embedded, referrer, cosignTag, buildx, labelLink]}
+        source: {type: string, enum: [embedded, referrer, cosignTag, buildx, labelLink], description: Where the entry was found.}
         platform: {type: string}
-        signed: {type: string, enum: [signed, component, no], description: What covers the attestation; nothing is verified.}
+        signed: {type: string, enum: [signed, component, no], description: What covers the document; nothing is verified.}
         digest: {type: string}
         resource: {$ref: "#/components/schemas/ResourceIdentity"}
         url: {type: string, description: Link from a label.}
         buildLevel: {type: integer, description: "SLSA build level a slsa entry claims (from a verification summary or a known builder); not verified."}
         builder: {type: string, description: SLSA provenance builder id.}
         label: {type: string, description: Label name a labelLink entry came from.}
-        summary: {$ref: "#/components/schemas/AttestationSummary"}
-    AttestationSummary:
+        summary: {$ref: "#/components/schemas/DocumentSummary"}
+    DocumentSummary:
       type: object
-      description: Counts read from the attestation document; zero counts are omitted.
+      description: Counts read from the document; zero counts are omitted.
       required: [format]
       properties:
         format: {type: string}
@@ -731,7 +732,9 @@ components:
         affected: {type: integer}
         findings: {type: integer}
         importantFindings: {type: integer}
-    AttestationLevel:
+        requirements: {type: integer, description: Requirements an assessment covers (its OSCAL findings).}
+        notSatisfied: {type: integer, description: Requirements whose status is not satisfied.}
+    SupplyChainLevel:
       type: object
       description: The component (no `resource`) or one OCI resource.
       required: [status, entries]
@@ -739,8 +742,8 @@ components:
         resource: {$ref: "#/components/schemas/ResourceIdentity"}
         status: {type: string, enum: [ok, failed, notOci]}
         error: {type: string}
-        entries: {type: array, items: {$ref: "#/components/schemas/AttestationEntry"}}
-    AttestationSet:
+        entries: {type: array, items: {$ref: "#/components/schemas/SupplyChainEntry"}}
+    SupplyChain:
       type: object
       required: [name, version, repository, checkedAt, levels]
       properties:
@@ -748,7 +751,7 @@ components:
         version: {type: string}
         repository: {type: string, description: "Location gathered from, `oci::host/path`."}
         checkedAt: {type: string, format: date-time}
-        levels: {type: array, items: {$ref: "#/components/schemas/AttestationLevel"}}
+        levels: {type: array, items: {$ref: "#/components/schemas/SupplyChainLevel"}}
     ImageIndex:
       type: object
       description: An OCI image and the platforms it offers.
@@ -791,15 +794,17 @@ components:
     Document:
       type: object
       description: >-
-        A parsed document; at least one of `sbom`, `vex` and `scan` is set. A CycloneDX
-        document may carry all three: its analysed vulnerabilities are `vex` statements
-        (states mapped to OpenVEX statuses), the others `scan` findings. Nothing is verified.
+        A parsed document; at least one of `sbom`, `vex`, `scan` and `assessment` is set. A
+        CycloneDX document may carry the first three: its vulnerabilities are `scan` findings,
+        the analysed ones also `vex` statements (states mapped to OpenVEX statuses). Nothing
+        is verified.
       required: [format]
       properties:
-        format: {type: string, description: "e.g. `CycloneDX 1.6`, `OpenVEX`, `SARIF 2.1.0`."}
+        format: {type: string, description: "e.g. `CycloneDX 1.6`, `OpenVEX`, `SARIF 2.1.0`, `OSCAL 1.1.3 assessment results`."}
         sbom: {$ref: "#/components/schemas/DocumentSBOM"}
         vex: {$ref: "#/components/schemas/DocumentVEX"}
         scan: {$ref: "#/components/schemas/DocumentScan"}
+        assessment: {$ref: "#/components/schemas/DocumentAssessment"}
     DocumentSBOM:
       type: object
       required: [packages]
@@ -843,6 +848,34 @@ components:
         level: {type: string}
         location: {type: string}
         message: {type: string}
+    DocumentAssessment:
+      type: object
+      description: The findings of an OSCAL assessment-results document, across all its results.
+      required: [findings]
+      properties:
+        title: {type: string}
+        findings: {type: array, items: {$ref: "#/components/schemas/AssessmentFinding"}}
+    AssessmentFinding:
+      type: object
+      required: [title, state, observations]
+      properties:
+        target: {type: string, description: Assessed objective or control id.}
+        title: {type: string}
+        description: {type: string}
+        state: {type: string, description: "`satisfied` or `not-satisfied`."}
+        reason: {type: string, description: "`pass`, `fail` or `other`."}
+        remarks: {type: string}
+        implementation: {type: string, description: "Implementation status, e.g. `implemented`, `partial`."}
+        source: {type: string, description: "The finding's `source` prop, e.g. the cited regulation."}
+        observations: {type: array, items: {$ref: "#/components/schemas/AssessmentObservation"}}
+    AssessmentObservation:
+      type: object
+      required: [title, evidence]
+      properties:
+        title: {type: string}
+        description: {type: string}
+        result: {type: string, description: "The observation's `result` prop, e.g. `pass`, `fail`."}
+        evidence: {type: array, items: {type: string}, description: Relevant evidence hrefs.}
     ErrorItem:
       type: object
       required: [code, message, detail]

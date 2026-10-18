@@ -65,8 +65,8 @@ func TestParseCycloneDXNested(t *testing.T) {
 	t.Logf("packages: %+v", d.SBOM.Packages)
 }
 
-// Analysed CycloneDX vulnerabilities are VEX statements, the others scan
-// findings, next to the packages.
+// CycloneDX vulnerabilities are scan findings, the analysed ones VEX statements
+// too, next to the packages.
 func TestParseCycloneDXVulnerabilities(t *testing.T) {
 	d := load(t, "cyclonedx-vex.json")
 	if d.Format != "CycloneDX 1.6" || d.SBOM == nil || d.VEX == nil || d.Scan == nil {
@@ -87,8 +87,10 @@ func TestParseCycloneDXVulnerabilities(t *testing.T) {
 		t.Errorf("statement 2 = %+v", s[2])
 	}
 	f := d.Scan.Findings
-	if d.Scan.Tool != "DevGuard" || len(f) != 2 || f[0].Rule != "CVE-2026-4" || f[0].Severity != "critical" ||
-		f[0].Location != "pkg:deb/debian/libexpat1@2.8.3" || f[0].Message != "scored" || f[1].Severity != "low" {
+	if d.Scan.Tool != "DevGuard" || len(f) != 5 || f[0].Rule != "CVE-2026-1" || f[0].Severity != "" {
+		t.Errorf("scan = %+v", d.Scan)
+	}
+	if f[3].Rule != "CVE-2026-4" || f[3].Severity != "critical" || f[3].Location != "pkg:deb/debian/libexpat1@2.8.3" || f[3].Message != "scored" || f[4].Severity != "low" {
 		t.Errorf("scan = %+v", d.Scan)
 	}
 }
@@ -184,6 +186,25 @@ func TestParseSARIFLevelOnly(t *testing.T) {
 	}
 }
 
+func TestParseOSCAL(t *testing.T) {
+	d := load(t, "oscal-ar.json")
+	if d.Format != "OSCAL 1.1.3 assessment results" || d.Assessment == nil || len(d.Assessment.Findings) != 2 {
+		t.Fatalf("got %q %+v", d.Format, d.Assessment)
+	}
+	f := d.Assessment.Findings[0]
+	if f.Target != "sbom-1" || f.State != "satisfied" || f.Implementation != "implemented" || f.Source != "BSI TR-03183-2" || len(f.Observations) != 1 {
+		t.Errorf("finding 0 = %+v", f)
+	}
+	// The target's title stands in for a missing one; unknown observations are skipped.
+	f = d.Assessment.Findings[1]
+	if f.Title != "FIPS crypto" || f.Reason != "fail" || f.Implementation != "partial" || len(f.Observations) != 2 {
+		t.Fatalf("finding 1 = %+v", f)
+	}
+	if o := f.Observations[0]; o.Result != "fail" || !slices.Equal(o.Evidence, []string{"oci://ghcr.io/x@sha256:abc"}) {
+		t.Errorf("observation = %+v", o)
+	}
+}
+
 func TestParseUnsupported(t *testing.T) {
 	for _, in := range []string{"SPDXVersion: SPDX-2.3", "<bom/>", "{}", `{"version":"1.0.0","runs":[]}`} {
 		if _, err := Parse([]byte(in)); !errors.Is(err, ErrUnsupported) {
@@ -208,7 +229,8 @@ func TestSummary(t *testing.T) {
 		{"level-only.sarif.json", Summary{Format: "SARIF 2.1.0", Findings: 4, ImportantFindings: 1, ImportantBasis: "level", Tool: "lint"}},
 		{"spdx.json", Summary{Format: "SPDX 2.3", Packages: 3}},
 		{"cyclonedx-vex.json", Summary{Format: "CycloneDX 1.6", Tool: "DevGuard", ImportantBasis: "security-severity",
-			Packages: 3, Statements: 3, Affected: 1, Findings: 2, ImportantFindings: 1}},
+			Packages: 3, Statements: 3, Affected: 1, Findings: 5, ImportantFindings: 1}},
+		{"oscal-ar.json", Summary{Format: "OSCAL 1.1.3 assessment results", Requirements: 2, NotSatisfied: 1}},
 	}
 	for _, c := range cases {
 		if got := load(t, c.file).Summary(); got != c.want {
