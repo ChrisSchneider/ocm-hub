@@ -1,0 +1,65 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "lint",
+          "rules": [
+            {
+              "id": "R1",
+              "defaultConfiguration": {
+                "level": "warning"
+              }
+            },
+            {
+              "id": "R2",
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "R1",
+          "level": "error",
+          "message": {
+            "text": "bad"
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "pkg.Func"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "R1",
+          "message": {
+            "text": "meh"
+          },
+          "level": "warning"
+        },
+        {
+          "ruleId": "R1",
+          "level": "note",
+          "message": {
+            "text": "n"
+          }
+        },
+        {
+          "ruleId": "R2",
+          "level": "warning",
+          "message": {
+            "text": "w"
+          }
+        }
+      ]
+    }
+  ]
+}

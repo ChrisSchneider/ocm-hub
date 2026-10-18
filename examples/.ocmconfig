@@ -1,0 +1,23 @@
+type: generic.config.ocm.software/v1
+configurations:
+- type: credentials.config.ocm.software
+  consumers:
+  - identity:
+      type: OCIRegistry
+      hostname: ghcr.io
+    credentials:
+    - type: Credentials/v1
+      properties:
+        username: octocat                                  # your GitHub login
+        # password: a classic PAT with read:packages (+ read:enterprise for enterprise: sources).
+        # With the GitHub CLI:
+        #   gh auth refresh -h github.com -s read:packages,read:enterprise
+        #   gh auth token
+        password: ghp_EXAMPLEEXAMPLEEXAMPLEEXAMPLE0000
+- type: resolvers.config.ocm.software/v1alpha1
+  resolvers:
+  - repository:
+      type: OCIRepository/v1
+      baseUrl: ghcr.io
+    # narrow the pattern to your components; "*" is a catch-all (an omitted pattern matches nothing in bindings v0.0.8)
+    componentNamePattern: "ocm.software/*"

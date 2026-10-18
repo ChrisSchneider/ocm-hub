@@ -1,0 +1,39 @@
+listen: ":8080"
+ocmconfig: .ocmconfig
+db:
+  path: ../data/hub.duckdb
+timeouts:
+  upstream: 30s
+  shutdownGrace: 30s
+cache:
+  # dir defaults to <user cache dir>/ocm-server (OCM blob cache)
+  blobs:
+    remotePolicy: IfNotPresent
+versions:
+  prereleaseMarkers: [alpha, beta, rc, pre, preview, dev, snapshot, nightly, wip, build]
+
+# Label-linked documents (vex label) the hub may fetch; empty: none.
+# host[:port]/path doublestar globs, https only unless the pattern starts with http://
+#documents:
+#  allow:
+#    - security.access.redhat.com/data/csaf/v2/vex/**
+#    - "*.example.com/**/*.vex"
+#    - http://security.internal.corp/vex/*.json
+
+# Where cmd/sync finds components (go run ./cmd/sync --config examples/hub.yaml)
+discovery:
+  - connector: github/v1
+    org: open-component-model
+  - connector: github/v1
+    user: chrisschneider
+#  - connector: github/v1
+#    enterprise: neonephos        # every org of the enterprise; token needs read:enterprise
+#    visibility: [public, internal]  # optional: public, internal, private (default: public only)
+#  - connector: artifactory/v1  # not supported yet
+#  - connector: gcr/v1          # not supported yet
+#  - connector: zot/v1          # not supported yet
+#  - connector: quay/v1         # not supported yet
+#  - connector: harbor/v1       # not supported yet
+
+ui:
+  enabled: true

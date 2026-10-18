@@ -1,0 +1,27 @@
+# Sigstore keyless signing (public-good Fulcio/Rekor) with an interactive OIDC login.
+# Combined with your own .ocmconfig by publish.sh, which holds the registry credentials.
+type: generic.config.ocm.software/v1
+configurations:
+- type: signing.config.ocm.software/v1alpha1
+  signer:
+    type: SigstoreSigningConfiguration/v1alpha1
+- type: credentials.config.ocm.software
+  consumers:
+  - identity:
+      type: SigstoreSigner/v1alpha1
+      signature: default
+    credentials:
+    - type: OIDCIdentityTokenProvider/v1alpha1
+- type: credentials.config.ocm.software
+  consumers:
+  - identity:
+      type: OCIRegistry
+      hostname: ghcr.io
+    credentials:
+    - type: Credentials/v1
+      properties:
+        username: chrisschneider
+        # With the GitHub CLI:
+        #   gh auth refresh -h github.com -s read:packages,read:enterprise
+        #   gh auth token
+        password: ghp_EXAMPLEEXAMPLEEXAMPLEEXAMPLE0000

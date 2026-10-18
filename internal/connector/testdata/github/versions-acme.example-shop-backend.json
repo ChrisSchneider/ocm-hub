@@ -1,0 +1,76 @@
+[
+  {
+    "name": "sha256:15b826e8b98daa4bf152b8b0124033265c6e6ba672c91f455a5620fecf291811",
+    "created_at": "2026-10-01T10:05:33Z",
+    "updated_at": "2026-10-01T10:05:33Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": [
+          "2.0.0"
+        ]
+      }
+    }
+  },
+  {
+    "name": "sha256:e7c546b3f79ef9c8311a41b859c583fa1dff1c9df6610f8bf81213554293bd49",
+    "created_at": "2026-09-28T13:40:18Z",
+    "updated_at": "2026-09-28T13:40:18Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": []
+      }
+    }
+  },
+  {
+    "name": "sha256:20184f9f4a3a43c223f0b98e06b16c5e77bb042d1c80288bf78c6b7f17da0701",
+    "created_at": "2026-09-10T07:55:02Z",
+    "updated_at": "2026-09-10T07:55:02Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": [
+          "1.5.0"
+        ]
+      }
+    }
+  },
+  {
+    "name": "sha256:22eee0519a9ae3c5d22d16988ebd0fbb67378ca097a5d88b80ebe5dbd14ace57",
+    "created_at": "2026-08-18T12:26:49Z",
+    "updated_at": "2026-08-18T12:26:49Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": [
+          "1.5.0-rc.1"
+        ]
+      }
+    }
+  },
+  {
+    "name": "sha256:710d5de1c3b534da14fc3918710ef550076e200c2b0b7c9307b763bf0136b271",
+    "created_at": "2026-08-18T12:20:11Z",
+    "updated_at": "2026-08-18T12:20:11Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": []
+      }
+    }
+  },
+  {
+    "name": "sha256:333c0caa7fb91aa0ff3916cefaf5edfabc1a49fe9d4cd685471ae4f0ad09a841",
+    "created_at": "2026-06-25T17:44:36Z",
+    "updated_at": "2026-06-25T17:44:36Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": [
+          "1.4.0"
+        ]
+      }
+    }
+  }
+]

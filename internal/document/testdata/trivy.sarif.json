@@ -1,0 +1,135 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Trivy",
+          "rules": [
+            {
+              "id": "CVE-1",
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "security-severity": "9.8"
+              }
+            },
+            {
+              "id": "CVE-2",
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "security-severity": "7.5"
+              }
+            },
+            {
+              "id": "CVE-3",
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "security-severity": "5.0"
+              }
+            },
+            {
+              "id": "CVE-4",
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "properties": {
+                "security-severity": "2.1"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CVE-1",
+          "message": {
+            "text": "finding 1"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "lib/a"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2",
+          "level": "error",
+          "message": {
+            "text": "finding 2"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "lib/b"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-3",
+          "level": "warning",
+          "message": {
+            "text": "finding 3"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "lib/c"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-4",
+          "level": "note",
+          "message": {
+            "text": "finding 4"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "lib/d"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-3",
+          "level": "warning",
+          "message": {
+            "text": "finding 5"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "lib/e"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "security-severity": "3.0"
+          }
+        }
+      ]
+    }
+  ]
+}

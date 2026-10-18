@@ -1,0 +1,1190 @@
+openapi: 3.1.0
+info:
+  title: OCM Component Server
+  version: 0.1.0
+  description: |
+    Read access to OCM component versions. Discovery (listing, search, versions)
+    is answered from an index that `cmd/sync` builds; descriptors and resources
+    are read from OCM repositories at the location the index knows.
+
+    All component routes live under `/v1/components/{name}`. `{name}` is an OCM
+    component name and contains `/` (e.g. `ocm.software/ocmcli`). Clients send it
+    percent-encoded (`ocm.software%2Focmcli`); the server also accepts it raw.
+    Routing is right-anchored: fixed suffixes (`/versions`, `/descriptors/{version}`, `/overview/{version}`, `/attestations/{version}`,
+    `/attestations/{version}/{digest}`, `/images/{version}/{resource}`,
+    `/images/{version}/{resource}/{digest}`, `/resources/{version}/{resource}`) are matched from the right. Consequently the
+    overview of a component whose name ends in `/versions` is not addressable by
+    path (`/v1/components/a/versions` is the version list of `a`); use its
+    versions/descriptors routes.
+
+    `{version}` may be `latest` (the newest stable version by publish date); the
+    server answers with `307` to the concrete version's URL.
+
+    `?repository=` takes a location (`oci::host/path`, ocm CLI syntax) known to the
+    index or a repository of a configured resolver.
+
+    Without an index file the index-backed routes (and unpinned descriptor/resource
+    routes) answer `503 INDEX_UNAVAILABLE`.
+paths:
+  /healthz:
+    get:
+      operationId: getHealth
+      responses:
+        "200":
+          description: Server is alive.
+          content:
+            text/plain:
+              schema: {type: string}
+  /v1/:
+    get:
+      operationId: getBase
+      responses:
+        "200":
+          description: API version check (like OCI's `GET /v2/`).
+          content:
+            application/json:
+              schema: {type: object}
+  /v1/components:
+    get:
+      operationId: listComponents
+      parameters:
+        - {name: q, in: query, description: Case-insensitive substring of name or title., schema: {type: string}}
+        - $ref: "#/components/parameters/LocationFilter"
+        - $ref: "#/components/parameters/ConnectorFilter"
+        - {name: provider, in: query, schema: {type: string}}
+        - {name: category, in: query, description: Repeatable; all must match., style: form, explode: true, schema: {type: array, items: {type: string}}}
+        - {name: architecture, in: query, description: "Platform such as `linux/arm64`. Repeatable; all must match.", style: form, explode: true, schema: {type: array, items: {type: string}}}
+        - $ref: "#/components/parameters/IncludePrerelease"
+        - {name: updatedSince, in: query, description: RFC 3339; latest published at or after., schema: {type: string, format: date-time}}
+        - {name: topLevel, in: query, description: "Only components without a parent of the same family (same provider and name prefix).", schema: {type: boolean, default: false}}
+        - {name: replication, in: query, description: "`single`: components in one location; `replicated`: in two or more.", schema: {type: string, enum: [single, replicated]}}
+        - {name: sort, in: query, description: "`relevance`: components included by many others and top-level components bundling many first, then most recently updated.", schema: {type: string, enum: [relevance, updated, name], default: relevance}}
+        - $ref: "#/components/parameters/ListLimit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: A page of components with facets.
+          headers:
+            ETag: {$ref: "#/components/headers/ETag"}
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ComponentList"}
+        "304": {$ref: "#/components/responses/NotModified"}
+        default: {$ref: "#/components/responses/Error"}
+    head:
+      operationId: headComponents
+      parameters:
+        - {name: q, in: query, schema: {type: string}}
+        - $ref: "#/components/parameters/LocationFilter"
+        - {name: provider, in: query, schema: {type: string}}
+        - {name: category, in: query, style: form, explode: true, schema: {type: array, items: {type: string}}}
+        - {name: architecture, in: query, style: form, explode: true, schema: {type: array, items: {type: string}}}
+        - $ref: "#/components/parameters/IncludePrerelease"
+        - {name: updatedSince, in: query, schema: {type: string, format: date-time}}
+        - {name: topLevel, in: query, description: "Only components without a parent of the same family (same provider and name prefix).", schema: {type: boolean, default: false}}
+        - {name: replication, in: query, description: "`single`: components in one location; `replicated`: in two or more.", schema: {type: string, enum: [single, replicated]}}
+        - {name: sort, in: query, description: "`relevance`: components included by many others and top-level components bundling many first, then most recently updated.", schema: {type: string, enum: [relevance, updated, name], default: relevance}}
+        - $ref: "#/components/parameters/ListLimit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: Same headers as GET, no body.
+          headers:
+            ETag: {$ref: "#/components/headers/ETag"}
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+        "304": {$ref: "#/components/responses/NotModified"}
+        default: {description: Error (no body on HEAD).}
+  /v1/components/{name}:
+    get:
+      operationId: getComponent
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: Component overview.
+          headers:
+            ETag: {$ref: "#/components/headers/ETag"}
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Component"}
+        "304": {$ref: "#/components/responses/NotModified"}
+        default: {$ref: "#/components/responses/Error"}
+    head:
+      operationId: headComponent
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: Same headers as GET, no body.
+          headers:
+            ETag: {$ref: "#/components/headers/ETag"}
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+        "304": {$ref: "#/components/responses/NotModified"}
+        default: {description: Error (no body on HEAD).}
+  /v1/components/{name}/versions:
+    get:
+      operationId: listVersions
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/IncludePrerelease"
+        - {name: semverConstraint, in: query, description: "Masterminds syntax, e.g. `>=1.0.0, <2.0.0`; drops non-semver versions; filter only.", schema: {type: string}}
+        - $ref: "#/components/parameters/LocationFilter"
+        - $ref: "#/components/parameters/VersionsLimit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: Versions, newest published first.
+          headers:
+            ETag: {$ref: "#/components/headers/ETag"}
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/VersionList"}
+        "304": {$ref: "#/components/responses/NotModified"}
+        default: {$ref: "#/components/responses/Error"}
+    head:
+      operationId: headVersions
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/IncludePrerelease"
+        - {name: semverConstraint, in: query, schema: {type: string}}
+        - $ref: "#/components/parameters/LocationFilter"
+        - $ref: "#/components/parameters/VersionsLimit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: Same headers as GET, no body.
+          headers:
+            ETag: {$ref: "#/components/headers/ETag"}
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+        "304": {$ref: "#/components/responses/NotModified"}
+        default: {description: Error (no body on HEAD).}
+  /v1/components/{name}/descriptors/{version}:
+    get:
+      operationId: getDescriptor
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/Recursive"
+        - $ref: "#/components/parameters/Compact"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: Component descriptor (YAML by default, JSON via Accept); with recursive=-1 a list of located descriptors.
+          headers:
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+            ETag:
+              description: Strong ETag, the sha256 of the response body.
+              schema: {type: string}
+            Vary:
+              description: Always `Accept` (the encoding depends on it).
+              schema: {type: string}
+          content:
+            application/yaml:
+              schema: {$ref: "#/components/schemas/DescriptorOrLocatedList"}
+            application/json:
+              schema: {$ref: "#/components/schemas/DescriptorOrLocatedList"}
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {$ref: "#/components/responses/Error"}
+    head:
+      operationId: headDescriptor
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/Recursive"
+        - $ref: "#/components/parameters/Compact"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: Descriptor exists (same headers as GET, no body).
+          headers:
+            ETag: {schema: {type: string}}
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+            Vary: {schema: {type: string}}
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {description: Error (no body on HEAD).}
+  /v1/components/{name}/overview/{version}:
+    get:
+      operationId: getVersionOverview
+      description: |
+        Overview of one component version, read live from OCM (labels, signed,
+        contents). `latest` redirects (307) to the concrete version.
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: The overview.
+          headers:
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+            ETag:
+              description: Strong ETag, the sha256 of the response body.
+              schema: {type: string}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ComponentVersionOverview"}
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {$ref: "#/components/responses/Error"}
+    head:
+      operationId: headVersionOverview
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: Same headers as GET, no body.
+          headers:
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+            ETag: {description: Strong ETag., schema: {type: string}}
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {description: Error (no body on HEAD).}
+  /v1/components/{name}/attestations/{version}:
+    get:
+      operationId: getAttestations
+      description: |
+        Attestations (SBOM, SLSA, VEX, ...) found on one component version and its
+        OCI resources, as gathered by a sync (index only, no OCM call). Each sync
+        gathers each component's default version at its overview location; sets are
+        kept per version and location and looked up exactly at `?repository=`, which
+        a 200 therefore requires. Without it the route redirects (307) to the same
+        version with `?repository=` set to the location the other version routes
+        use; `latest` redirects (307) once to the concrete version, adding that
+        location if absent. Nothing stored at the location answers `404
+        NOT_COLLECTED` with `detail.collected` listing what exists. Nothing is
+        verified.
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: The attestation set.
+          headers:
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+            ETag:
+              description: Weak ETag of the index generation and the request.
+              schema: {type: string}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AttestationSet"}
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {$ref: "#/components/responses/Error"}
+    head:
+      operationId: headAttestations
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: Same headers as GET, no body.
+          headers:
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+            ETag: {description: Weak ETag., schema: {type: string}}
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {description: Error (no body on HEAD).}
+  /v1/components/{name}/attestations/{version}/{digest}:
+    get:
+      operationId: getAttestationContent
+      description: |
+        The document of one attestation of a stored set, found by its `digest`
+        (index lookup, then read from the registry or, for a label link, fetched
+        from the link, which must still hash to the digest the sync recorded).
+        In-toto statements are unwrapped to their predicate. `?repository=` and
+        `latest` behave as on `/attestations/{version}` (307). By default the bytes
+        are sent as an attachment; `as=document` answers the parsed `Document`.
+        A digest not in the set, an embedded SBOM (a resource) or an entry
+        without content answer `404 NOT_FOUND`, with nothing fetched. A label
+        link no longer on the allow list answers `403 DOCUMENT_NOT_ALLOWED`,
+        with nothing fetched. Nothing is verified.
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - $ref: "#/components/parameters/AttestationDigest"
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/As"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: The stored document, or with `as=document` the parsed `Document`.
+          headers:
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+            ETag:
+              description: Strong ETag, the sha256 of the response body.
+              schema: {type: string}
+            Content-Disposition:
+              description: "Without `as`: `attachment; filename=\"<first 12 hex of the digest>.json\"`."
+              schema: {type: string}
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/Document"
+                  - description: The stored document bytes.
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {$ref: "#/components/responses/Error"}
+    head:
+      operationId: headAttestationContent
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - $ref: "#/components/parameters/AttestationDigest"
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/As"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: Same headers as GET, no body.
+          headers:
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+            ETag: {description: Strong ETag., schema: {type: string}}
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {description: Error (no body on HEAD).}
+  /v1/components/{name}/resources/{version}/{resource}:
+    get:
+      operationId: getResource
+      description: |
+        Streams the resource content. Extra identity attributes are passed as
+        `extraIdentity.<key>=<value>` query parameters (e.g. `extraIdentity.arch=amd64`).
+        `as=document` reads the resource (at most 32 MiB) and answers the parsed
+        `Document` as `application/json` instead.
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - name: resource
+          in: path
+          required: true
+          schema: {type: string}
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/As"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: Resource content, or with `as=document` the parsed `Document`.
+          headers:
+            OCM-Resource-Digest:
+              description: |
+                The resource digest from the OCM component descriptor (e.g. `sha256:<hex>`),
+                when the descriptor carries one. For non-local access types (ociImage, helm,
+                wget, …) this is OCM's digest of the artifact (possibly normalised), not a
+                hash of the bytes served here.
+              schema: {type: string}
+            ETag:
+              description: |
+                Strong ETag; sent only when the served bytes are exactly the digested
+                artifact (localBlob resources), then equal to `OCM-Resource-Digest`.
+              schema: {type: string}
+            Content-Disposition: {schema: {type: string}}
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+          content:
+            "*/*":
+              schema: {}
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {$ref: "#/components/responses/Error"}
+    head:
+      operationId: headResource
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - name: resource
+          in: path
+          required: true
+          schema: {type: string}
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/As"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200": {description: Resource exists.}
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {description: Error (no body on HEAD).}
+  /v1/components/{name}/images/{version}/{resource}:
+    get:
+      operationId: getImageIndex
+      description: |
+        The platforms of the OCI image a resource names, read from its registry
+        (the children of an index, skipping attestation manifests, or the platform
+        of a single manifest). Extra identity attributes are passed as
+        `extraIdentity.<key>=<value>` query parameters, like on `/resources`.
+        `?repository=` and `latest` behave as there (`latest` answers 307). A
+        resource that is not an OCI image answers `422 NOT_OCI`; a registry that
+        cannot be read `502 UPSTREAM_ERROR`. Nothing is verified.
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - $ref: "#/components/parameters/ImageResource"
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: The image and its platforms.
+          headers:
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+            ETag: {description: Strong ETag., schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ImageIndex"}
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {$ref: "#/components/responses/Error"}
+    head:
+      operationId: headImageIndex
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - $ref: "#/components/parameters/ImageResource"
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: Same headers as GET, no body.
+          headers:
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+            ETag: {description: Strong ETag., schema: {type: string}}
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {description: Error (no body on HEAD).}
+  /v1/components/{name}/images/{version}/{resource}/{digest}:
+    get:
+      operationId: getImageDetails
+      description: |
+        One platform of an image: its manifest and config summarised. `digest` must
+        be one of the platform digests of `/images/{version}/{resource}`, otherwise
+        `404 NOT_FOUND`. With `raw=manifest` or `raw=config` the stored JSON is sent
+        instead, with its own media type. Other behaviour as on the platforms route.
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - $ref: "#/components/parameters/ImageResource"
+        - $ref: "#/components/parameters/ImageDigest"
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/Raw"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: The platform details, or with `raw` the manifest or config JSON.
+          headers:
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+            ETag: {description: Strong ETag., schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ImageDetails"}
+            application/vnd.oci.image.manifest.v1+json:
+              schema: {type: object, description: The stored manifest.}
+            application/vnd.oci.image.config.v1+json:
+              schema: {type: object, description: The stored image config.}
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {$ref: "#/components/responses/Error"}
+    head:
+      operationId: headImageDetails
+      parameters:
+        - $ref: "#/components/parameters/Name"
+        - $ref: "#/components/parameters/Version"
+        - $ref: "#/components/parameters/ImageResource"
+        - $ref: "#/components/parameters/ImageDigest"
+        - $ref: "#/components/parameters/Repository"
+        - $ref: "#/components/parameters/Raw"
+        - $ref: "#/components/parameters/IfNoneMatch"
+      responses:
+        "200":
+          description: Same headers as GET, no body.
+          headers:
+            Cache-Control: {$ref: "#/components/headers/CacheControl"}
+            ETag: {description: Strong ETag., schema: {type: string}}
+        "304": {$ref: "#/components/responses/NotModified"}
+        "307": {$ref: "#/components/responses/Redirect"}
+        default: {description: Error (no body on HEAD).}
+  /v1/discovery:
+    post:
+      operationId: discover
+      description: >-
+        Not implemented yet (always 501). Mirrors the `Discovery` resource of
+        delivery.ocm.software/v1alpha1: selectors over components and resources,
+        and either raw v2 descriptors or extracted records.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/DiscoveryRequest"}
+      responses:
+        "200":
+          description: Discovery result.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/DiscoveryResult"}
+        default: {$ref: "#/components/responses/Error"}
+components:
+  parameters:
+    Name:
+      name: name
+      in: path
+      required: true
+      description: OCM component name; contains `/`, send percent-encoded.
+      schema: {type: string}
+    Version:
+      name: version
+      in: path
+      required: true
+      description: OCM version, or `latest`.
+      schema: {type: string}
+    Repository:
+      name: repository
+      in: query
+      description: >-
+        Pin a location (ocm CLI syntax, e.g. `oci::ghcr.io/acme`): one known to the
+        index or a repository of a configured resolver.
+      schema: {type: string}
+    AttestationDigest:
+      name: digest
+      in: path
+      required: true
+      description: "Digest of an attestation entry, as listed in its set (e.g. `sha256:<hex>`)."
+      schema: {type: string}
+    ImageResource:
+      name: resource
+      in: path
+      required: true
+      description: Resource name; add `extraIdentity.<key>=<value>` query parameters to pick one of several with the same name.
+      schema: {type: string}
+    ImageDigest:
+      name: digest
+      in: path
+      required: true
+      description: "Digest of a platform manifest, as listed by the platforms route (e.g. `sha256:<hex>`)."
+      schema: {type: string}
+    Raw:
+      name: raw
+      in: query
+      description: "`manifest` or `config`: send the stored JSON instead of the summary."
+      schema: {type: string, enum: [manifest, config]}
+    As:
+      name: as
+      in: query
+      description: "`document`: answer the parsed `Document` (SBOM, VEX or SARIF) instead of the bytes."
+      schema: {type: string, enum: [document]}
+    Recursive:
+      name: recursive
+      in: query
+      description: >-
+        Like the ocm CLI's `--recursive`. `0` (default): this descriptor, as an object.
+        `-1`: an array with this descriptor and, recursively, every referenced component
+        version, each with the location it was read from: depth-first in
+        `componentReferences` order (the CLI's order), each `name:version` once.
+        Values above 0 are not implemented (400).
+      schema: {type: integer, minimum: -1, default: 0}
+    Compact:
+      name: compact
+      in: query
+      description: >-
+        `true`: trim each returned descriptor to what a component tree needs — `meta` and
+        `component.name`, `version`, `provider`, `labels`, `componentReferences`; `resources`,
+        `sources` and `repositoryContexts` are null, signatures omitted. The result is not a
+        complete OCM descriptor. Combine with `recursive=-1` to load a whole tree cheaply.
+      schema: {type: boolean, default: false}
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      schema: {type: string}
+    ListLimit:
+      name: limit
+      in: query
+      schema: {type: integer, minimum: 1, maximum: 200, default: 50}
+    VersionsLimit:
+      name: limit
+      in: query
+      schema: {type: integer, minimum: 1, maximum: 1000, default: 100}
+    Cursor:
+      name: cursor
+      in: query
+      description: Opaque; the `next` of the previous page.
+      schema: {type: string}
+    IncludePrerelease:
+      name: includePrerelease
+      in: query
+      description: Include pre-releases (alpha, beta, rc, … — see versions.prereleaseMarkers).
+      schema: {type: boolean, default: false}
+    LocationFilter:
+      name: location
+      in: query
+      description: Repeatable; a location such as `oci::ghcr.io/open-component-model`.
+      style: form
+      explode: true
+      schema: {type: array, items: {type: string}}
+    ConnectorFilter:
+      name: connector
+      in: query
+      description: "Repeatable; a source key (`github:enterprise:neonephos`) or an owner key (`github:org:open-component-model`). Several match any."
+      style: form
+      explode: true
+      schema: {type: array, items: {type: string}}
+  responses:
+    NotModified:
+      description: The representation matches If-None-Match (no body).
+      headers:
+        ETag: {$ref: "#/components/headers/ETag"}
+        Cache-Control: {$ref: "#/components/headers/CacheControl"}
+        Vary: {schema: {type: string}}
+    Error:
+      description: Error in the OCI error envelope.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/ErrorResponse"}
+    Redirect:
+      description: "`latest` resolved to a concrete version."
+      headers:
+        Location: {schema: {type: string}}
+        Cache-Control: {$ref: "#/components/headers/CacheControl"}
+  headers:
+    ETag:
+      description: >-
+        Validator; send it back in If-None-Match to get 304. Index routes send a weak
+        ETag (`W/"<index generation>-<hash of the request>"`).
+      schema: {type: string}
+    CacheControl:
+      description: "`no-cache` on successful responses (revalidate with the ETag), `no-store` on errors."
+      schema: {type: string}
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [errors]
+      properties:
+        errors:
+          type: array
+          items: {$ref: "#/components/schemas/ErrorItem"}
+    ErrorCode:
+      type: string
+      enum: [NAME_INVALID, REPOSITORY_INVALID, REPOSITORY_NOT_ALLOWED, PARAMETER_INVALID,
+             COMPONENT_UNKNOWN, VERSION_UNKNOWN, RESOURCE_UNKNOWN, NOT_FOUND,
+             METHOD_NOT_ALLOWED, NOT_ACCEPTABLE, RESOURCE_AMBIGUOUS, INTERNAL_ERROR,
+             ACCESS_TYPE_UNSUPPORTED, NOT_IMPLEMENTED, UPSTREAM_ERROR, UPSTREAM_TIMEOUT,
+             INDEX_UNAVAILABLE, NOT_COLLECTED, UNSUPPORTED_DOCUMENT, DOCUMENT_TOO_LARGE,
+             DOCUMENT_CHANGED, DOCUMENT_NOT_ALLOWED, NOT_OCI]
+      description: |
+        `UNSUPPORTED_DOCUMENT` (422): not a recognised SBOM, VEX or SARIF document.
+        `DOCUMENT_TOO_LARGE` (422): over 32 MiB. `DOCUMENT_CHANGED` (409): a label
+        link no longer serves the document the sync recorded (`detail.url`).
+        `DOCUMENT_NOT_ALLOWED` (403): a label link's URL is not on the hub's
+        `documents.allow` list (`detail.url`); nothing is fetched.
+        `NOT_OCI` (422): the resource is not an OCI image. On the image routes
+        `NOT_FOUND` also means the digest is not a platform of the image.
+    ResourceIdentity:
+      type: object
+      required: [name]
+      properties:
+        name: {type: string}
+        version: {type: string}
+        extraIdentity: {type: object, additionalProperties: {type: string}}
+    AttestationEntry:
+      type: object
+      required: [kind, how, signed]
+      properties:
+        kind: {type: string, enum: [slsa, sbom, vex, cve, fips, stig, secrets, virus, sources, other]}
+        format: {type: string, description: "e.g. `CycloneDX 1.6`."}
+        type: {type: string, description: Raw predicate, artifact or media type.}
+        how: {type: string, enum: [embedded, referrer, cosignTag, buildx, labelLink]}
+        platform: {type: string}
+        signed: {type: string, enum: [signed, component, no], description: What covers the attestation; nothing is verified.}
+        digest: {type: string}
+        resource: {$ref: "#/components/schemas/ResourceIdentity"}
+        url: {type: string, description: Link from a label.}
+        buildLevel: {type: integer, description: "SLSA build level a slsa entry claims (from a verification summary or a known builder); not verified."}
+        builder: {type: string, description: SLSA provenance builder id.}
+        label: {type: string, description: Label name a labelLink entry came from.}
+        summary: {$ref: "#/components/schemas/AttestationSummary"}
+    AttestationSummary:
+      type: object
+      description: Counts read from the attestation document; zero counts are omitted.
+      required: [format]
+      properties:
+        format: {type: string}
+        tool: {type: string}
+        importantBasis: {type: string, description: What `importantFindings` counts, e.g. `security-severity`.}
+        packages: {type: integer}
+        statements: {type: integer}
+        affected: {type: integer}
+        findings: {type: integer}
+        importantFindings: {type: integer}
+    AttestationLevel:
+      type: object
+      description: The component (no `resource`) or one OCI resource.
+      required: [status, entries]
+      properties:
+        resource: {$ref: "#/components/schemas/ResourceIdentity"}
+        status: {type: string, enum: [ok, failed, notOci]}
+        error: {type: string}
+        entries: {type: array, items: {$ref: "#/components/schemas/AttestationEntry"}}
+    AttestationSet:
+      type: object
+      required: [name, version, repository, checkedAt, levels]
+      properties:
+        name: {type: string}
+        version: {type: string}
+        repository: {type: string, description: "Location gathered from, `oci::host/path`."}
+        checkedAt: {type: string, format: date-time}
+        levels: {type: array, items: {$ref: "#/components/schemas/AttestationLevel"}}
+    ImageIndex:
+      type: object
+      description: An OCI image and the platforms it offers.
+      required: [repository, digest, mediaType, platforms]
+      properties:
+        repository: {type: string}
+        digest: {type: string}
+        mediaType: {type: string}
+        platforms: {type: array, items: {$ref: "#/components/schemas/ImagePlatform"}}
+    ImagePlatform:
+      type: object
+      required: [platform, digest]
+      properties:
+        platform: {type: string, description: "`os/arch[/variant]`; empty for a single manifest whose config lacks os or arch."}
+        digest: {type: string, description: Digest of the platform manifest.}
+    ImageDetails:
+      type: object
+      description: One platform of an image, from its manifest and config.
+      required: [digest, platform, size, layers]
+      properties:
+        digest: {type: string}
+        platform: {type: string}
+        size: {type: integer, format: int64, description: "Config plus layers, compressed bytes."}
+        created: {type: string}
+        user: {type: string}
+        workingDir: {type: string}
+        entrypoint: {type: array, items: {type: string}}
+        cmd: {type: array, items: {type: string}}
+        exposedPorts: {type: array, items: {type: string}}
+        env: {type: array, items: {type: string}}
+        labels: {type: object, additionalProperties: {type: string}}
+        layers: {type: array, items: {$ref: "#/components/schemas/ImageLayer"}}
+    ImageLayer:
+      type: object
+      required: [digest, size]
+      properties:
+        digest: {type: string}
+        size: {type: integer, format: int64}
+        createdBy: {type: string}
+    Document:
+      type: object
+      description: A parsed SBOM, VEX or SARIF document; exactly one of `sbom`, `vex` and `sarif` is set. Nothing is verified.
+      required: [format]
+      properties:
+        format: {type: string, description: "e.g. `CycloneDX 1.6`, `OpenVEX`, `SARIF 2.1.0`."}
+        sbom: {$ref: "#/components/schemas/DocumentSBOM"}
+        vex: {$ref: "#/components/schemas/DocumentVEX"}
+        sarif: {$ref: "#/components/schemas/DocumentSARIF"}
+    DocumentSBOM:
+      type: object
+      required: [packages]
+      properties:
+        packages: {type: array, items: {$ref: "#/components/schemas/SBOMPackage"}}
+    SBOMPackage:
+      type: object
+      required: [name]
+      properties:
+        name: {type: string}
+        version: {type: string}
+        license: {type: string}
+        type: {type: string, description: "Package URL type, e.g. `npm`."}
+    DocumentVEX:
+      type: object
+      required: [statements]
+      properties:
+        statements: {type: array, items: {$ref: "#/components/schemas/VEXStatement"}}
+    VEXStatement:
+      type: object
+      required: [vulnerability, products, status]
+      properties:
+        vulnerability: {type: string}
+        products: {type: array, items: {type: string}}
+        status: {type: string}
+        justification: {type: string}
+        action: {type: string}
+    DocumentSARIF:
+      type: object
+      required: [tool, importantBasis, findings]
+      properties:
+        tool: {type: string}
+        importantBasis: {type: string, description: "`security-severity` when any finding has a score, else `level`."}
+        findings: {type: array, items: {$ref: "#/components/schemas/SARIFFinding"}}
+    SARIFFinding:
+      type: object
+      required: [rule, message]
+      properties:
+        rule: {type: string}
+        severity: {type: string}
+        level: {type: string}
+        location: {type: string}
+        message: {type: string}
+    ErrorItem:
+      type: object
+      required: [code, message, detail]
+      properties:
+        code: {$ref: "#/components/schemas/ErrorCode"}
+        message: {type: string}
+        detail:
+          type: object
+          additionalProperties: true
+    FacetValue:
+      type: object
+      required: [value, count]
+      properties:
+        value: {type: string}
+        count: {type: integer}
+    ConnectorFacet:
+      type: object
+      required: [key, title, type, count, groups]
+      properties:
+        key: {type: string, description: "Source key, e.g. `github:org:open-component-model`."}
+        title: {type: string}
+        type: {type: string, description: "Connector type, e.g. `github/v1`."}
+        avatarUrl: {type: string, description: Owner avatar; absent if unknown.}
+        count: {type: integer}
+        groups: {type: array, items: {$ref: "#/components/schemas/GroupFacet"}, description: "Owners below this source (e.g. an enterprise's orgs), by count."}
+    GroupFacet:
+      type: object
+      required: [key, title, count]
+      properties:
+        key: {type: string, description: "Owner key, e.g. `github:org:open-component-model`."}
+        title: {type: string}
+        avatarUrl: {type: string}
+        count: {type: integer}
+    SourceGroup:
+      type: object
+      required: [key, title, locations]
+      properties:
+        key: {type: string}
+        title: {type: string}
+        avatarUrl: {type: string}
+        locations: {type: array, items: {type: string}}
+    Facets:
+      type: object
+      required: [connectors, providers, categories, architectures, replication]
+      properties:
+        connectors: {type: array, items: {$ref: "#/components/schemas/ConnectorFacet"}, description: Sources in hub.yaml order; sources without components are left out.}
+        providers: {type: array, items: {$ref: "#/components/schemas/FacetValue"}}
+        categories: {type: array, items: {$ref: "#/components/schemas/FacetValue"}}
+        architectures: {type: array, items: {$ref: "#/components/schemas/FacetValue"}, description: Platforms of the default versions (descriptor and image platforms read by the sync).}
+        replication: {type: array, items: {$ref: "#/components/schemas/FacetValue"}, description: "`single` and `replicated` (see the `replication` filter); values without components are left out."}
+    ComponentSummary:
+      type: object
+      required: [name, title, versionCount, locations, signed, defaultVersion]
+      properties:
+        name: {type: string}
+        latest: {type: string, description: Newest stable version by publish date; absent if none.}
+        latestPublishedAt: {type: string, format: date-time}
+        title: {type: string, description: "Label `catalog.chrisschneider.dev/title`; falls back to the name."}
+        description: {type: string}
+        icon: {type: string, description: "An https or data URL, or `lucide/<name>`."}
+        categories: {type: array, items: {type: string}}
+        provider: {type: string}
+        versionCount: {type: integer}
+        locations: {type: array, items: {type: string}}
+        signed: {type: boolean, description: The default version carries at least one signature (not verified).}
+        defaultVersion: {type: string, description: "The version shown by default: `latest`, or the newest pre-release when there is no stable version."}
+        ownerAvatarUrl: {type: string, description: "Avatar of the GitHub org hosting the component (never a personal account); the UI shows it when there is no icon."}
+    ComponentList:
+      type: object
+      required: [components, total, facets]
+      properties:
+        components: {type: array, items: {$ref: "#/components/schemas/ComponentSummary"}}
+        next: {type: string, description: Cursor of the next page; absent on the last page.}
+        total: {type: integer, description: Components matching the filters over all pages.}
+        facets: {$ref: "#/components/schemas/Facets"}
+    LocationSummary:
+      type: object
+      required: [repository, versionCount]
+      properties:
+        repository: {type: string}
+        latest: {type: string}
+        versionCount: {type: integer}
+    Source:
+      type: object
+      required: [key, title, type, locations, groups]
+      properties:
+        key: {type: string}
+        title: {type: string}
+        type: {type: string}
+        avatarUrl: {type: string}
+        locations: {type: array, items: {type: string}, description: Where this source found the component.}
+        groups: {type: array, items: {$ref: "#/components/schemas/SourceGroup"}}
+    Component:
+      type: object
+      required: [name, title, versionCount, locations, sources, links, signed, defaultVersion, referencedBy, referencedByCount]
+      properties:
+        name: {type: string}
+        latest: {type: string}
+        latestPublishedAt: {type: string, format: date-time}
+        title: {type: string}
+        description: {type: string}
+        icon: {type: string}
+        categories: {type: array, items: {type: string}}
+        provider: {type: string}
+        versionCount: {type: integer}
+        locations: {type: array, items: {$ref: "#/components/schemas/LocationSummary"}}
+        sources: {type: array, items: {$ref: "#/components/schemas/Source"}, description: Sources that found the component, in hub.yaml order.}
+        links: {$ref: "#/components/schemas/ComponentLinks"}
+        signed: {type: boolean}
+        defaultVersion: {type: string, description: "The version shown by default: `latest`, or the newest pre-release when there is no stable version."}
+        referencedBy: {type: array, maxItems: 50, items: {$ref: "#/components/schemas/ParentRef"}, description: "Parents: components whose latest version references this one, by name."}
+        referencedByCount: {type: integer}
+        ownerAvatarUrl: {type: string, description: "Avatar of the GitHub org hosting the component (never a personal account); the UI shows it when there is no icon."}
+    ParentRef:
+      type: object
+      required: [name, title]
+      properties:
+        name: {type: string}
+        title: {type: string}
+        latest: {type: string}
+    ComponentVersionOverview:
+      type: object
+      required: [name, version, repository, title, signed, responsibles, docs, contents, architectures, imagePlatformsRead, resources, references, sources, signatures]
+      properties:
+        name: {type: string}
+        version: {type: string}
+        repository: {type: string, description: Location the descriptor was read from.}
+        title: {type: string, description: "Label `catalog.chrisschneider.dev/title`; falls back to the name."}
+        description: {type: string}
+        icon: {type: string}
+        categories: {type: array, items: {type: string}}
+        provider: {type: string}
+        signed: {type: boolean, description: At least one signature (not verified).}
+        publishedAt: {type: string, format: date-time, description: Earliest publish time of this version across indexed locations; absent when the index does not know it.}
+        kubernetes: {$ref: "#/components/schemas/KubernetesCompatibility"}
+        storage: {type: array, items: {$ref: "#/components/schemas/StorageNeed"}, description: "Volumes it needs (label `catalog.chrisschneider.dev/compatibility`), in label order; absent when none are declared."}
+        responsibles: {type: array, items: {$ref: "#/components/schemas/Responsible"}}
+        riskProfile: {$ref: "#/components/schemas/RiskProfile"}
+        docs: {type: array, items: {$ref: "#/components/schemas/DocLink"}}
+        contents: {$ref: "#/components/schemas/ContentsSummary"}
+        architectures:
+          type: array
+          description: "Platforms from the resources' extra identity (`os`/`architecture`) and from the image platforms read live, sorted by platform."
+          items: {$ref: "#/components/schemas/Architecture"}
+        imagePlatformsRead: {type: boolean, description: "Every OCI image's platforms were read; false when a read failed or timed out, or no registry is configured."}
+        resources:
+          type: array
+          description: The component version's resources as in the OCM v2 descriptor (descriptor order).
+          items: {$ref: "#/components/schemas/Resource"}
+        references:
+          type: array
+          description: The component version's component references as in the OCM v2 descriptor (descriptor order).
+          items: {$ref: "#/components/schemas/ComponentReference"}
+        sources:
+          type: array
+          description: The component version's sources as in the OCM v2 descriptor (e.g. the git repository and commit it was built from).
+          items: {$ref: "#/components/schemas/ComponentSource"}
+        signatures:
+          type: array
+          description: The descriptor's signatures as in the OCM v2 descriptor (not verified).
+          items: {$ref: "#/components/schemas/Signature"}
+    Architecture:
+      type: object
+      required: [platform, from]
+      properties:
+        platform: {type: string, description: "`os/architecture[/variant]`, or the architecture alone."}
+        from: {type: array, items: {type: string, enum: [ocm, image]}, description: "Where the platform was seen, sorted."}
+    KubernetesCompatibility:
+      type: object
+      required: [constraint, versions, distributions]
+      properties:
+        constraint: {type: string, description: Semver constraint from the label.}
+        versions: {type: array, items: {type: string}, description: Known Kubernetes minors the constraint admits.}
+        distributions: {type: array, items: {type: string}}
+    StorageNeed:
+      type: object
+      required: [accessMode, volumeMode]
+      properties:
+        accessMode: {type: string, enum: [RWO, RWX, ROX, RWOP], description: "Kubernetes access mode (ReadWriteOnce, ReadWriteMany, ReadOnlyMany, ReadWriteOncePod)."}
+        volumeMode: {type: string, enum: [Filesystem, Block]}
+        purpose: {type: string}
+    Responsible:
+      type: object
+      required: [type]
+      properties:
+        type: {type: string, enum: [githubUser, githubTeam, codeowners]}
+        username: {type: string}
+        teamname: {type: string, description: org/team}
+        githubHostname: {type: string}
+    RiskProfile:
+      type: object
+      properties:
+        networkExposure: {type: string, enum: [private, protected, public]}
+        authenticationEnforced: {type: boolean}
+        userInteraction: {type: string, enum: [operator, end-user]}
+        confidentialityRequirement: {type: string, enum: [none, low, high]}
+        integrityRequirement: {type: string, enum: [none, low, high]}
+        availabilityRequirement: {type: string, enum: [none, low, high]}
+        comment: {type: string}
+    DocLink:
+      type: object
+      required: [title, url]
+      properties:
+        title: {type: string}
+        url: {type: string, format: uri}
+        kind: {type: string, enum: [docs, api, tutorial, issues, website]}
+    ContentsSummary:
+      type: object
+      required: [resources, references]
+      properties:
+        resources: {type: array, items: {$ref: "#/components/schemas/TypeCount"}}
+        references: {type: integer}
+    TypeCount:
+      type: object
+      required: [type, count]
+      properties:
+        type: {type: string}
+        count: {type: integer}
+    Resource:
+      x-go-type: descriptorv2.Resource
+      x-go-type-import: {name: descriptorv2, path: ocm.software/open-component-model/bindings/go/descriptor/v2}
+      type: object
+      description: OCM v2 resource (ocm-spec, component descriptor `resources[]`).
+      required: [name, version, type, relation, access]
+      properties:
+        name: {type: string}
+        version: {type: string}
+        extraIdentity: {type: object, additionalProperties: {type: string}}
+        labels: {type: array, items: {type: object, additionalProperties: true}}
+        srcRefs: {type: array, items: {type: object, additionalProperties: true}}
+        type: {type: string}
+        relation: {type: string, enum: [local, external]}
+        access: {type: object, additionalProperties: true}
+        digest: {$ref: "#/components/schemas/Digest"}
+    ComponentSource:
+      x-go-type: descriptorv2.Source
+      x-go-type-import: {name: descriptorv2, path: ocm.software/open-component-model/bindings/go/descriptor/v2}
+      type: object
+      description: OCM v2 source (ocm-spec, component descriptor `sources[]`).
+      required: [name, version, type, access]
+      properties:
+        name: {type: string}
+        version: {type: string}
+        extraIdentity: {type: object, additionalProperties: {type: string}}
+        labels: {type: array, items: {type: object, additionalProperties: true}}
+        type: {type: string}
+        access: {type: object, additionalProperties: true}
+    ComponentReference:
+      x-go-type: descriptorv2.Reference
+      x-go-type-import: {name: descriptorv2, path: ocm.software/open-component-model/bindings/go/descriptor/v2}
+      type: object
+      description: OCM v2 component reference (ocm-spec, component descriptor `componentReferences[]`).
+      required: [name, version, componentName]
+      properties:
+        name: {type: string}
+        version: {type: string}
+        extraIdentity: {type: object, additionalProperties: {type: string}}
+        labels: {type: array, items: {type: object, additionalProperties: true}}
+        componentName: {type: string}
+        digest: {$ref: "#/components/schemas/Digest"}
+    Signature:
+      x-go-type: descriptorv2.Signature
+      x-go-type-import: {name: descriptorv2, path: ocm.software/open-component-model/bindings/go/descriptor/v2}
+      type: object
+      description: OCM v2 signature (ocm-spec, component descriptor `signatures[]`).
+      required: [name, digest, signature]
+      properties:
+        name: {type: string}
+        digest: {$ref: "#/components/schemas/Digest"}
+        signature:
+          type: object
+          required: [algorithm, value, mediaType]
+          properties:
+            algorithm: {type: string}
+            value: {type: string}
+            mediaType: {type: string}
+            issuer: {type: string}
+    Digest:
+      x-go-type: descriptorv2.Digest
+      x-go-type-import: {name: descriptorv2, path: ocm.software/open-component-model/bindings/go/descriptor/v2}
+      type: object
+      required: [hashAlgorithm, normalisationAlgorithm, value]
+      properties:
+        hashAlgorithm: {type: string}
+        normalisationAlgorithm: {type: string}
+        value: {type: string}
+    ComponentLinks:
+      type: object
+      required: [versions]
+      properties:
+        versions: {type: string}
+        latest: {type: string}
+    VersionEntry:
+      type: object
+      required: [version, publishedAt, stable, locations]
+      properties:
+        version: {type: string}
+        publishedAt: {type: string, format: date-time}
+        stable: {type: boolean}
+        locations: {type: array, items: {type: string}}
+        hasChangelog: {type: boolean, description: "Whether the version has a changelog resource; absent: unknown."}
+    VersionList:
+      type: object
+      required: [name, versions]
+      properties:
+        name: {type: string}
+        versions: {type: array, items: {$ref: "#/components/schemas/VersionEntry"}}
+        next: {type: string}
+    LocatedDescriptor:
+      type: object
+      required: [location, descriptor]
+      properties:
+        location: {type: string, description: Where the descriptor was read; differs from the root's when a resolver found it elsewhere.}
+        descriptor: {$ref: "#/components/schemas/Descriptor"}
+    DescriptorOrLocatedList:
+      description: A descriptor, or with `recursive=-1` a list of located descriptors.
+      oneOf:
+        - $ref: "#/components/schemas/Descriptor"
+        - {type: array, items: {$ref: "#/components/schemas/LocatedDescriptor"}}
+    Selector:
+      type: object
+      properties:
+        matchIdentity: {type: object, additionalProperties: {type: string}}
+        matchLabels: {type: object, additionalProperties: {type: string}}
+        expression: {type: string, description: CEL; reserved, not supported yet.}
+    Extract:
+      type: object
+      description: Exactly one mode.
+      properties:
+        byComponents: {type: object, additionalProperties: {type: string}}
+        byResources: {type: object, additionalProperties: {type: string}}
+        expression: {type: string}
+    DiscoveryRequest:
+      type: object
+      properties:
+        componentSelector: {$ref: "#/components/schemas/Selector"}
+        resourceSelector: {$ref: "#/components/schemas/Selector"}
+        extract: {$ref: "#/components/schemas/Extract"}
+    DiscoveryResult:
+      type: object
+      description: Exactly one of components or extracted.
+      properties:
+        components: {type: array, items: {$ref: "#/components/schemas/Descriptor"}}
+        extracted: {type: array, items: {type: object, additionalProperties: true}}
+    Descriptor:
+      type: object
+      description: OCM component descriptor, schema version v2 (see ocm.software).
+      additionalProperties: true

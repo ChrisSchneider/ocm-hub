@@ -1,0 +1,87 @@
+[
+  {
+    "name": "sha256:7935d2f7c57a19dfa8d44e3a8e0f83296bcacf7f9043ffad18137ef3f63c21bc",
+    "created_at": "2026-09-30T14:21:07Z",
+    "updated_at": "2026-09-30T14:21:07Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": [
+          "2.0.0"
+        ]
+      }
+    }
+  },
+  {
+    "name": "sha256:4aa3e1ee97c5373f81777bb7bb467f62260332c4be96fd8e057d38f31e35363f",
+    "created_at": "2026-09-29T09:12:44Z",
+    "updated_at": "2026-09-29T09:12:44Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": []
+      }
+    }
+  },
+  {
+    "name": "sha256:a8273fe4e6be3a60616f6e7f036e0a137af54742b937b17e252c23302c2ddf8a",
+    "created_at": "2026-09-12T16:03:51Z",
+    "updated_at": "2026-09-12T16:03:51Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": [
+          "1.5.0"
+        ]
+      }
+    }
+  },
+  {
+    "name": "sha256:b4fc98a3614ba5797780ddd7a0d6aa573eb3e986d067d75cf87557909d54463f",
+    "created_at": "2026-09-12T15:48:20Z",
+    "updated_at": "2026-09-12T15:48:20Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": []
+      }
+    }
+  },
+  {
+    "name": "sha256:258887f6080615e7bcf0d13459fe438d89c0ae30de71a1d1b5255eb2af03b813",
+    "created_at": "2026-08-20T08:30:12Z",
+    "updated_at": "2026-08-20T08:30:12Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": [
+          "1.5.0-rc.1"
+        ]
+      }
+    }
+  },
+  {
+    "name": "sha256:dbc0bacfb2fe3cd4cf07ca2d90c38d31946c8689284c8f23561e320e4894e7e3",
+    "created_at": "2026-07-02T11:17:39Z",
+    "updated_at": "2026-07-02T11:17:39Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": [
+          "1.4.0"
+        ]
+      }
+    }
+  },
+  {
+    "name": "sha256:ae1889e77339e26cdea0a590bd1f19de9ce5d0abe4c770086824fa4c7529f85f",
+    "created_at": "2026-07-02T10:59:03Z",
+    "updated_at": "2026-07-02T10:59:03Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": []
+      }
+    }
+  }
+]

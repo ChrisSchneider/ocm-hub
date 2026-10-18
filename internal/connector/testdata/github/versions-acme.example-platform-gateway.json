@@ -1,0 +1,59 @@
+[
+  {
+    "name": "sha256:0aa4b8a9855fcc651f265e5948841a34e2819ea1087ca7ee9c388a75ea0e3e5b",
+    "created_at": "2026-06-17T05:38:29Z",
+    "updated_at": "2026-06-17T05:38:29Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": [
+          "2.0.0"
+        ]
+      }
+    }
+  },
+  {
+    "name": "sha256:7d42f09798df9dd228c364c48d068fb06d13a1531b304e20a4dacf34e9085a4d",
+    "created_at": "2026-06-16T15:56:27Z",
+    "updated_at": "2026-06-16T15:56:27Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": []
+      }
+    }
+  },
+  {
+    "name": "sha256:d499f9971d05901e9b8d610fe9320c8b6d878943e814342ec63685bc50f630a9",
+    "created_at": "2026-06-15T07:06:14Z",
+    "updated_at": "2026-06-15T07:06:14Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": []
+      }
+    }
+  },
+  {
+    "name": "sha256:9d1481d803b1321c7db3a5130ccf90792e3fdbb052413f86c37ae529b1672c06",
+    "created_at": "2026-06-12T07:44:22Z",
+    "updated_at": "2026-06-12T07:44:22Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": []
+      }
+    }
+  },
+  {
+    "name": "sha256:3270f71b05a6870e2ae81ebaa9fe6ce2e0e2470b6ef61b2e58f770be6e73dd43",
+    "created_at": "2026-06-11T17:10:32Z",
+    "updated_at": "2026-06-11T17:10:32Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": []
+      }
+    }
+  }
+]

@@ -1,0 +1,15 @@
+[
+  {
+    "name": "sha256:8a6b057794e2b6570a0887b52b2c88668475eb59bced841e46c25499e11ad1d9",
+    "created_at": "2024-04-12T14:05:42Z",
+    "updated_at": "2024-04-12T14:05:42Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": [
+          "1.0.0"
+        ]
+      }
+    }
+  }
+]

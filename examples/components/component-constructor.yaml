@@ -1,0 +1,125 @@
+# Example component for the OCM Hub overview (see README.md here).
+components:
+  - name: github.com/chrisschneider/example-with-opencode-images
+    version: ${VERSION}
+    provider:
+      name: chrisschneider
+    labels:
+      - name: catalog.chrisschneider.dev/title
+        value: Example with openCode Images
+      - name: catalog.chrisschneider.dev/description
+        value: Example with hardened images (Alpine, Python) from the openCode OCI community registry
+      - name: catalog.chrisschneider.dev/icon
+        value: lucide/container
+      - name: catalog.chrisschneider.dev/categories
+        value: [example]
+      - name: catalog.chrisschneider.dev/compatibility
+        version: v1
+        value:
+          kubernetes:
+            constraint: ">=1.28 <${K8S_MAX}, !=1.30"
+            distributions: [gardener, eks, gke]
+          storage:
+            - accessMode: RWX
+              volumeMode: Filesystem
+              purpose: shared package cache
+            - accessMode: RWO
+              volumeMode: Block
+              purpose: build scratch volume
+      - name: catalog.chrisschneider.dev/docs
+        version: v1
+        value:
+          - title: Documentation
+            url: https://opencode.de/en/software
+            kind: docs
+          - title: OCM Hub REST API
+            url: https://github.com/ChrisSchneider/ocm-hub/blob/main/api/openapi.yaml
+            kind: api
+          - title: Publishing this example
+            url: https://github.com/ChrisSchneider/ocm-hub/blob/main/examples/components/README.md
+            kind: tutorial
+          - title: Issues
+            url: https://github.com/ChrisSchneider/ocm-hub/issues
+            kind: issues
+          - title: openCode
+            url: https://opencode.de
+            kind: website
+      - name: odg.ocm.software/responsibles
+        version: v1
+        value:
+          - type: githubUser
+            username: chrisschneider
+          - type: codeowners
+      - name: security.ocm.software/risk-profile
+        version: v1
+        value:
+          network_exposure: protected
+          authentication_enforced: true
+          user_interaction: operator
+          confidentiality_requirement: low
+          integrity_requirement: high
+          availability_requirement: low
+          comment: Base images; the risk depends on the workload built on top.
+      - name: catalog.chrisschneider.dev/vex          # component labels
+        version: v1
+        value:
+          url: https://security.access.redhat.com/data/csaf/v2/vex/
+    sources:                                          # the source link on the SLSA provenance & sources row
+      - name: source
+        type: git
+        version: ${VERSION}
+        access:
+          type: gitHub
+          repoUrl: https://github.com/ChrisSchneider/ocm-hub
+          commit: ${SOURCE_COMMIT}
+    resources:
+      - name: alpine
+        type: ociImage
+        version: 3.24.0
+        access:
+          type: OCIImage/v1
+          imageReference: registry.opencode.de/oci-community/images/auswaertiges-amt/alpine:3.24.0@sha256:ae5a9d917eaa3915633ad7b5486adb7b3770caa546c43cc15166d1b5fbaf5267
+      - name: python3
+        type: ociImage
+        version: 3.14-minimal
+        access:
+          type: OCIImage/v1
+          imageReference: registry.opencode.de/oci-community/images/zendis/python3:3.14-minimal@sha256:65ef8fbd0a6cb0736b93c266f587b37558299872700ab4f036a407ec234057da
+        labels:
+          - name: catalog.chrisschneider.dev/vex
+            version: v1
+            value:
+              url: "https://api.devguard.opencode.de/api/v1/public/edbe3483-e769-424c-bd25-b88b44164715/refs/oc-13/artifacts/pkg%3Aoci%2Fpython3%3Frepository_url%3Dregistry.opencode.de%2Foci-community%2Fimages%2Fzendis%2Fpython3%26arch%3Damd64%26tag%3D3.10-oc.13-amd64/vex.json/"
+      - name: changelog
+        type: changelog
+        input:
+          type: File/v1
+          path: ./CHANGELOG-${VERSION}.md
+          mediaType: text/markdown
+      - name: docs
+        type: documentation
+        version: ${VERSION}
+        input:
+          type: File/v1
+          path: ./docs/README.md
+          mediaType: text/markdown
+      - name: alpine-sbom
+        type: sbom
+        version: 3.24.0
+        labels:
+          - name: ocm.software/artifact-references
+            version: v1
+            value:
+              - identity:
+                  name: alpine
+        input:
+          type: File/v1
+          path: ./sbom/alpine.cdx.json
+          mediaType: application/vnd.cyclonedx+json
+      - name: component-sbom
+        type: sbom
+        version: ${VERSION}
+        input:
+          type: File/v1
+          path: ./sbom/component.spdx.json
+          mediaType: application/spdx+json

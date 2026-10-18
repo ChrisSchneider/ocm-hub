@@ -1,0 +1,10 @@
+{
+  "@context": "https://openvex.dev/ns",
+  "@id": "https://example.com/vex/legacy",
+  "author": "Example",
+  "timestamp": "2022-01-01T00:00:00Z",
+  "version": "1",
+  "statements": [
+    {"vulnerability": "CVE-2022-0001", "products": ["pkg:apk/alpine/zlib@1.2"], "status": "not_affected", "justification": "component_not_present"}
+  ]
+}

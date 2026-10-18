@@ -1,0 +1,33 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:3e671687-395b-41f5-a30f-a58921a69b79",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-17T00:00:00Z",
+    "component": {
+      "type": "container",
+      "bom-ref": "alpine-3.24.0",
+      "name": "alpine",
+      "version": "3.24.0"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:apk/alpine/musl@1.2.5-r10",
+      "name": "musl",
+      "version": "1.2.5-r10",
+      "purl": "pkg:apk/alpine/musl@1.2.5-r10",
+      "licenses": [{ "license": { "id": "MIT" } }]
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:apk/alpine/busybox@1.37.0-r20",
+      "name": "busybox",
+      "version": "1.37.0-r20",
+      "purl": "pkg:apk/alpine/busybox@1.37.0-r20",
+      "licenses": [{ "license": { "id": "GPL-2.0-only" } }]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+[
+  {
+    "name": "web",
+    "package_type": "container",
+    "visibility": "public",
+    "updated_at": "2026-08-13T11:58:09Z"
+  },
+  {
+    "name": "ocm/component-descriptors/acme.example/tools/installer",
+    "package_type": "container",
+    "visibility": "public",
+    "updated_at": "2026-10-06T07:38:04Z"
+  },
+  {
+    "name": "component-descriptors/acme.example/libs/core",
+    "package_type": "container",
+    "visibility": "public",
+    "updated_at": "2023-09-12T09:54:12Z"
+  },
+  {
+    "name": "docs/component-descriptors/github.com/acme-corp/docs-site",
+    "package_type": "container",
+    "visibility": "public",
+    "updated_at": "2023-09-13T18:14:10Z"
+  },
+  {
+    "name": "component-descriptors/acme.example/examples/demo",
+    "package_type": "container",
+    "visibility": "public",
+    "updated_at": "2024-06-27T13:31:34Z"
+  },
+  {
+    "name": "team-a/ocm/component-descriptors/acme.example/platform/agent",
+    "package_type": "container",
+    "visibility": "public",
+    "updated_at": "2024-10-15T13:44:43Z"
+  },
+  {
+    "name": "kubernetes/controller",
+    "package_type": "container",
+    "visibility": "public",
+    "updated_at": "2026-10-16T16:23:09Z"
+  },
+  {
+    "name": "cli",
+    "package_type": "container",
+    "visibility": "public",
+    "updated_at": "2026-10-16T16:19:19Z"
+  },
+  {
+    "name": "component-descriptors/acme.example/platform/gateway",
+    "package_type": "container",
+    "visibility": "public",
+    "updated_at": "2026-08-07T08:44:39Z"
+  },
+  {
+    "name": "component-descriptors/acme.example/platform/operator",
+    "package_type": "container",
+    "visibility": "public",
+    "updated_at": "2026-10-16T16:10:48Z"
+  },
+  {
+    "name": "component-descriptors/acme.example/tools/cli",
+    "package_type": "container",
+    "visibility": "public",
+    "updated_at": "2026-10-16T16:10:40Z"
+  },
+  {
+    "name": "component-descriptors/acme.example/shop/backend",
+    "package_type": "container",
+    "visibility": "private",
+    "updated_at": "2026-10-16T16:10:32Z"
+  },
+  {
+    "name": "component-descriptors/acme.example/shop/frontend",
+    "package_type": "container",
+    "visibility": "public",
+    "updated_at": "2026-10-16T16:10:20Z"
+  }
+]

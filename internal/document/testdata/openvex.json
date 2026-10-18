@@ -1,0 +1,12 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://example.com/vex/1",
+  "author": "Example",
+  "timestamp": "2026-01-01T00:00:00Z",
+  "version": 1,
+  "statements": [
+    {"vulnerability": {"name": "CVE-2026-0001"}, "products": [{"@id": "pkg:oci/app@sha256:aaa"}], "status": "not_affected", "justification": "vulnerable_code_not_present"},
+    {"vulnerability": {"name": "CVE-2026-0002"}, "products": [{"@id": "pkg:oci/app@sha256:aaa"}], "status": "affected", "action_statement": "Upgrade to 2.0"},
+    {"vulnerability": {"name": "CVE-2026-0003"}, "products": [{"@id": "pkg:oci/app@sha256:aaa"}, {"@id": "pkg:oci/other@sha256:bbb"}], "status": "fixed"}
+  ]
+}

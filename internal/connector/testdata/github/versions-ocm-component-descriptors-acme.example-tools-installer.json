@@ -1,0 +1,52 @@
+[
+  {
+    "name": "sha256:c61725f7f7359240aed97f5f7ee6371733adcb7c119a762a3f6f23a327ce521e",
+    "created_at": "2026-10-06T07:38:04Z",
+    "updated_at": "2026-10-06T07:38:04Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": [
+          "1.5.0"
+        ]
+      }
+    }
+  },
+  {
+    "name": "sha256:bdb34959e87a924002860dfe0d4cfc8bc56689d5bfe7ac5cf7f79e086daed975",
+    "created_at": "2026-10-05T12:01:19Z",
+    "updated_at": "2026-10-05T12:01:19Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": []
+      }
+    }
+  },
+  {
+    "name": "sha256:f104619cec4bed6f45ac6dbd8941349319f2f8d7c1c4539a609a4feaa8edb874",
+    "created_at": "2026-09-14T09:45:50Z",
+    "updated_at": "2026-09-14T09:45:50Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": [
+          "1.5.0-rc.1"
+        ]
+      }
+    }
+  },
+  {
+    "name": "sha256:7f7d9d9fac9c285367e6cb626733b4712b97f6856930c0f4e2acd628b5d0682e",
+    "created_at": "2026-08-09T13:12:28Z",
+    "updated_at": "2026-08-09T13:12:28Z",
+    "metadata": {
+      "package_type": "container",
+      "container": {
+        "tags": [
+          "1.4.0"
+        ]
+      }
+    }
+  }
+]

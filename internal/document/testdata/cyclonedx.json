@@ -1,0 +1,15 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "serialNumber": "urn:uuid:3e671687-395b-41f5-a30f-a58921a69b79",
+  "metadata": {"component": {"type": "application", "bom-ref": "app", "name": "app", "version": "1.0.0"}},
+  "components": [
+    {"type": "library", "bom-ref": "a", "name": "alpha", "version": "1.0.0", "purl": "pkg:npm/alpha@1.0.0",
+     "licenses": [{"license": {"id": "Apache-2.0"}}],
+     "components": [
+       {"type": "library", "bom-ref": "a-inner", "name": "alpha-inner", "version": "0.1.0", "purl": "pkg:npm/alpha-inner@0.1.0"}
+     ]},
+    {"type": "library", "bom-ref": "b", "name": "beta", "version": "2.0.0", "purl": "pkg:golang/example.com/beta@2.0.0"}
+  ]
+}
